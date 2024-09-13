@@ -18,6 +18,6 @@ const subDistrictSchema = new Schema({
 },{ timestamps: true }
 )
 
-const SubDistrict = mongoose.models.SubDistricts || mongoose.model("SubDistricts",subDistrictSchema);
+const SubDistricts = mongoose.models.subDistricts || mongoose.model("subDistricts",subDistrictSchema);
 
-export default SubDistrict
+export default SubDistricts

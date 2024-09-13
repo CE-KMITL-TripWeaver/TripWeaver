@@ -11,7 +11,7 @@ df = pd.read_csv('geocode.csv')
 client = MongoClient(os.getenv('MONGDB_URI'))
 print(os.getenv('MONGDB_URI'))
 db = client['tripweaver']
-table = db['subDistricts']
+table = db['subdistricts']
 
 zip_codes = df['zip_code']
 geo_codes = df['geo_code']
