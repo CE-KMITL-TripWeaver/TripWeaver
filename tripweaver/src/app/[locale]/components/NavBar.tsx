@@ -32,9 +32,12 @@ export default function NavBar() {
               </button>
             </div>
           </div>
-          <div className="flex w-[35%] flex-col justify-center">
-            <button className=" text-black py-2 px-4">
-            {t('createTrip')}
+          <div className="flex w-[35%] flex-row">
+            <button className="kanit text-black py-2 px-4">
+              {t('createTrip')}
+            </button>
+            <button className="kanit text-black py-2 px-4">
+              {t('myTrip')}
             </button>
           </div>
         </div>

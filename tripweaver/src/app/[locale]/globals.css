@@ -3,3 +3,10 @@
 @tailwind utilities;
 
 
+:root {
+    --font-mitr: 'kanit', sans-serif;
+}
+
+.kanit {
+    font-family: var(--font-kanit);
+}

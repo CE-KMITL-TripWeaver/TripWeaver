@@ -1,6 +1,13 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import './globals.css';
+import { Kanit } from 'next/font/google'
+
+const kanit = Kanit({
+  subsets: ["latin"],
+  variable: "--font-kanit",
+  weight: "300",
+});
 
 export default async function LocaleLayout({
   children,
@@ -13,7 +20,7 @@ export default async function LocaleLayout({
  
   return (
     <html lang={locale}>
-      <body>
+      <body className={`${kanit.variable}`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>
