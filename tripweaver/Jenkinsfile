@@ -10,7 +10,8 @@ pipeline {
         stage("Install Environment") {
             steps {
                 echo 'Installing Environment'
-                sh 'cd tripweaver/tripweaver'
+                sh 'cd tripweaver'
+                sh 'cd tripweaver'
                 sh 'npm install -g pnpm'
                 sh 'pnpm install'
                 sh 'pnpm run build'
