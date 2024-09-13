@@ -1,11 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import { Icon } from "@iconify/react";
 import {useTranslations} from 'next-intl';
 import SearchComponentElement from "./SearchComponentElement";
+import axios from "axios";
+
 
 interface SearchComponentProps {
   defaultValue: string;
+}
+
+interface Province {
+  name: string;
+  idRef: Number
 }
 
 export default function SearchComponent({
@@ -15,9 +22,44 @@ export default function SearchComponent({
     const t = useTranslations();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [provinceList, setProvinceList] = useState<Province[]>([]);
+  const [provinceFromQuery, setProvinceFromQuery] = useState<Province[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<string>(defaultValue);
 
   const handleClickOpen = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  useEffect(() => {
+    const filteredProvinces = provinceList.filter(province =>
+      province.name.startsWith(searchQuery)
+    );
+
+    setProvinceFromQuery(filteredProvinces)
+
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+       const response = await axios.post('http://localhost:3000/api/province/listProvince');
+       setProvinceList(response.data.provinces);
+       setProvinceFromQuery(response.data.provinces);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleSelectProvince = (name: string) => {
+    setSelectedProvince(name);
+    setIsOpen(false);
   };
 
   return (
@@ -25,22 +67,22 @@ export default function SearchComponent({
       <div className="flex flex-col relative w-72">
         <div className="flex px-10">
             <div
-            className="flex px-5 py-2.5 justify-center text-center items-center text-black shadow-xl bg-white rounded-2xl cursor-pointer"
+            className="flex px-5 py-2.5 justify-center text-center items-center text-black shadow-xl bg-white rounded-2xl cursor-pointer min-w-52"
             onClick={handleClickOpen}
             >
-            <div className="flex flex-row">
-                <div className="flex justify-center items-center mr-2">
-                <Icon
-                    icon="heroicons:map-pin"
-                    className="text-xl text-[#828282]"
-                />
-                </div>
-                <div className="flex kanit">{defaultValue}</div>
-                <div className=" flex items-center justify-center ml-2">
-                <Icon
-                    icon="icon-park-outline:down-c"
-                    className="text-lg text-[#828282] "
-                />
+            <div className="flex flex-row justify-between w-full">
+                <div className="flex justify-between items-center mr-2">
+                  <Icon
+                      icon="heroicons:map-pin"
+                      className="text-xl text-[#828282]"
+                  />
+                  </div>
+                  <div className="flex kanit">{selectedProvince}</div>
+                  <div className=" flex items-center justify-center ml-2">
+                  <Icon
+                      icon="icon-park-outline:down-c"
+                      className="text-lg text-[#828282] "
+                  />
                 </div>
             </div>
             </div>
@@ -59,21 +101,18 @@ export default function SearchComponent({
               id="search-comp"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full ps-10 p-2.5 focus:outline-none"
               placeholder={t('SearchComponent.infoSearch')}
+              onChange={handleInputChange}
             />
           </div>
           <div className="flex mt-2">
-                <ul className="overflow-y-auto h-48 w-full">
-                    <li><SearchComponentElement elementName={'ทดสอบ'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ2'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ3'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ4'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ5'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ6'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ7'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ8'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ9'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ10'}/></li>
-                    <li><SearchComponentElement elementName={'ทดสอบ11'}/></li>
+                <ul className="overflow-y-auto max-h-48 w-full">
+                    {
+                      provinceFromQuery.map((province, index) => (
+                        <li key={index}>
+                          <SearchComponentElement elementName={province.name} onClick={handleSelectProvince}/>
+                        </li>
+                      ))
+                    }
                 </ul>
           </div>
         </div>
