@@ -41,6 +41,19 @@ pipeline {
             }
         }
 
+        stage("Remove Old Docker Images") {
+            steps {
+                script {
+                    def imageIds = sh(script: 'docker images --filter "reference=tripweaver-image" -q', returnStdout: true).trim()
+
+                    if (imageIds) {
+                        sh "docker rmi ${imageIds}"
+                    } else {
+                        echo "No images with the name 'tripweaver-image' found."
+                    }
+                }
+            }
+        }
 
         stage("Prepare Backend Environment"){
             steps {
