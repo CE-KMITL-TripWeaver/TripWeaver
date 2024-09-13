@@ -3,17 +3,17 @@ import React from "react";
 import {useTranslations} from 'next-intl';
 
 export default function NavBar() {
-  const t = useTranslations('Navbar');
+  const t = useTranslations();
 
   return (
     <>
-      <div className="flex w-full p-5">
+      <div className="flex w-full px-20 py-5 bg-white">
         <div className="flex flex-row w-full">
           <div className="flex w-[30%]">TripWeaver</div>
           <div className="flex w-[35%] px-10">
             <div className="flex rounded-3xl overflow-hidden w-full font-[sans-serif] shadow-lg">
               <input
-                type="email"
+                type="text"
                 placeholder="Search Something..."
                 className="w-full outline-none bg-[#E9ECEE] text-sm px-5 py-3"
               />
@@ -34,10 +34,10 @@ export default function NavBar() {
           </div>
           <div className="flex w-[35%] flex-row">
             <button className="kanit text-black py-2 px-4">
-              {t('createTrip')}
+              {t('Navbar.createTrip')}
             </button>
             <button className="kanit text-black py-2 px-4">
-              {t('myTrip')}
+              {t('Navbar.myTrip')}
             </button>
           </div>
         </div>

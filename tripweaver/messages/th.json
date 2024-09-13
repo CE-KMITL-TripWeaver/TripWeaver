@@ -2,5 +2,12 @@
     "Navbar": {
       "createTrip": "สร้างทริป",
       "myTrip": "ทริปของฉัน"
+    },
+    "AttractionPages": {
+        "infoMain": "หน้าแรก >\u00A0",
+        "attraction": "สถานที่ท่องเที่ยว"
+    },
+    "SearchComponent": {
+      "infoSearch": "ค้นหาจังหวัด"
     }
   }
