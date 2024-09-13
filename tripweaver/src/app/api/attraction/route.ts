@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { connectMongoDB } from '../../../../lib/mongodb'
 import Attraction from '../../../../models/attraction'
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
     try {
         const { name, description, latitude, longitude, imgPath, phone, website, openingHour, attractionTag, location, rating } = await req.json();
         

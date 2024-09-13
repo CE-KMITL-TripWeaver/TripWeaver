@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import locationSchema from "../models/location" 
-import ratingSchema from "../models/rating"
+import locationSchema from "./location" 
+import ratingSchema from "./rating"
 
 const attractionTagSchema = new Schema({
     Tourism: { type: Number, default: 0 },
