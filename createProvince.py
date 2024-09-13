@@ -14,9 +14,7 @@ db = client['tripweaver']
 table = db['subDistricts']
 
 zip_codes = df['zip_code']
-
 geo_codes = df['geo_code']
-
 subDistrict_th = df['subDistrict_th']
 
 for geo_codes, zip_code, subDistrict_th in zip(geo_codes, zip_codes, subDistrict_th):
