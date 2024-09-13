@@ -12,6 +12,7 @@ pipeline {
                 echo 'Installing Environment'
                 sh 'cd tripweaver'
                 sh 'npm install -g pnpm'
+                sh 'ls -la'
                 sh 'pnpm install'
                 sh 'pnpm run build'
             }
