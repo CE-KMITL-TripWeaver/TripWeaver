@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs "NodeJS"
+    }
+
+    stages {
+
+        stage("Install Environment") {
+            steps {
+                echo 'Installing Environment'
+                sh 'cd tripweaver'
+                sh 'npm install -g pnpm'
+                sh 'pnpm install'
+                sh 'pnpm run build'
+            }
+        }
+
+        stage("Clear Running Docker Containers") {
+            steps {
+                script {
+                    def containerIds = sh(script: 'docker ps -a --filter "ancestor=tripweaver-image" -q', returnStdout: true).trim()
+
+                    if (containerIds) {
+                        sh "docker stop ${containerIds}"
+                        sh "docker rm ${containerIds}"
+                    } else {
+                        echo "No containers with the image 'tripweaver-image' found."
+                    }
+                }
+            }
+        }
+
+
+        stage("Prepare Backend Environment"){
+            steps {
+                echo 'Create .env file'
+                script {
+                    sh 'touch .env'
+                    sh '''
+                    echo "MONGDB_URI=${MONGDB_URI}" >> .env
+                    '''
+                }
+            }
+        }
+
+        stage("Deploy on Docker"){
+            steps {
+                echo 'Deploy TripWeaver on Docker'
+                sh 'docker build -t tripweaver-image .'
+                sh 'docker run -d -p 3000:3000 tripweaver-image'
+            }
+        }
+
+    }
+}
