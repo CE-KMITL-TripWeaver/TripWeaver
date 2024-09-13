@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server"
-import { connectMongoDB } from '../../../../lib/mongodb'
-import Province from '../../../../models/province'
+import { connectMongoDB } from '../../../../../lib/mongodb'
+import Province from '../../../../../models/province'
 
 export async function POST(req: NextRequest) {
     try {
