@@ -1,10 +1,15 @@
 import pandas as pd
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # อ่านไฟล์ CSV
 df = pd.read_csv('geocode.csv')
 
-client = MongoClient('mongodb://tripweaver:I0heIrF4h9D6@103.245.164.53:27017/tripweaver?authSource=admin')
+client = MongoClient(os.getenv('MONGDB_URI'))
+print(os.getenv('MONGDB_URI'))
 db = client['tripweaver']
 table = db['subDistricts']
 
