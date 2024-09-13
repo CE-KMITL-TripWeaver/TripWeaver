@@ -13,6 +13,14 @@ pipeline {
                     echo 'Installing Environment'
                     sh 'npm install -g pnpm'
                     sh 'pnpm install'
+                }
+            }
+        }
+
+        stage("Test Build") {
+            steps {
+                dir('tripweaver') {
+                    echo 'Test Build'
                     sh 'pnpm run build'
                 }
             }
@@ -36,23 +44,25 @@ pipeline {
 
         stage("Prepare Backend Environment"){
             steps {
-                echo 'Create .env file'
-                script {
+                dir('tripweaver') {
+                    echo 'Create .env file'
+                    script {
                     sh 'touch .env'
                     sh '''
                     echo "MONGDB_URI=${MONGDB_URI}" >> .env
                     '''
+                    }
                 }
             }
         }
 
         stage("Deploy on Docker"){
             steps {
-                echo 'Deploy TripWeaver on Docker'
-                sh 'docker build -t tripweaver-image .'
-                sh 'docker run -d -p 3000:3000 tripweaver-image'
+                dir('tripweaver') {
+                    echo 'Deploy TripWeaver on Docker'
+                    sh 'docker build -t tripweaver-image .'
+                    sh 'docker run -d -p 3000:3000 tripweaver-image'
+                }
             }
         }
-
-    }
 }
