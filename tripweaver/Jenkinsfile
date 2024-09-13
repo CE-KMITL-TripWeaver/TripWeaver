@@ -61,7 +61,7 @@ pipeline {
                 dir('tripweaver') {
                     echo 'Deploy TripWeaver on Docker'
                     sh 'docker build -t tripweaver-image .'
-                    sh 'docker run -d -p 3000:3000 -e TZ="Asia/Bangkok" tripweaver-image'
+                    sh 'docker run -d -p 3000:3000 tripweaver-image'
                 }
             }
         }
