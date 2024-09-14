@@ -1,7 +1,8 @@
 {
     "Navbar": {
       "createTrip": "สร้างทริป",
-      "myTrip": "ทริปของฉัน"
+      "myTrip": "ทริปของฉัน",
+      "login": "เข้าสู่ระบบ"
     },
     "AttractionPages": {
         "infoMain": "หน้าแรก >\u00A0",
