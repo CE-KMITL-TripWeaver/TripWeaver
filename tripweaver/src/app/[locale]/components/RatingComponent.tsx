@@ -31,7 +31,7 @@ export default function RatingComponent({ ratingProps, onCheckBoxSelect }: Ratin
     return (
         <>
             <div className="flex flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit p-5 w-full rounded-xl">
-                <div className="flex">
+                <div className="flex text-sm">
                     {t('AttractionPages.title_star')}
                 </div>
                 <div className="flex flex-col">

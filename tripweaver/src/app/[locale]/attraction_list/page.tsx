@@ -102,8 +102,13 @@ export default function Home() {
                     isStarComponent={true}
                     /> */}
                     <div className="flex flex-row">
-                        <div className="flex w-[14%]">   
-                            <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
+                        <div className="flex flex-col w-[14%]">
+                            <div className="flex mb-5">
+                                <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
+                            </div>
+                            <div className="flex mb-5">
+                                4544
+                            </div>
                         </div>
                         <div className="flex w-[86%]">
                             444
