@@ -49,8 +49,7 @@ export async function POST(req: NextRequest) {
                 ratingMap.set(rating, 0);
             }
         });
-        const attractionRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count }));
-
+        const attractionRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count })).sort((a, b) => b._id - a._id);
         return NextResponse.json({ attractionRatings }, {status: 201})
     } catch(error) {
         return NextResponse.json({ message: `An error occured while get data district ${error}`}, {status: 500})
