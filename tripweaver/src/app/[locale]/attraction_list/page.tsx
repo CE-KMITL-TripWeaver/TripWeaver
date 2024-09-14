@@ -4,7 +4,7 @@ import NavBar from "../components/NavBar";
 import {useTranslations} from 'next-intl';
 import SearchComponent from "../components/SearchComponent";
 import CheckBoxComponent from "../components/CheckBoxComponent";
-import RangeSliderComponent from "../components/RangeSliderComponent";
+import RatingComponent from "../components/RatingComponent";
 import District from '../interface/district'
 
 
@@ -63,6 +63,16 @@ export default function Home() {
                     gap={0}
                     isStarComponent={true}
                     /> */}
+                    <div className="flex flex-row">
+                        <div className="flex w-[15%]">
+                            
+                            {/*<RatingComponent elementName="ttt"/>*/}
+                        </div>
+                        <div className="flex w-[85%]">
+                            444
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
             
