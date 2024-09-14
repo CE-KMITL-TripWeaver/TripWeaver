@@ -5,8 +5,10 @@ import {useTranslations} from 'next-intl';
 import SearchComponent from "../components/SearchComponent";
 import CheckBoxComponent from "../components/CheckBoxComponent";
 import RatingComponent from "../components/RatingComponent";
+import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import District from '../interface/district'
 import Rating from "../interface/rating";
+import Tags from "../interface/tags";
 import axios from "axios";
 
 
@@ -16,6 +18,7 @@ export default function Home() {
     const [selectedProvince, setSelectedProvince] = useState("กรุงเทพมหานคร");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
+    const [tagsList, setTagList] = useState<Tags[]>([]);
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
@@ -29,14 +32,11 @@ export default function Home() {
         setRatingObject(ratings); 
     };
 
-    useEffect(() => {
-
-        console.log(ratingObject)
-
-    },[ratingObject])
+    const handleTag = (tags: Tags[]) => {
+        setTagList(tags); 
+    };
 
     useEffect(() => {
-        //console.log(selectedDistrict);
 
         if(selectedProvince && selectedDistrict) {
             const fetchData = async () => {
@@ -63,6 +63,27 @@ export default function Home() {
         }
 
     }, [selectedProvince,selectedDistrict]);
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            try {
+                const response = await axios.post('http://localhost:3000/api/attraction/tags');
+
+                const tagWithDefaultSelected = response.data.attractionTagKeys.map((tag: Tags) => ({
+                    name: tag,
+                    selected: false,
+                }));
+                
+                setTagList(tagWithDefaultSelected)
+
+            } catch(error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+
+    }, []);
 
     return (
         <>
@@ -91,23 +112,13 @@ export default function Home() {
                     <div className="flex kanit text-center text-xl font-bold mb-2">
                         {t('AttractionPages.filter')}
                     </div>
-                    {/*<RangeSliderComponent
-                    title={t('AttractionPages.title_star')}
-                    initialMin={1}
-                    initialMax={5}
-                    min={1}
-                    max={5}
-                    step={1}
-                    gap={0}
-                    isStarComponent={true}
-                    /> */}
                     <div className="flex flex-row">
                         <div className="flex flex-col w-[14%]">
                             <div className="flex mb-5">
                                 <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                             </div>
                             <div className="flex mb-5">
-                                4544
+                                <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
                             </div>
                         </div>
                         <div className="flex w-[86%]">

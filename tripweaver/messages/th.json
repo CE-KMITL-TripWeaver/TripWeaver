@@ -7,12 +7,51 @@
         "infoMain": "หน้าแรก >\u00A0",
         "attraction": "สถานที่ท่องเที่ยว",
         "filter": "กรองจาก",
-        "title_star": "เรตติ้ง"
+        "title_star": "เรตติ้ง",
+        "title_tags": "แท็ก"
     },
     "SearchComponent": {
       "infoSearch": "ค้นหาจังหวัด"
     },
     "CheckboxComponent": {
       "title": "อำเภอ / เขต"
+    },
+    "Tags": {
+      "Tourism": "Tourism",
+      "Adventure": "Adventure",
+      "Meditation": "Meditation",
+      "Art": "ศิลปะ",
+      "Cultural": "Cultural",
+      "Landscape": "Landscape",
+      "Nature": "Nature",
+      "Historical": "Historical",
+      "Cityscape": "Cityscape",
+      "Beach": "Beach",
+      "Mountain": "Mountain",
+      "Architecture": "Architecture",
+      "Temple": "Temple",
+      "WalkingStreet": "WalkingStreet",
+      "Market": "Market",
+      "Village": "Village",
+      "NationalPark": "NationalPark",
+      "Diving": "Diving",
+      "Snuggle": "Snuggle",
+      "Waterfall": "Waterfall",
+      "Island": "Island",
+      "Shopping": "Shopping",
+      "Camping": "Camping",
+      "Fog": "Fog",
+      "Cycling": "Cycling",
+      "Monument": "Monument",
+      "Zoo": "Zoo",
+      "Waterpark": "Waterpark",
+      "Hiking": "Hiking",
+      "Museum": "Museum",
+      "Riverside": "Riverside",
+      "NightLife": "NightLife",
+      "Family": "Family",
+      "Kid": "Kid",
+      "Landmark": "Landmark",
+      "Forest": "Forest"
     }
 }
