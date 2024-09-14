@@ -39,7 +39,7 @@ export default function Home() {
                     });
 
                     console.log(response.data);
-                    setRatingObject(response.data.attractionsStarResult.map((rating: any) => ({
+                    setRatingObject(response.data.attractionRatings.map((rating: any) => ({
                         star: rating._id,
                         count: rating.count,
                         selected: false
