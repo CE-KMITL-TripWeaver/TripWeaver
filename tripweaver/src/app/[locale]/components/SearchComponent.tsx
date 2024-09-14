@@ -8,18 +8,19 @@ import axios from "axios";
 
 interface SearchComponentProps {
   defaultValue: string;
+  onProvinceSelect: (province: string) => void;
 }
 
 interface Province {
   name: string;
-  idRef: Number
+  idRef: number
 }
 
 export default function SearchComponent({
-  defaultValue,
+  defaultValue, onProvinceSelect
 }: SearchComponentProps) {
   
-    const t = useTranslations();
+  const t = useTranslations();
 
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,15 +60,16 @@ export default function SearchComponent({
 
   const handleSelectProvince = (name: string) => {
     setSelectedProvince(name);
+    onProvinceSelect(name)
     setIsOpen(false);
   };
 
   return (
     <>
-      <div className="flex flex-col relative w-72">
-        <div className="flex px-10">
+      <div className="flex flex-col relative w-52">
+        <div className="flex justify-center">
             <div
-            className="flex px-5 py-2.5 justify-center text-center items-center text-black shadow-xl bg-white rounded-2xl cursor-pointer min-w-52"
+            className="flex px-2.5 py-2.5 justify-center text-center items-center text-black shadow-xl bg-white rounded-2xl cursor-pointer min-w-52"
             onClick={handleClickOpen}
             >
             <div className="flex flex-row justify-between w-full">

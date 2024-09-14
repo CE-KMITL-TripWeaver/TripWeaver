@@ -5,9 +5,14 @@
     },
     "AttractionPages": {
         "infoMain": "หน้าแรก >\u00A0",
-        "attraction": "สถานที่ท่องเที่ยว"
+        "attraction": "สถานที่ท่องเที่ยว",
+        "filter": "กรองจาก",
+        "title_star": "เรตติ้ง"
     },
     "SearchComponent": {
       "infoSearch": "ค้นหาจังหวัด"
+    },
+    "CheckboxComponent": {
+      "title": "อำเภอ / เขต"
     }
   }
