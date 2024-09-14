@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
                 ratingMap.set(rating, 0);
             }
         });
-        const attractionRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count })).sort((a, b) => a._id - b._id);;
+        const attractionRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count }));
 
         return NextResponse.json({ attractionRatings }, {status: 201})
     } catch(error) {
