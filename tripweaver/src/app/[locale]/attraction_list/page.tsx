@@ -25,6 +25,16 @@ export default function Home() {
         setSelectedDistrict(districts); 
     };
 
+    const handleRating = (ratings: Rating[]) => {
+        setRatingObject(ratings); 
+    };
+
+    useEffect(() => {
+
+        console.log(ratingObject)
+
+    },[ratingObject])
+
     useEffect(() => {
         //console.log(selectedDistrict);
 
@@ -38,7 +48,6 @@ export default function Home() {
                                     .map((district) => district.name)
                     });
 
-                    console.log(response.data);
                     setRatingObject(response.data.attractionRatings.map((rating: any) => ({
                         star: rating._id,
                         count: rating.count,
@@ -93,11 +102,10 @@ export default function Home() {
                     isStarComponent={true}
                     /> */}
                     <div className="flex flex-row">
-                        <div className="flex w-[15%]">
-                            
-                            <RatingComponent ratingProps={ratingObject}/>
+                        <div className="flex w-[14%]">   
+                            <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                         </div>
-                        <div className="flex w-[85%]">
+                        <div className="flex w-[86%]">
                             444
                         </div>
                     </div>

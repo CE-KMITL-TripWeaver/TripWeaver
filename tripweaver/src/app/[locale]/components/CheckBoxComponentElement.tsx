@@ -20,12 +20,11 @@ export default function CheckBoxComponentElement({ elementName, checked, onClick
                 onChange={handleCheckboxChange} 
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
             />
-            <label
-                htmlFor={`checkbox-item-${elementName}`}
+            <div
                 className="kanit w-full ms-2 text-sm font-medium rounded text-black cursor-pointer"
             >
                 {elementName} 
-            </label>
+            </div>
         </div>
     );
 }

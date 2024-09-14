@@ -1,37 +1,48 @@
-'use client'
-import React , { useState } from "react";
-import {useTranslations} from 'next-intl';
+import React, { useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 import Rating from "../interface/rating";
 import RatingComponentElement from "./RatingComponentElement";
 
 interface RatingComponentProps {
     ratingProps: Rating[]
+    onCheckBoxSelect: (districts: Rating[]) => void;
 }
 
-export default function RatingComponent({ratingProps}: RatingComponentProps) {
+export default function RatingComponent({ ratingProps, onCheckBoxSelect }: RatingComponentProps) {
     const t = useTranslations();
     const [ratings, setRatings] = useState<Rating[]>(ratingProps);
 
-    const handleCheckboxChange = (star: number) => {
-        setRatings((prevRatings) =>
-            prevRatings.map((rating) =>
-                rating.star === star
-                    ? { ...rating, selected: !rating.selected }
-                    : rating
-            )
-        );
+    useEffect(() => {
+        setRatings(ratingProps);
+    }, [ratingProps]);
+
+    const handleCheckboxClick = (star: number) => {
+
+        const updatedRating = ratings.map((rating) =>
+            rating.star === star
+              ? { ...rating, selected: !rating.selected } 
+              : rating
+          );
+          setRatings(updatedRating);
+          onCheckBoxSelect(updatedRating);
+    
     };
 
-    return(
+    return (
         <>
-            <div className="flex flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-2xl kanit p-5 w-full">
+            <div className="flex flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit p-5 w-full rounded-xl">
                 <div className="flex">
                     {t('AttractionPages.title_star')}
                 </div>
                 <div className="flex flex-col">
                     {
-                        ratingProps.map((rating,index) => (
-                            <RatingComponentElement key={index} ratingObject={rating} isSelect={rating.selected} onChange={handleCheckboxChange}/>
+                        ratings.map((rating, index) => (
+                            <RatingComponentElement
+                                key={index}
+                                ratingObject={rating}
+                                checked={rating.selected}
+                                onClick={handleCheckboxClick}
+                            />
                         ))
                     }
                 </div>
