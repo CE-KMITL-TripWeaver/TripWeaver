@@ -38,7 +38,7 @@ export default function Home() {
                                     .map((district) => district.name)
                     });
 
-                    console.log(response.data.attractionsStarResult);
+                    console.log(response.data);
                     setRatingObject(response.data.attractionsStarResult.map((rating: any) => ({
                         star: rating._id,
                         count: rating.count,
