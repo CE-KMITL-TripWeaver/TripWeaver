@@ -6,6 +6,8 @@ import SearchComponent from "../components/SearchComponent";
 import CheckBoxComponent from "../components/CheckBoxComponent";
 import RatingComponent from "../components/RatingComponent";
 import District from '../interface/district'
+import Rating from "../interface/rating";
+import axios from "axios";
 
 
 export default function Home() {
@@ -13,6 +15,7 @@ export default function Home() {
 
     const [selectedProvince, setSelectedProvince] = useState("กรุงเทพมหานคร");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
+    const [ratingObject, setRatingObject] = useState<Rating[]>([]);
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
@@ -24,7 +27,33 @@ export default function Home() {
 
     useEffect(() => {
         //console.log(selectedDistrict);
-    }, [selectedDistrict]);
+
+        if(selectedProvince && selectedDistrict) {
+            const fetchData = async () => {
+                try {
+                    const response = await axios.post('http://localhost:3000/api/attraction/rating', {
+                        provinceName: selectedProvince,
+                        districtList: selectedDistrict
+                                    .filter((district) => district.selected)
+                                    .map((district) => district.name)
+                    });
+
+                    console.log(response.data.attractionsStarResult);
+                    setRatingObject(response.data.attractionsStarResult.map((rating: any) => ({
+                        star: rating._id,
+                        count: rating.count,
+                        selected: false
+                    })))
+                    
+
+                } catch(error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+            fetchData();
+        }
+
+    }, [selectedProvince,selectedDistrict]);
 
     return (
         <>
@@ -66,7 +95,7 @@ export default function Home() {
                     <div className="flex flex-row">
                         <div className="flex w-[15%]">
                             
-                            {/*<RatingComponent elementName="ttt"/>*/}
+                            <RatingComponent ratingProps={ratingObject}/>
                         </div>
                         <div className="flex w-[85%]">
                             444

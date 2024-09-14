@@ -39,7 +39,19 @@ export async function POST(req: NextRequest) {
             }
         ])
 
-        return NextResponse.json({ attractionsStarResult }, {status: 201})
+        const allRatings = [1, 2, 3, 4, 5];
+        const ratingMap = new Map();
+        attractionsStarResult.forEach((item) => {
+            ratingMap.set(item._id, item.count);
+        });
+        allRatings.forEach((rating) => {
+            if (!ratingMap.has(rating)) {
+                ratingMap.set(rating, 0);
+            }
+        });
+        const updatedResult = Array.from(ratingMap, ([_id, count]) => ({ _id, count }));
+
+        return NextResponse.json({ updatedResult }, {status: 201})
     } catch(error) {
         return NextResponse.json({ message: `An error occured while get data district ${error}`}, {status: 500})
     }

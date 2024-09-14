@@ -3,17 +3,19 @@ import Rating from "../interface/rating";
 
 interface RatingComponentElementProps {
     ratingObject: Rating;
-    checked: boolean;
+    isSelect: boolean;
+    onChange: (star: number) => void;
 }
 
-export default function RatingComponentElement({ ratingObject, checked }: RatingComponentElementProps) {
+export default function RatingComponentElement({ ratingObject, isSelect, onChange }: RatingComponentElementProps) {
 
     return (
         <div className="flex items-center kanit py-2 mr-2 px-2 rounded-lg hover:bg-[#E9ECEE] cursor-pointer">
             <input
                 id={`checkbox-item-${ratingObject.star}`}
                 type="checkbox"
-                checked={checked}
+                checked={isSelect}
+                onChange={() => onChange(ratingObject.star)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
             />
             <label

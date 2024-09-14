@@ -1,4 +1,5 @@
-import React from "react";
+'use client'
+import React , { useState } from "react";
 import {useTranslations} from 'next-intl';
 import Rating from "../interface/rating";
 import RatingComponentElement from "./RatingComponentElement";
@@ -9,6 +10,17 @@ interface RatingComponentProps {
 
 export default function RatingComponent({ratingProps}: RatingComponentProps) {
     const t = useTranslations();
+    const [ratings, setRatings] = useState<Rating[]>(ratingProps);
+
+    const handleCheckboxChange = (star: number) => {
+        setRatings((prevRatings) =>
+            prevRatings.map((rating) =>
+                rating.star === star
+                    ? { ...rating, selected: !rating.selected }
+                    : rating
+            )
+        );
+    };
 
     return(
         <>
@@ -19,7 +31,7 @@ export default function RatingComponent({ratingProps}: RatingComponentProps) {
                 <div className="flex flex-col">
                     {
                         ratingProps.map((rating,index) => (
-                            <RatingComponentElement key={index} ratingObject={rating} checked={rating.selected}/>
+                            <RatingComponentElement key={index} ratingObject={rating} isSelect={rating.selected} onChange={handleCheckboxChange}/>
                         ))
                     }
                 </div>
