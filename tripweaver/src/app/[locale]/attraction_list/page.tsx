@@ -10,6 +10,7 @@ import SearchRadiusComponent from "../components/SearchRadiusComponent";
 import District from '../interface/district'
 import Rating from "../interface/rating";
 import Tags from "../interface/tags";
+import AttractionInfo from "../interface/attractionInfo";
 import axios from "axios";
 
 
@@ -18,11 +19,23 @@ export default function Home() {
 
     const [selectedProvince, setSelectedProvince] = useState("กรุงเทพมหานคร");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
+    const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
+    const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<string>("");
+
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
     const [tagsList, setTagList] = useState<Tags[]>([]);
+    const [searchRadiusMarker,setSearchRadiusMarker] = useState<AttractionInfo[]>([])
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
+    };
+
+    const handleMarkRadiusAttractionSelect = (markAttaction: string) => {
+        setSelectedMarkRadiusAttraction(markAttaction); 
+    };
+
+    const handleMarkRadiusValueSelect = (markValue: number) => {
+        setSelectedMarkRadiusValue(markValue); 
     };
 
     const handleDistrictSelect = (districts: District[]) => {
@@ -37,6 +50,14 @@ export default function Home() {
         setTagList(tags); 
     };
 
+    
+    useEffect(() => {
+
+        console.log(selectedMarkRadiusAttraction)
+        console.log(selectedMarkRadiusValue)
+
+    }, [selectedMarkRadiusValue,selectedMarkRadiusAttraction]);
+
     useEffect(() => {
 
         if(selectedProvince && selectedDistrict) {
@@ -48,6 +69,15 @@ export default function Home() {
                                     .filter((district) => district.selected)
                                     .map((district) => district.name)
                     });
+
+                    const attractionKeyListResponse = await axios.post('http://localhost:3000/api/attraction/getAttraction', {
+                        provinceName: selectedProvince,
+                        districtList: selectedDistrict
+                                    .filter((district) => district.selected)
+                                    .map((district) => district.name)
+                    });
+
+                    setSearchRadiusMarker(attractionKeyListResponse.data.attractions)
 
                     setRatingObject(response.data.attractionRatings.map((rating: any) => ({
                         star: rating._id,
@@ -113,7 +143,7 @@ export default function Home() {
                     <div className="flex kanit text-center text-xl font-bold mb-2">
                         {t('AttractionPages.filter')}
                     </div>
-                    <div className="flex flex-row">
+                    <div className="flex flex-row mb-64">
                         <div className="flex flex-col w-[15%]">
                             <div className="flex mb-5">
                                 <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
@@ -122,7 +152,7 @@ export default function Home() {
                                 <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
                             </div>
                             <div className="flex">
-                                <SearchRadiusComponent/>
+                                <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
                             </div>
                         </div>
                         <div className="flex w-[85%]">

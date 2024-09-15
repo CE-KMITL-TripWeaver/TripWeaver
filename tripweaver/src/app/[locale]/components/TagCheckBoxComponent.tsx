@@ -18,7 +18,6 @@ export default function TagCheckBoxComponent({
 
   useEffect(() => {
     setTagList(tagsList);
-    console.log("tags",tagsList)
   }, [tagsList]);
 
   const handleCheckboxClick = (tagsName: string) => {

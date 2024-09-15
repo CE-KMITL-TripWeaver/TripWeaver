@@ -10,13 +10,26 @@
         "title_star": "เรตติ้ง",
         "title_tags": "แท็ก",
         "title_search_radius": "ค้นหาตามระยะห่างจาก",
-        "placeholder_search_radius": "เช่น วัดพระนอนจักรสีห์วรวิหาร"
+        "placeholder_search_radius": "เช่น วัดพระนอนจักรสีห์วรวิหาร",
+        "subtitle_search_radius": "เลือกตำแหน่งที่ตั้งของคุณ",
+        "ranges": {
+          "5km": "5 กิโลเมตร",
+          "10km": "10 กิโลเมตร",
+          "15km": "15 กิโลเมตร",
+          "20km": "20 กิโลเมตร",
+          "30km": "30 กิโลเมตร",
+          "50km": "50 กิโลเมตร"
+        }
     },
     "SearchComponent": {
       "infoSearch": "ค้นหาจังหวัด"
     },
     "CheckboxComponent": {
       "title": "อำเภอ / เขต"
+    },
+    "Result": {
+      "search_not_found": "ไม่พบสถานที่",
+      "attraction_data_null": "สถานที่ท่องเที่ยวไม่พบในระบบ"
     },
     "Tags": {
       "Tourism": "Tourism",
