@@ -6,6 +6,7 @@ import SearchComponent from "../components/SearchComponent";
 import CheckBoxComponent from "../components/CheckBoxComponent";
 import RatingComponent from "../components/RatingComponent";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
+import SearchRadiusComponent from "../components/SearchRadiusComponent";
 import District from '../interface/district'
 import Rating from "../interface/rating";
 import Tags from "../interface/tags";
@@ -87,7 +88,7 @@ export default function Home() {
 
     return (
         <>
-            <div className="flex flex-col bg-[#F4F4F4] w-screen h-screen">
+            <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
                 <NavBar/> 
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
@@ -113,15 +114,18 @@ export default function Home() {
                         {t('AttractionPages.filter')}
                     </div>
                     <div className="flex flex-row">
-                        <div className="flex flex-col w-[14%]">
+                        <div className="flex flex-col w-[15%]">
                             <div className="flex mb-5">
                                 <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                             </div>
                             <div className="flex mb-5">
                                 <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
                             </div>
+                            <div className="flex">
+                                <SearchRadiusComponent/>
+                            </div>
                         </div>
-                        <div className="flex w-[86%]">
+                        <div className="flex w-[85%]">
                             444
                         </div>
                     </div>

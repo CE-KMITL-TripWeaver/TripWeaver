@@ -8,7 +8,9 @@
         "attraction": "สถานที่ท่องเที่ยว",
         "filter": "กรองจาก",
         "title_star": "เรตติ้ง",
-        "title_tags": "แท็ก"
+        "title_tags": "แท็ก",
+        "title_search_radius": "ค้นหาตามระยะห่างจาก",
+        "placeholder_search_radius": "เช่น วัดพระนอนจักรสีห์วรวิหาร"
     },
     "SearchComponent": {
       "infoSearch": "ค้นหาจังหวัด"
