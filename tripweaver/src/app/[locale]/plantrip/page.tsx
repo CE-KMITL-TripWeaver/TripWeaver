@@ -4,15 +4,11 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import locationPlaning from "../interface/locationPlan";
 
-//Map Lib
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
+import { MapUpdater } from "../components/MapUpdater";
 
-
-const MyComponent = dynamic(() => import('../components/MyComponent'), { ssr: false });
-
-// Dynamic imports for react-leaflet components
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -41,10 +37,8 @@ export default function Home() {
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
 
-
   useEffect(() => {
-    if (locationPlaning.length > 0) {
-      // Generate the URL based on the locations
+    if (locationPlaning.length > 1) {
       const coordinates = locationPlaning
         .map((loc) => `${loc.longitude},${loc.latitude}`)
         .join(";");
@@ -59,8 +53,6 @@ export default function Home() {
             const decodedPolyline = decodePolyline(geometry);
             setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
           }
-  
-          // Update waypoints based on locationPlaning data
           const updatedWaypoints = locationPlaning.map((loc) => [
             loc.latitude,
             loc.longitude,
@@ -70,6 +62,8 @@ export default function Home() {
         .catch((error) => {
           console.error("Error fetching route data:", error);
         });
+    } else if (locationPlaning.length == 1) {
+      setWaypoints([[locationPlaning[0].latitude,locationPlaning[0].longitude]]);
     }
   }, [locationPlaning]);
   
@@ -168,17 +162,16 @@ export default function Home() {
 
         <div className="flex w-[50%]">
          
-                              <MapContainer
+          <MapContainer
             center={[12.9228548, 100.8058747]}
             zoom={14}
             style={{ height: "100vh", width: "100%" }}
           >
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
             />
             {polyline.length > 0 && (
-              <Polyline positions={polyline} color="green" />
+              <Polyline positions={polyline} pathOptions={{ color: "green" }} />
             )}
             {waypoints.map((position, idx) => (
               <Marker
@@ -189,6 +182,7 @@ export default function Home() {
                 <Popup>{`Location ${idx + 1}`}</Popup>
               </Marker>
             ))}
+            <MapUpdater locationPlaning={locationPlaning} />
           </MapContainer>
         </div>
       </div>
