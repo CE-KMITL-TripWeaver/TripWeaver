@@ -2,6 +2,7 @@
 import React from "react";
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import Link from "next/link";
 
 export default function NavBar() {
   const t = useTranslations();
@@ -43,9 +44,11 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="kanit font-bold text-black py-2 px-4">
-            {t('Navbar.createTrip')}
-          </button>
+          <Link href="/plantrip" passHref>
+            <button className="kanit font-bold text-black py-2 px-4">
+              {t('Navbar.createTrip')}
+            </button>
+          </Link>
           <button className="kanit font-bold text-black py-2 px-4">
             {t('Navbar.myTrip')}
           </button>

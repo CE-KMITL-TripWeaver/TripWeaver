@@ -12,9 +12,9 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2(react@18.3.1)
       '@mapbox/polyline':
-    specifier: ^1.2.1
-    version: 1.2.1
-  axios:
+        specifier: ^1.2.1
+        version: 1.2.1
+      axios:
         specifier: ^1.7.7
         version: 1.7.7
       i18next:
@@ -48,28 +48,28 @@ importers:
       '@types/mapbox__polyline':
     specifier: ^1.0.5
     version: 1.0.5
-  '@types/node':
+    '@types/node':
         specifier: ^20
         version: 20.14.15
-      '@types/react':
+    '@types/react':
         specifier: ^18
         version: 18.3.3
-      '@types/react-dom':
+    '@types/react-dom':
         specifier: ^18
         version: 18.3.0
-      eslint:
+    eslint:
         specifier: ^8
         version: 8.57.0
-      eslint-config-next:
+    eslint-config-next:
         specifier: 14.2.5
         version: 14.2.5(eslint@8.57.0)(typescript@5.5.4)
-      postcss:
+    postcss:
         specifier: ^8
         version: 8.4.41
-      tailwindcss:
+    tailwindcss:
         specifier: ^3.4.1
         version: 3.4.10
-      typescript:
+    typescript:
         specifier: ^5
         version: 5.5.4
 
