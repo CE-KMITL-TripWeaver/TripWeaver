@@ -7,11 +7,11 @@ export default function NavBar() {
   const t = useTranslations();
 
   return (
-    <nav className="flex w-full px-20 py-5 bg-white">
+    <nav className="flex w-full px-20 py-3 bg-white">
       <div className="flex flex-row items-center justify-between w-full">
         <a href="/" className="flex items-center">
           <Image
-            src="https://media.discordapp.net/attachments/223082944921731072/1284574096595877989/tripweaver-high-resolution-logo-transparent.png?ex=66e7205a&is=66e5ceda&hm=8cb19deca992ff1a7be032772bb4d2593dd433a604e036e7871cad8a87848790&=&format=webp&quality=lossless&width=1435&height=271"
+            src="https://img2.pic.in.th/pic/tripweaver-high-resolution-logo-transparent.png"
             alt="TripWeaver Logo"
             unoptimized
             width={200}
