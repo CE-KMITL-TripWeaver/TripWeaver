@@ -4,6 +4,16 @@
       "myTrip": "ทริปของฉัน",
       "login": "เข้าสู่ระบบ"
     },
+    "MainPage":{
+      "attraction": "ที่เที่ยว",
+      "accommodation": "ที่พัก",
+      "restaurant": "ร้านอาหาร",
+      "article": "บทความ",
+      "recommendAttraction": "ที่เที่ยวแนะนำ",
+      "recommendAccommodation": "ที่พักแนะนำ",
+      "recommendRestaurant": "ร้านอาหารแนะนำ",
+      "see_more": "ดูเพิ่มเติม"
+    },
     "AttractionPages": {
         "infoMain": "หน้าแรก >\u00A0",
         "attraction": "สถานที่ท่องเที่ยว",
