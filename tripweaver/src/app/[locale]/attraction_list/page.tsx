@@ -4,8 +4,14 @@ import NavBar from "../components/NavBar";
 import {useTranslations} from 'next-intl';
 import SearchComponent from "../components/SearchComponent";
 import CheckBoxComponent from "../components/CheckBoxComponent";
-import RangeSliderComponent from "../components/RangeSliderComponent";
+import RatingComponent from "../components/RatingComponent";
+import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
+import SearchRadiusComponent from "../components/SearchRadiusComponent";
 import District from '../interface/district'
+import Rating from "../interface/rating";
+import Tags from "../interface/tags";
+import AttractionInfo from "../interface/attractionInfo";
+import axios from "axios";
 
 
 export default function Home() {
@@ -13,22 +19,106 @@ export default function Home() {
 
     const [selectedProvince, setSelectedProvince] = useState("กรุงเทพมหานคร");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
+    const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
+    const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<string>("");
+
+    const [ratingObject, setRatingObject] = useState<Rating[]>([]);
+    const [tagsList, setTagList] = useState<Tags[]>([]);
+    const [searchRadiusMarker,setSearchRadiusMarker] = useState<AttractionInfo[]>([])
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
+    };
+
+    const handleMarkRadiusAttractionSelect = (markAttaction: string) => {
+        setSelectedMarkRadiusAttraction(markAttaction); 
+    };
+
+    const handleMarkRadiusValueSelect = (markValue: number) => {
+        setSelectedMarkRadiusValue(markValue); 
     };
 
     const handleDistrictSelect = (districts: District[]) => {
         setSelectedDistrict(districts); 
     };
 
+    const handleRating = (ratings: Rating[]) => {
+        setRatingObject(ratings); 
+    };
+
+    const handleTag = (tags: Tags[]) => {
+        setTagList(tags); 
+    };
+
+    
     useEffect(() => {
-        //console.log(selectedDistrict);
-    }, [selectedDistrict]);
+
+        console.log(selectedMarkRadiusAttraction)
+        console.log(selectedMarkRadiusValue)
+
+    }, [selectedMarkRadiusValue,selectedMarkRadiusAttraction]);
+
+    useEffect(() => {
+
+        if(selectedProvince && selectedDistrict) {
+            const fetchData = async () => {
+                try {
+                    const response = await axios.post('http://localhost:3000/api/attraction/rating', {
+                        provinceName: selectedProvince,
+                        districtList: selectedDistrict
+                                    .filter((district) => district.selected)
+                                    .map((district) => district.name)
+                    });
+
+                    const attractionKeyListResponse = await axios.post('http://localhost:3000/api/attraction/getAttraction', {
+                        provinceName: selectedProvince,
+                        districtList: selectedDistrict
+                                    .filter((district) => district.selected)
+                                    .map((district) => district.name)
+                    });
+
+                    setSearchRadiusMarker(attractionKeyListResponse.data.attractions)
+
+                    setRatingObject(response.data.attractionRatings.map((rating: any) => ({
+                        star: rating._id,
+                        count: rating.count,
+                        selected: false
+                    })))
+                    
+
+                } catch(error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+            fetchData();
+        }
+
+    }, [selectedProvince,selectedDistrict]);
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            try {
+                const response = await axios.post('http://localhost:3000/api/attraction/tags');
+
+                const tagWithDefaultSelected = response.data.attractionTagKeys.map((tag: Tags) => ({
+                    name: tag,
+                    selected: false,
+                }));
+                
+                setTagList(tagWithDefaultSelected)
+
+            } catch(error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+
+    }, []);
 
     return (
         <>
-            <div className="flex flex-col bg-[#F4F4F4] w-screen h-screen">
+            <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
                 <NavBar/> 
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
@@ -53,16 +143,23 @@ export default function Home() {
                     <div className="flex kanit text-center text-xl font-bold mb-2">
                         {t('AttractionPages.filter')}
                     </div>
-                    {/*<RangeSliderComponent
-                    title={t('AttractionPages.title_star')}
-                    initialMin={1}
-                    initialMax={5}
-                    min={1}
-                    max={5}
-                    step={1}
-                    gap={0}
-                    isStarComponent={true}
-                    /> */}
+                    <div className="flex flex-row mb-64">
+                        <div className="flex flex-col w-[15%]">
+                            <div className="flex mb-5">
+                                <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
+                            </div>
+                            <div className="flex mb-5">
+                                <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
+                            </div>
+                            <div className="flex">
+                                <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
+                            </div>
+                        </div>
+                        <div className="flex w-[85%]">
+                            444
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
             

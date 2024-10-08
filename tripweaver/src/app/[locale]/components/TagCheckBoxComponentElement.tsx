@@ -1,20 +1,23 @@
 import React from "react";
+import {useTranslations} from 'next-intl';
 
-interface CheckBoxComponentElementProps {
-    elementName: string;
+interface TagsCheckboxComponentElementProps {
+    name: string;
     checked: boolean;
     onClick: (name: string) => void;
 }
 
-export default function CheckBoxComponentElement({ elementName, checked, onClick }: CheckBoxComponentElementProps) {
+export default function TagCheckBoxComponentElement({ name, checked, onClick }: TagsCheckboxComponentElementProps) {
+    const t = useTranslations();
+
     const handleCheckboxChange = () => {
-        onClick(elementName); 
+        onClick(name); 
     };
 
     return (
         <div className="flex items-center kanit py-2 mr-2 px-2 rounded-lg hover:bg-[#E9ECEE] cursor-pointer" onClick={handleCheckboxChange}>
             <input
-                id={`checkbox-item-${elementName}`}
+                id={`checkbox-item-${name}`}
                 type="checkbox"
                 checked={checked}
                 onChange={handleCheckboxChange} 
@@ -23,7 +26,7 @@ export default function CheckBoxComponentElement({ elementName, checked, onClick
             <div
                 className="kanit w-full ms-2 text-sm font-medium rounded text-black cursor-pointer"
             >
-                {elementName} 
+                {t(`Tags.${name}`)}
             </div>
         </div>
     );

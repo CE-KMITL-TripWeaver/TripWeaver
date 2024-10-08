@@ -6,10 +6,10 @@ import SubDistricts from '../../../../../models/subDistrict'
 export async function POST(req: NextRequest) {
     try {
 
-        const { DistrictName } = await req.json();
+        const { DistrictName, DistrictID } = await req.json();
         await connectMongoDB();
 
-        const district = await District.findOne({name: DistrictName});
+        const district = await District.findOne({name: DistrictName, idRef: DistrictID});
 
         if (!district) {
             return NextResponse.json({ message: `data subdistrict not found`}, {status: 404})

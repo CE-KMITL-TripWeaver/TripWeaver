@@ -18,12 +18,66 @@
         "infoMain": "หน้าแรก >\u00A0",
         "attraction": "สถานที่ท่องเที่ยว",
         "filter": "กรองจาก",
-        "title_star": "เรตติ้ง"
+        "title_star": "เรตติ้ง",
+        "title_tags": "แท็ก",
+        "title_search_radius": "ค้นหาตามระยะห่างจาก",
+        "placeholder_search_radius": "เช่น วัดพระนอนจักรสีห์วรวิหาร",
+        "subtitle_search_radius": "เลือกตำแหน่งที่ตั้งของคุณ",
+        "ranges": {
+          "5km": "5 กิโลเมตร",
+          "10km": "10 กิโลเมตร",
+          "15km": "15 กิโลเมตร",
+          "20km": "20 กิโลเมตร",
+          "30km": "30 กิโลเมตร",
+          "50km": "50 กิโลเมตร"
+        }
     },
     "SearchComponent": {
       "infoSearch": "ค้นหาจังหวัด"
     },
     "CheckboxComponent": {
       "title": "อำเภอ / เขต"
+    },
+    "Result": {
+      "search_not_found": "ไม่พบสถานที่",
+      "attraction_data_null": "สถานที่ท่องเที่ยวไม่พบในระบบ"
+    },
+    "Tags": {
+      "Tourism": "Tourism",
+      "Adventure": "Adventure",
+      "Meditation": "Meditation",
+      "Art": "ศิลปะ",
+      "Cultural": "Cultural",
+      "Landscape": "Landscape",
+      "Nature": "Nature",
+      "Historical": "Historical",
+      "Cityscape": "Cityscape",
+      "Beach": "Beach",
+      "Mountain": "Mountain",
+      "Architecture": "Architecture",
+      "Temple": "Temple",
+      "WalkingStreet": "WalkingStreet",
+      "Market": "Market",
+      "Village": "Village",
+      "NationalPark": "NationalPark",
+      "Diving": "Diving",
+      "Snuggle": "Snuggle",
+      "Waterfall": "Waterfall",
+      "Island": "Island",
+      "Shopping": "Shopping",
+      "Camping": "Camping",
+      "Fog": "Fog",
+      "Cycling": "Cycling",
+      "Monument": "Monument",
+      "Zoo": "Zoo",
+      "Waterpark": "Waterpark",
+      "Hiking": "Hiking",
+      "Museum": "Museum",
+      "Riverside": "Riverside",
+      "NightLife": "NightLife",
+      "Family": "Family",
+      "Kid": "Kid",
+      "Landmark": "Landmark",
+      "Forest": "Forest"
     }
-  }
+}

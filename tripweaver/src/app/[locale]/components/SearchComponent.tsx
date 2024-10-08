@@ -96,7 +96,7 @@ export default function SearchComponent({
         >
           <div className="relative w-full">
             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <Icon icon="material-symbols:search" className='text-2xl text-[#828282]' />
+                <Icon icon="materiasymbols:search" classNal-me='text-2xl text-[#828282]' />
             </div>
             <input
               type="text"
