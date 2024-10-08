@@ -20,7 +20,7 @@ export default function MainCarousel() {
   }, [images.length]);
 
   return (
-    <div className="relative w-full h-[420px] overflow-hidden">
+    <div className="relative w-full h-[350px] overflow-hidden">
       {images.map((image, index) => (
         <div
           key={index}
