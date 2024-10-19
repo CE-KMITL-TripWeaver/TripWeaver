@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import locationPlaning from "../interface/locationPlan";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
@@ -36,6 +37,28 @@ export default function Home() {
   const [longitude, setLongitude] = useState<number | "">("");
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
+
+  const onDragEnd = (result: any) => {
+    const { destination, source } = result;
+
+    if (!destination) return;
+
+    const reorderedItems = [...locationPlaning];
+    const [removed] = reorderedItems.splice(source.index, 1);
+    reorderedItems.splice(destination.index, 0, removed);
+
+    setLocationPlanning(reorderedItems);
+    updateWaypoints(reorderedItems);
+  };
+
+  const updateWaypoints = (newLocations: typeof locationPlaning) => {
+    const newWaypoints = newLocations.map((loc) => [
+      loc.latitude,
+      loc.longitude,
+    ]);
+    setWaypoints(newWaypoints);
+    setPolyline(newWaypoints);
+  };
 
   useEffect(() => {
     if (locationPlaning.length > 1) {
@@ -151,13 +174,36 @@ export default function Home() {
             Submit
           </button>
           <h2 className="text-white p-4">Location Planning Data</h2>
-          <ul className="text-black p-4">
-            {locationPlaning.map((location, index) => (
-              <li key={index}>
-                {location.name} - ({location.latitude}, {location.longitude})
-              </li>
-            ))}
-          </ul>
+
+          {/* Drag and Drop List */}
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="locations">
+              {(provided) => (
+                <ul
+                  className="characters text-black p-4"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  {locationPlaning.map((location, index) => (
+                    <Draggable key={location.name} draggableId={location.name} index={index}>
+                      {(provided) => (
+                        <li
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="border p-2 mb-2 bg-white rounded"
+                        >
+                          {location.name} - ({location.latitude}, {location.longitude})
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </ul>
+              )}
+            </Droppable>
+          </DragDropContext>
+
         </div>
 
         <div className="flex w-[50%]">
