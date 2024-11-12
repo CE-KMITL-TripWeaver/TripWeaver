@@ -5,7 +5,9 @@
     },
     "AttractionPages": {
         "infoMain": "หน้าแรก >\u00A0",
-        "attraction": "สถานที่ท่องเที่ยว",
+        "attraction": "สถานที่ท่องเที่ยวในภูเก็ต >\u00A0",
+        "restaurant": "ร้านอาหารในภูเก็ต >\u00A0",
+        "accommodation": "ที่พักในภูเก็ต >\u00A0",
         "filter": "กรองจาก",
         "title_star": "เรตติ้ง"
     },
@@ -14,5 +16,18 @@
     },
     "CheckboxComponent": {
       "title": "อำเภอ / เขต"
+    },
+    "DetailPages":{
+      "map":"ตำแหน่งบนแผนที่",
+      "info":"รายละเอียด",
+      "facilities":"สิ่งอำนวยความสะดวก",
+      "editInfo":"เสนอให้แก้ไขข้อมูล",
+      "addToTrip":"เพิ่มในทริป",
+      "like" : "ถูกใจสถานที่",
+      "ticketPrice" :"ราคาบัตรเข้าชม",
+      "priceRange" :"ช่วงราคา",
+      "contact": "ช่องทางการติดต่อ",
+      "review" : "รีวิวและความคิดเห็น",
+      "openHour" : "วันเวลาเปิด-ปิด"
     }
   }

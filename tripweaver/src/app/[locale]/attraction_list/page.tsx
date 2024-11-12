@@ -28,7 +28,7 @@ export default function Home() {
 
     return (
         <>
-            <div className="flex flex-col bg-[#F4F4F4] w-screen h-screen">
+            <div className="flex flex-col bg-[#F4F4F4] w-screen h-full">
                 <NavBar/> 
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
