@@ -8,6 +8,7 @@ import { useSession, signOut } from 'next-auth/react';
 export default function NavBar() {
   const t = useTranslations();
   const { data: session } = useSession();
+  const user = session?.user as { name: string; email: string; image: string; role: string };
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -80,9 +81,9 @@ export default function NavBar() {
                 onClick={handleDropdownToggle}
                 className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl"
               >
-                {session?.user?.image ? (
+                {user.image ? (
                   <Image
-                    src={session.user.image}
+                    src={user.image}
                     alt="User Profile"
                     width={24}
                     height={24}
@@ -101,7 +102,7 @@ export default function NavBar() {
                     </g>
                   </svg>
                 )}
-                <span>{session?.user?.name}</span>
+                <span>{user.name}</span>
               </button>
 
               {isDropdownOpen && (
@@ -111,6 +112,13 @@ export default function NavBar() {
                       โปรไฟล์ของฉัน
                     </button>
                   </Link>
+                  {user.role === "admin" && (
+                    <Link href="/admin" passHref>
+                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit">
+                        จัดการเว็บไซต์
+                      </button>
+                    </Link>
+                  )}
                   <button
                     onClick={() => signOut()}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit"
