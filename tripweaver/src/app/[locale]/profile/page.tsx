@@ -113,8 +113,9 @@ const Sidebar = ({
 
 const ProfileContent = () => (
   <div className="flex">
+    {/* information */}
     <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
-      <div className="border-2 w-64 h-64 border-red-200 rounded-full m-3">
+      <div className="m-3">
         <Image
           src={profile.image}
           alt={profile.name}
@@ -140,8 +141,154 @@ const ProfileContent = () => (
         Weaver Point : {profile.point}
       </div>
     </div>
-    <div className="flex mt-8 ml-2">
-      <div className="flex kanit text-2xl font-bold border-2 border-gray-200 ml-2">ทริปล่าสุด</div>
+    {/* activity */}
+    <div className="flex flex-col">
+      {/* trip */}
+      <div className="flex flex-col mt-8 ml-2  p-2 h-fit">
+        <div className="flex kanit text-2xl font-bold">ทริปล่าสุด</div>
+        <div className="flex mt-2">
+          <div className="flex">
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋ผจญภัย 1</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋ผจญภัย 2</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋ผจญภัย 3</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋ผจญภัย 4</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+                <Icon icon="grommet-icons:form-next" />
+              </div>
+              <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
+            </a>
+          </div>
+        </div>
+      </div>
+      {/* blog */}
+      <div className="flex flex-col mt-8 ml-2  p-2 h-fit">
+        <div className="flex kanit text-2xl font-bold">บล็อกล่าสุด</div>
+        <div className="flex mt-2">
+          <div className="flex">
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋พาเที่ยว 1</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋พาเที่ยว 2</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋พาเที่ยว 3</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={profile.image}
+                alt={profile.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">ไต๋พาเที่ยว 4</div>
+            </a>
+            <a
+              href="#"
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+                <Icon icon="grommet-icons:form-next" />
+              </div>
+              <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 );
