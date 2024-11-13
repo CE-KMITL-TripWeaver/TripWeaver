@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import Tags from "../interface/tags";
+import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
 
 const profile = {
@@ -293,32 +295,66 @@ const ProfileContent = () => (
   </div>
 );
 
-const TripContent = () => (
-  <div className="Information flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
-    <div className="flex kanit font-bold text-2xl">Trip Content</div>
+const TripContent = ({
+  tagsList,
+  handleTag,
+}: {
+  tagsList: Tags[];
+  handleTag: (tags: Tags[]) => void;
+}) => (
+  <div className="flex flex-col items-center kanit rounded-md mt-8 ml-8">
+    <div className="flex mb-5">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
+    </div>
   </div>
 );
 
 const BlogContent = () => (
-  <div className="Information flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
+  <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
     <div className="flex kanit font-bold text-2xl">Blog Content</div>
   </div>
 );
 
 const PlacesContent = () => (
-  <div className="Information flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
+  <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
     <div className="flex kanit font-bold text-2xl">Places Content</div>
   </div>
 );
 
 const InterestsContent = () => (
-  <div className="Information flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
+  <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
     <div className="flex kanit font-bold text-2xl">Interests Content</div>
   </div>
 );
 
 export default function Profile() {
   const t = useTranslations();
+  const [tagsList, setTagList] = useState<Tags[]>([]);
+  const handleTag = (tags: Tags[]) => {
+    setTagList(tags);
+  };
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/api/attraction/tags');
+
+            const tagWithDefaultSelected = response.data.attractionTagKeys.map((tag: Tags) => ({
+                name: tag,
+                selected: false,
+            }));
+            
+            setTagList(tagWithDefaultSelected)
+
+        } catch(error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+    fetchData();
+
+}, []);
+
   const [selectedContent, setSelectedContent] = useState("profile");
 
   const renderContent = () => {
@@ -326,7 +362,7 @@ export default function Profile() {
       case "profile":
         return <ProfileContent />;
       case "trip":
-        return <TripContent />;
+        return <TripContent tagsList={tagsList} handleTag={handleTag} />;
       case "blog":
         return <BlogContent />;
       case "places":
