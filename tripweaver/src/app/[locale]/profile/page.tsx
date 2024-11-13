@@ -21,7 +21,7 @@ const Sidebar = ({
   setSelectedContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
-    <div className="sidebar w-20 h-full bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300">
+    <div className="sidebar w-20 h-[calc(100vh-68px)] bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300">
       <ul className="space-y-2 h-screen">
         <li className="relative group">
           <a
@@ -380,7 +380,7 @@ export default function Profile() {
         <NavBar />
         <div className="flex flex-row">
           <Sidebar setSelectedContent={setSelectedContent} />
-          <div className="p-4">{renderContent()}</div>
+          <div className="p-4 h-full">{renderContent()}</div>
         </div>
       </div>
     </>
