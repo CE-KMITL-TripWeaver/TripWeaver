@@ -37,6 +37,26 @@ const recentTrip = [
     image: "https://img2.pic.in.th/pic/panat.jpg",
     id: 4,
   },
+  {
+    name: "ไต๋ผจญภัย 5",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 5,
+  },
+  {
+    name: "ไต๋ผจญภัย 6",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 6,
+  },
+  {
+    name: "ไต๋ผจญภัย 7",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 7,
+  },
+  {
+    name: "ไต๋ผจญภัย 8",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 8,
+  },
 ];
 
 const recentBlog = [
@@ -59,6 +79,26 @@ const recentBlog = [
     name: "ไต๋พาเที่ยว 4",
     image: "https://img2.pic.in.th/pic/panat.jpg",
     id: 4,
+  },
+  {
+    name: "ไต๋พาเที่ยว 5",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 5,
+  },
+  {
+    name: "ไต๋พาเที่ยว 6",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 6,
+  },
+  {
+    name: "ไต๋พาเที่ยว 7",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 7,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image: "https://img2.pic.in.th/pic/panat.jpg",
+    id: 8,
   },
 ];
 
@@ -158,7 +198,7 @@ const Sidebar = ({
 const ProfileContent = () => (
   <div className="flex">
     {/* information */}
-    <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8 shadow-md">
+    <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8 shadow-lg">
       <div className="m-3">
         <Image
           src={profile.image}
@@ -191,41 +231,87 @@ const ProfileContent = () => (
       <div className="flex flex-col mt-8 ml-2  p-2 h-fit">
         <div className="flex kanit text-2xl font-bold">ทริปล่าสุด</div>
         <div className="flex mt-2">
-        {recentTrip.map((trip, index) => (
-          <a
-            key={index}
-            href={`/trip/${trip.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={trip.image}
-              alt={trip.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{trip.name}</div>
-          </a>
-        ))}
-        <a
-              href="#"
+          {recentTrip.slice(0, 4).map((trip, index) => (
+            <a
+              key={index}
+              href={`/trip/${trip.id}`}
               className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
             >
-              <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
-                <Icon icon="grommet-icons:form-next" />
-              </div>
-              <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
+              <Image
+                src={trip.image}
+                alt={trip.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">{trip.name}</div>
             </a>
-      </div>
-
-
+          ))}
+          <a
+            href="#"
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+              <Icon icon="grommet-icons:form-next" />
+            </div>
+            <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
+          </a>
+        </div>
       </div>
       {/* blog */}
       <div className="flex flex-col mt-8 ml-2  p-2 h-fit">
         <div className="flex kanit text-2xl font-bold">บล็อกล่าสุด</div>
         <div className="flex mt-2">
-        {recentBlog.map((blog, index) => (
+          {recentBlog.slice(0, 4).map((blog, index) => (
+            <a
+              key={index}
+              href={`#/trip/${blog.id}`}
+              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+            >
+              <Image
+                src={blog.image}
+                alt={blog.name}
+                width={256}
+                height={256}
+                unoptimized
+                className="h-36 rounded-lg"
+              />
+              <div className="flex kanit text-lg mt-3">{blog.name}</div>
+            </a>
+          ))}
+          <a
+            href={`#`}
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+              <Icon icon="grommet-icons:form-next" />
+            </div>
+            <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TripContent = ({
+  tagsList,
+  handleTag,
+}: {
+  tagsList: Tags[];
+  handleTag: (tags: Tags[]) => void;
+}) => (
+  <div className="flex kanit rounded-md mt-8 ml-8">
+    <div className="flex mb-5 mt-14 h-fit">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
+    </div>
+    <div className="flex flex-col">
+      <div className="flex flex-col">
+        <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+      </div>
+      <div className="grid grid-cols-5 gap-4 mt-2">
+        {recentTrip.map((blog, index) => (
           <a
             key={index}
             href={`#/trip/${blog.id}`}
@@ -243,33 +329,14 @@ const ProfileContent = () => (
           </a>
         ))}
         <a
-              href={`#`}
-              className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-            >
-              <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
-                <Icon icon="grommet-icons:form-next" />
-              </div>
-              <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
-            </a>
+            href={`#`}
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <div className="flex kanit justify-center items-center bg-gray-300 text-6xl h-full rounded-lg">
+            <Icon icon="carbon:add-filled" />
+            </div>
+          </a>
       </div>
-      </div>
-    </div>
-  </div>
-);
-
-const TripContent = ({
-  tagsList,
-  handleTag,
-}: {
-  tagsList: Tags[];
-  handleTag: (tags: Tags[]) => void;
-}) => (
-  <div className="flex kanit rounded-md mt-8 ml-8">
-    <div className="flex mb-5">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
-    </div>
-    <div className="flex flex-col">
-      <div className="flex kanit font-bold text-2xl ml-3">ทริปของฉัน</div>
     </div>
   </div>
 );
