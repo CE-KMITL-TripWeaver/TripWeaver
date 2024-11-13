@@ -311,7 +311,53 @@ const TripContent = ({
         <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
       </div>
       <div className="grid grid-cols-5 gap-4 mt-2">
-        {recentTrip.map((blog, index) => (
+        {recentTrip.map((trip, index) => (
+          <a
+            key={index}
+            href={`#/trip/${trip.id}`}
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <Image
+              src={trip.image}
+              alt={trip.name}
+              width={256}
+              height={256}
+              unoptimized
+              className="h-36 rounded-lg"
+            />
+            <div className="flex kanit text-lg mt-3">{trip.name}</div>
+          </a>
+        ))}
+        <a
+            href={`#`}
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <div className="flex kanit justify-center items-center bg-gray-300 text-6xl h-full rounded-lg">
+            <Icon icon="carbon:add-filled" />
+            </div>
+          </a>
+      </div>
+    </div>
+  </div>
+);
+
+const BlogContent = ({
+  tagsList,
+  handleTag,
+}: {
+  tagsList: Tags[];
+  handleTag: (tags: Tags[]) => void;
+}) => (
+  <div className="flex kanit rounded-md mt-8 ml-8">
+    <div className="flex mb-5 mt-14 h-fit">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
+    </div>
+    <div className="flex flex-col">
+      <div className="flex flex-col">
+        <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
+      </div>
+      <div className="grid grid-cols-5 gap-4 mt-2">
+        {recentBlog.map((blog, index) => (
           <a
             key={index}
             href={`#/trip/${blog.id}`}
@@ -341,12 +387,6 @@ const TripContent = ({
   </div>
 );
 
-const BlogContent = () => (
-  <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
-    <div className="flex kanit font-bold text-2xl">Blog Content</div>
-  </div>
-);
-
 const PlacesContent = () => (
   <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
     <div className="flex kanit font-bold text-2xl">Places Content</div>
@@ -361,9 +401,13 @@ const InterestsContent = () => (
 
 export default function Profile() {
   const t = useTranslations();
-  const [tagsList, setTagList] = useState<Tags[]>([]);
-  const handleTag = (tags: Tags[]) => {
-    setTagList(tags);
+  const [tripTagsList, setTripTagList] = useState<Tags[]>([]);
+  const [blogTagsList, setBlogTagList] = useState<Tags[]>([]);
+  const handleTripTag = (tags: Tags[]) => {
+    setTripTagList(tags);
+  };
+  const handleBlogTag = (tags: Tags[]) => {
+    setBlogTagList(tags);
   };
 
   useEffect(() => {
@@ -380,7 +424,8 @@ export default function Profile() {
           })
         );
 
-        setTagList(tagWithDefaultSelected);
+        setTripTagList(tagWithDefaultSelected);
+        setBlogTagList(tagWithDefaultSelected);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -395,9 +440,9 @@ export default function Profile() {
       case "profile":
         return <ProfileContent />;
       case "trip":
-        return <TripContent tagsList={tagsList} handleTag={handleTag} />;
+        return <TripContent tagsList={tripTagsList} handleTag={handleTripTag} />;
       case "blog":
-        return <BlogContent />;
+        return <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />;
       case "places":
         return <PlacesContent />;
       case "interests":
