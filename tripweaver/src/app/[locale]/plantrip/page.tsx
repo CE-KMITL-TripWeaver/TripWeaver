@@ -8,6 +8,8 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -30,12 +32,19 @@ const Marker = dynamic(
 );
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const [locationPlaning, setLocationPlanning] = useState<locationPlaning[]>([]);
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number | "">("");
   const [longitude, setLongitude] = useState<number | "">("");
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      redirect("/login");
+    }
+  }, [status]);
 
   useEffect(() => {
     if (locationPlaning.length > 1) {

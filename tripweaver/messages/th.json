@@ -87,7 +87,13 @@
       "password": "รหัสผ่าน",
       "confirmPassword": "ยืนยันรหัสผ่าน",
       "or": "หรือ",
-      "signupWithGoogle": "สมัครสมาชิกด้วย Google"
+      "signupWithGoogle": "สมัครสมาชิกด้วย Google",
+      "errorTitle": "เกิดข้อผิดพลาด",
+      "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+      "successTitle": "สำเร็จ",
+      "accountCreated": "บัญชีของคุณถูกสร้างขึ้นแล้ว",
+      "accountExists": "บัญชีนี้มีอยู่แล้ว",
+      "serverError": "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"
     },
     "Login":{
       "signin": "เข้าสู่ระบบ",
@@ -97,6 +103,8 @@
       "password": "รหัสผ่าน",
       "confirmPassword": "ยืนยันรหัสผ่าน",
       "or": "หรือ",
-      "signinWithGoogle": "เข้าสู่ระบบด้วย Google"
+      "signinWithGoogle": "เข้าสู่ระบบด้วย Google",
+      "errorTitle": "เกิดข้อผิดพลาด",
+      "invalidCredentials": "ชื่อผู้ใช้/อีเมล หรือ รหัสผ่านไม่ถูกต้อง"
     }
 }

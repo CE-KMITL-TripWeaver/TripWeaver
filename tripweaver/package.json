@@ -12,17 +12,21 @@
     "@iconify/react": "^5.0.2",
     "@mapbox/polyline": "^1.2.1",
     "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
     "i18next": "^23.15.1",
     "mongoose": "^8.6.0",
     "next": "14.2.5",
+    "next-auth": "^4.24.10",
     "next-i18next": "^15.3.1",
     "next-intl": "^3.19.1",
     "react": "^18",
     "react-dom": "^18",
     "react-i18next": "^15.0.1",
-    "react-leaflet": "^4.2.1"
+    "react-leaflet": "^4.2.1",
+    "sweetalert2": "^11.14.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/mapbox__polyline": "^1.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
