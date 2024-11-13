@@ -79,5 +79,24 @@
       "Kid": "Kid",
       "Landmark": "Landmark",
       "Forest": "Forest"
+    },
+    "Register":{
+      "signup": "สมัครสมาชิก",
+      "username": "ชื่อผู้ใช้",
+      "email": "อีเมล",
+      "password": "รหัสผ่าน",
+      "confirmPassword": "ยืนยันรหัสผ่าน",
+      "or": "หรือ",
+      "signupWithGoogle": "สมัครสมาชิกด้วย Google"
+    },
+    "Login":{
+      "signin": "เข้าสู่ระบบ",
+      "signup": "สมัครสมาชิก",
+      "username/email": "ชื่อผู้ใช้/อีเมล",
+      "email": "อีเมล",
+      "password": "รหัสผ่าน",
+      "confirmPassword": "ยืนยันรหัสผ่าน",
+      "or": "หรือ",
+      "signinWithGoogle": "เข้าสู่ระบบด้วย Google"
     }
 }
