@@ -10,6 +10,7 @@ import Carousel from "react-elastic-carousel";
 import RecommendCard from "../components/RecommendCard";
 import PlanningCard from "../components/PlanningCard";
 import PerfectScrollbar from "react-perfect-scrollbar";
+import PlanningCardDetails from "../components/PlanningCardDetails";
 
 import './carousel.css'
 
@@ -104,56 +105,104 @@ export default function Home() {
 
   const mockLocation = [
     {
-      id: 1,
-      title: "หาดป่าตอง (Patong Beach)",
-      type: "ทะเล ชายหาด",
-      rating: 3.9,
-      ratingCount: 9556,
-      latitude: 7.8963,
-      longitude: 98.2966,
-      img: "/th/images/patong.jpg",
+      "id": 1,
+      "title": "หาดป่าตอง (Patong Beach)",
+      "type": "ทะเล ชายหาด",
+      "rating": 3.9,
+      "ratingCount": 9556,
+      "latitude": 7.8961957,
+      "longitude": 98.2954147,
+      "img": "/th/images/patong.jpg",
+      "dateOpen": [
+        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
+        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
+        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
+      ],
+      "address": "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต"
     },
     {
-      id: 2,
-      title: "แหลมพรหมเทพ (Promthep Cape)",
-      type: "ทะเล ชายหาด",
-      rating: 3.8,
-      ratingCount: 6521,
-      latitude: 7.7587,
-      longitude: 98.3044,
-      img: "/th/images/phomthep.jpg",
+      "id": 2,
+      "title": "แหลมพรหมเทพ (Promthep Cape)",
+      "type": "ทะเล ชายหาด",
+      "rating": 3.8,
+      "ratingCount": 6521,
+      "latitude": 7.7587,
+      "longitude": 98.3044,
+      "img": "/th/images/phomthep.jpg",
+      "dateOpen": [
+        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
+        { "dateName": "พุธ", "openingRange": "หยุด" },
+        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
+        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
+        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
+      ],
+      "address": "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี"
     },
     {
-      id: 3,
-      title: "วัดฉลอง (Wat Chalong)",
-      type: "ทะเล ชายหาด",
-      rating: 3.9,
-      ratingCount: 3648,
-      latitude: 7.8441,
-      longitude: 98.3383,
-      img: "/th/images/chalong.jpg",
+      "id": 3,
+      "title": "วัดฉลอง (Wat Chalong)",
+      "type": "ทะเล ชายหาด",
+      "rating": 3.9,
+      "ratingCount": 3648,
+      "latitude": 7.8441,
+      "longitude": 98.3383,
+      "img": "/th/images/chalong.jpg",
+      "dateOpen": [
+        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
+        { "dateName": "พุธ", "openingRange": "หยุด" },
+        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
+        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
+        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
+      ],
+      "address": "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต"
     },
     {
-      id: 4,
-      title: "พระใหญ่ภูเก็ต (Big Buddha)",
-      type: "ทะเล ชายหาด",
-      rating: 4.1,
-      ratingCount: 5468,
-      latitude: 7.8274,
-      longitude: 98.3055,
-      img: "/th/images/bigbudda.jpg",
+      "id": 4,
+      "title": "พระใหญ่ภูเก็ต (Big Buddha)",
+      "type": "ทะเล ชายหาด",
+      "rating": 4.1,
+      "ratingCount": 5468,
+      "latitude": 7.8274,
+      "longitude": 98.3055,
+      "img": "/th/images/bigbudda.jpg",
+      "dateOpen": [
+        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
+        { "dateName": "พุธ", "openingRange": "หยุด" },
+        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
+        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
+        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
+      ],
+      "address": "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต"
     },
     {
-      id: 5,
-      title: "หาดกะรน (Karon Beach)",
-      type: "ทะเล ชายหาด",
-      rating: 4.2,
-      ratingCount: 5696,
-      latitude: 7.8474,
-      longitude: 98.2937,
-      img: "/th/images/karon.jpg",
-    },
-  ];
+      "id": 5,
+      "title": "หาดกะรน (Karon Beach)",
+      "type": "ทะเล ชายหาด",
+      "rating": 4.2,
+      "ratingCount": 5696,
+      "latitude": 7.8474,
+      "longitude": 98.2937,
+      "img": "/th/images/karon.jpg",
+      "dateOpen": [
+        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
+        { "dateName": "พุธ", "openingRange": "หยุด" },
+        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
+        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
+        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
+        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
+      ],
+      "address": "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต"
+    }
+  ]
 
   useEffect(() => {
     setLocationPlanning(mockLocation);
@@ -199,7 +248,7 @@ export default function Home() {
         .join(";");
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
-
+      console.log(url)
       axios
         .get(url)
         .then((response) => {
@@ -228,6 +277,7 @@ export default function Home() {
           console.error("Error fetching route data:", error);
         });
     } else if (locationPlaning.length == 1) {
+      setPolyline([]);
       setWaypoints([
         [locationPlaning[0].latitude, locationPlaning[0].longitude],
       ]);
@@ -319,12 +369,12 @@ export default function Home() {
       <div className="flex flex-row w-full h-[calc(100vh-84px)]">
         <div className="flex w-[8%] border-r-2 border-r-[#B7B7B7]">d</div>
         <PerfectScrollbar
-          className="flex flex-col w-[42%] bg-green-500 h-full relative"
+          className="flex flex-col w-[42%] h-full relative bg-white"
           style={{
             overflow: "hidden", // Prevents default overflow
           }}
         >
-          <div className="flex flex-col bg-yellow-500">
+          <div className="flex flex-col">
             <div
               className={`flex h-36 w-full relative bg-[url('/images/sea-01.jpg')] bg-cover bg-center`}
               id="section-1"
@@ -494,7 +544,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col mt-2">
                 <div className="flex flex-row">
                   <div
                     className="flex cursor-pointer justify-center items-center mr-2"
@@ -563,6 +613,7 @@ export default function Home() {
                                       img={location.img}
                                       latitude={location.latitude}
                                       longitude={location.longitude}
+                                      dateOpen={location.dateOpen}
                                     />
                                   </li>
                                 )}
@@ -580,56 +631,35 @@ export default function Home() {
           </div>
         </PerfectScrollbar>
 
-        <div className="flex h-full w-[50%]">
-
-          <MapContainer
-            center={[12.9228548, 100.8058747]}
-            zoom={14}
-            className="h-[calc(100vh-84px)]"
-            style={{ width: "100%" }}
-          >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-            {polyline.length > 0 && (
-              <Polyline positions={polyline} pathOptions={{ color: "green" }} />
-            )}
-            {waypoints.map((position, idx) => (
-              <Marker
-                key={idx}
-                position={position}
-                icon={createCustomIcon(idx +1)}
-              >
-                <Popup>{`Location ${idx + 1}`}</Popup>
-              </Marker>
-            ))}
-            <MapUpdater locationPlaning={locationPlaning} />
-          </MapContainer>
-          {/*
-                    <MapContainer
-            center={[12.9228548, 100.8058747]}
-            zoom={14}
-            style={{ height: "100vh", width: "100%" }}
-          >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-            {polyline.length > 0 && (
-              <Polyline positions={polyline} pathOptions={{ color: "green" }} />
-            )}
-            {waypoints.map((position, idx) => (
-              <Marker
-                key={idx}
-                position={position}
-                icon={createCustomIcon(idx +1)}
-              >
-                <Popup>{`Location ${idx + 1}`}</Popup>
-              </Marker>
-            ))}
-            <MapUpdater locationPlaning={locationPlaning} />
-          </MapContainer>
-          
-          */}
+        <div className="flex relative flex-col h-full w-[50%]">
+          <div className="flex w-full absolute bottom-5" style={{zIndex: 1}}>
+              <PlanningCardDetails title={locationPlaning[0].title} type={locationPlaning[0].type} address={locationPlaning[0].address} dateOpen={locationPlaning[0].dateOpen}/>
+          </div>
+          <div className="flex" style={{zIndex: 0}}>
+            {/* <MapContainer
+              center={[7.7587, 98.2954147]}
+              zoom={14}
+              className="h-[calc(100vh-84px)]"
+              style={{ width: "100%" }}
+            >
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              />
+              {polyline.length > 0 && (
+                <Polyline positions={polyline} pathOptions={{ color: "green" }} />
+              )}
+              {waypoints.map((position, idx) => (
+                <Marker
+                  key={idx} 
+                  position={position}
+                  icon={createCustomIcon(idx +1)}
+                >
+                  <Popup>{`Location ${idx + 1}`}</Popup>
+                </Marker>
+              ))}
+              <MapUpdater locationPlaning={locationPlaning} />
+            </MapContainer>*/}
+          </div>
         </div>
       </div>
     </div>

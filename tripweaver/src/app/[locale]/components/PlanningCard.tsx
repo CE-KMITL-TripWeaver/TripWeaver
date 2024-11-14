@@ -11,13 +11,20 @@ export default function PlanningCard({
     img,
     latitude,
     longitude,
+    dateOpen,
     onDelete,
     index,
     duration,
     distance
   }: locationPlaning & { onDelete: (id: number) => void } & { index: number, distance: number, duration: number}) {
 
+    const formattedDistance = distance >= 1000
+    ? `${(distance / 1000).toFixed(1)} กม.`
+    : `${distance} ม.`;
 
+    const formattedDuration = duration >= 3600
+    ? `${Math.floor(duration / 3600)} ชม.${Math.floor((duration % 3600) / 60) !== 0 ? ` ${Math.floor((duration % 3600) / 60)} น.` : ""}`
+    : `${Math.floor(duration / 60)} น.`;
 
 
     return (
@@ -59,7 +66,7 @@ export default function PlanningCard({
                                 />
                             </div>
                             <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                                {index === 0 ? "จุดเริ่มต้น" : `${duration} นาที`}
+                                {index === 0 ? "จุดเริ่มต้น" : `${formattedDuration}`}
                             </div>
                         </div>
                         <div className="flex flex-row">
@@ -70,17 +77,17 @@ export default function PlanningCard({
                                 />
                             </div>
                             <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                                {index === 0 ? "จุดเริ่มต้น" : `${distance} เมตร`}
+                                {index === 0 ? "จุดเริ่มต้น" : `${formattedDistance}`}
                             </div>
                         </div>
-                        <div className="flex flex-row">
+                        <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]">
                             <div className="flex items-center justify-center mr-1">
                                 <Icon
                                     icon="mdi:clock-outline"
-                                    className="text-lg text-[#9B9B9B]"
+                                    className="text-lg"
                                 />
                             </div>
-                            <div className="flex items-center justify-center kanit text-[#9B9B9B]">
+                            <div className="flex items-center justify-center kanit">
                                120 นาที
                             </div>
                         </div>
@@ -106,7 +113,7 @@ export default function PlanningCard({
                 <div className="flex absolute kanit font-bold text-white -top-2 left-[2px]">
                     {index+1}
                 </div>
-                <div className="flex absolute top-[40%] -right-5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onDelete(id)}>
+                <div className="flex absolute top-[40%] -right-5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => onDelete(id)}>
                     <Icon
                         icon="gravity-ui:trash-bin"
                         className="text-lg text-[#9B9B9B]"
