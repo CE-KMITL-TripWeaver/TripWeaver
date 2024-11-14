@@ -633,7 +633,7 @@ export default function Home() {
 
         <div className="flex relative flex-col h-full w-[50%]">
           <div className="flex w-full absolute bottom-5" style={{zIndex: 1}}>
-              <PlanningCardDetails title={locationPlaning[0].title} type={locationPlaning[0].type} address={locationPlaning[0].address} dateOpen={locationPlaning[0].dateOpen}/>
+            <PlanningCardDetails title={locationPlaning[0].title} type={locationPlaning[0].type} address={locationPlaning[0].address} dateOpen={locationPlaning[0].dateOpen}/>
           </div>
           <div className="flex" style={{zIndex: 0}}>
             {/* <MapContainer

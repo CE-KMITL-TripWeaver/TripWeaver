@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import OpenDateComponent from "./OpenDateComponent";
 import dateOpen from "../interface/dateOpen";
 import PerfectScrollbar from "react-perfect-scrollbar";
+import RedirectLinkComponent from "./RedirectLinkComponent";
 import "../plantrip/carousel.css";
 
 interface PlanningCardDetailsProps {
@@ -26,7 +27,7 @@ export default function PlanningCardDetails({
         <PerfectScrollbar
           className="flex w-full h-72 flex-row rounded-xl bg-white p-5 kanit"
           style={{
-            overflow: "hidden",
+            overflow: "auto",
           }}
         >
           <div className="flex flex-col">
@@ -48,6 +49,15 @@ export default function PlanningCardDetails({
                     <OpenDateComponent dateOpen={dateOpen} />
                 )
             }
+            <div className="flex flex-col mt-5 kanit text-[#9B9B9B]">
+                <div className="flex text-sm">
+                    ดูเพิ่มเติมที่:
+                </div>
+                <div className="flex flex-row w-full h-full mt-1 gap-x-2 mb-5">
+                    <RedirectLinkComponent icon="/th/images/google.webp" label="Google" link={`https://www.google.co.th/search?q=`+title}/>
+                    <RedirectLinkComponent icon="/th/images/googlemap.png" label="Google Map" link={`http://maps.google.com/?q=`+title}/>
+                </div>
+            </div>
             
           </div>
         </PerfectScrollbar>
