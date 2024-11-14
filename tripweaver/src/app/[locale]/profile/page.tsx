@@ -252,7 +252,7 @@ const ProfileContent = () => (
             href="#"
             className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
           >
-            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg hover:text-4xl duration-200">
               <Icon icon="grommet-icons:form-next" />
             </div>
             <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
@@ -284,7 +284,7 @@ const ProfileContent = () => (
             href={`#`}
             className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
           >
-            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg">
+            <div className="flex kanit justify-center items-center bg-gray-300 text-2xl w-36 h-36 rounded-lg hover:text-4xl duration-200">
               <Icon icon="grommet-icons:form-next" />
             </div>
             <div className="flex kanit text-lg mt-3">ดูเพิ่มเติม</div>
@@ -333,14 +333,6 @@ const TripContent = ({
             <div className="flex kanit text-lg mt-3">{trip.name}</div>
           </a>
         ))}
-        <a
-            href={`#`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <div className="flex kanit justify-center items-center bg-gray-300 text-6xl h-full rounded-lg">
-            <Icon icon="carbon:add-filled" />
-            </div>
-          </a>
       </div>
     </div>
   </div>
@@ -359,7 +351,7 @@ const BlogContent = ({
     </div>
     <div className="flex flex-col">
     <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+        <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
         <input
           type="text"
           placeholder="ค้นหาบล็อกของฉัน"
@@ -384,14 +376,6 @@ const BlogContent = ({
             <div className="flex kanit text-lg mt-3">{blog.name}</div>
           </a>
         ))}
-        <a
-            href={`#`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <div className="flex kanit justify-center items-center bg-gray-300 text-6xl h-full rounded-lg">
-            <Icon icon="carbon:add-filled" />
-            </div>
-          </a>
       </div>
     </div>
   </div>
