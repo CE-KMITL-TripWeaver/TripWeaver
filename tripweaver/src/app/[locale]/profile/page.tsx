@@ -307,8 +307,13 @@ const TripContent = ({
       <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
     </div>
     <div className="flex flex-col">
-      <div className="flex flex-col">
+      <div className="flex justify-between items-end">
         <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+        <input
+          type="text"
+          placeholder="ค้นหาทริปของฉัน"
+          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+        />
       </div>
       <div className="grid grid-cols-5 gap-4 mt-2">
         {recentTrip.map((trip, index) => (
@@ -353,8 +358,13 @@ const BlogContent = ({
       <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
     </div>
     <div className="flex flex-col">
-      <div className="flex flex-col">
-        <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
+    <div className="flex justify-between items-end">
+        <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+        <input
+          type="text"
+          placeholder="ค้นหาบล็อกของฉัน"
+          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+        />
       </div>
       <div className="grid grid-cols-5 gap-4 mt-2">
         {recentBlog.map((blog, index) => (
