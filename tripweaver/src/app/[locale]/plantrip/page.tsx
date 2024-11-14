@@ -9,6 +9,9 @@ import { Icon } from "@iconify/react";
 import Carousel from "react-elastic-carousel";
 import RecommendCard from "../components/RecommendCard";
 import PlanningCard from "../components/PlanningCard";
+import PerfectScrollbar from "react-perfect-scrollbar";
+
+import './carousel.css'
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
@@ -35,6 +38,11 @@ const Marker = dynamic(
   { ssr: false }
 );
 
+interface planningInformationData {
+  timeTravel: number;
+  rangeBetween: number;
+}
+
 export default function Home() {
   const [locationPlaning, setLocationPlanning] = useState<locationPlaning[]>(
     []
@@ -44,6 +52,8 @@ export default function Home() {
   const [longitude, setLongitude] = useState<number | "">("");
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
+  const [planningInformationDataList, setPlanningInformationDataList] =
+    useState<planningInformationData[]>([]);
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
@@ -95,53 +105,53 @@ export default function Home() {
   const mockLocation = [
     {
       id: 1,
-      title: "item #1",
+      title: "หาดป่าตอง (Patong Beach)",
       type: "ทะเล ชายหาด",
       rating: 3.9,
       ratingCount: 9556,
-      latitude: 1,
-      longitude: 1,
-      img: "/th/images/sea-01.jpg",
+      latitude: 7.8963,
+      longitude: 98.2966,
+      img: "/th/images/patong.jpg",
     },
     {
       id: 2,
-      title: "item #2",
+      title: "แหลมพรหมเทพ (Promthep Cape)",
       type: "ทะเล ชายหาด",
       rating: 3.8,
       ratingCount: 6521,
-      latitude: 1,
-      longitude: 1,
-      img: "/th/images/sea-01.jpg",
+      latitude: 7.7587,
+      longitude: 98.3044,
+      img: "/th/images/phomthep.jpg",
     },
     {
       id: 3,
-      title: "item #3",
+      title: "วัดฉลอง (Wat Chalong)",
       type: "ทะเล ชายหาด",
       rating: 3.9,
       ratingCount: 3648,
-      latitude: 1,
-      longitude: 1,
-      img: "/th/images/sea-01.jpg",
+      latitude: 7.8441,
+      longitude: 98.3383,
+      img: "/th/images/chalong.jpg",
     },
     {
       id: 4,
-      title: "item #4",
+      title: "พระใหญ่ภูเก็ต (Big Buddha)",
       type: "ทะเล ชายหาด",
       rating: 4.1,
       ratingCount: 5468,
-      latitude: 1,
-      longitude: 1,
-      img: "/th/images/sea-01.jpg",
+      latitude: 7.8274,
+      longitude: 98.3055,
+      img: "/th/images/bigbudda.jpg",
     },
     {
       id: 5,
-      title: "item #5",
+      title: "หาดกะรน (Karon Beach)",
       type: "ทะเล ชายหาด",
       rating: 4.2,
       ratingCount: 5696,
-      latitude: 1,
-      longitude: 1,
-      img: "/th/images/sea-01.jpg",
+      latitude: 7.8474,
+      longitude: 98.2937,
+      img: "/th/images/karon.jpg",
     },
   ];
 
@@ -188,12 +198,12 @@ export default function Home() {
         .map((loc) => `${loc.longitude},${loc.latitude}`)
         .join(";");
 
-      const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}?steps=true&geometries=polyline&overview=simplified`;
+      const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
 
       axios
         .get(url)
         .then((response) => {
-          const { geometry } = response.data.routes[0];
+          const { geometry, legs } = response.data.routes[0];
           if (geometry) {
             const decodedPolyline = decodePolyline(geometry);
             setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
@@ -203,6 +213,16 @@ export default function Home() {
             loc.longitude,
           ]);
           setWaypoints(updatedWaypoints);
+
+          const planningData = legs.map((leg: any) => ({
+            timeTravel: leg.duration,
+            rangeBetween: leg.distance,
+          }));
+          planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
+
+          setPlanningInformationDataList(planningData);
+
+          console.log(response.data);
         })
         .catch((error) => {
           console.error("Error fetching route data:", error);
@@ -215,9 +235,10 @@ export default function Home() {
   }, [locationPlaning]);
 
   const onDelete = (id: number) => {
-    setLocationPlanning(prev => prev.filter(location => location.id !== id));
-
-};
+    setLocationPlanning((prev) =>
+      prev.filter((location) => location.id !== id)
+    );
+  };
 
   const createCustomIcon = (number: number) => {
     if (typeof window !== "undefined") {
@@ -295,10 +316,15 @@ export default function Home() {
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
       <NavBar />
-      <div className="flex flex-row w-full h-full">
+      <div className="flex flex-row w-full h-[calc(100vh-84px)]">
         <div className="flex w-[8%] border-r-2 border-r-[#B7B7B7]">d</div>
-        <div className="flex flex-col w-[42%] bg-white">
-          <div className="flex flex-col">
+        <PerfectScrollbar
+          className="flex flex-col w-[42%] bg-green-500 h-full relative"
+          style={{
+            overflow: "hidden", // Prevents default overflow
+          }}
+        >
+          <div className="flex flex-col bg-yellow-500">
             <div
               className={`flex h-36 w-full relative bg-[url('/images/sea-01.jpg')] bg-cover bg-center`}
               id="section-1"
@@ -494,47 +520,91 @@ export default function Home() {
                     showPlanning
                       ? "max-h-screen transition-all duration-500"
                       : "max-h-0 transition-all duration-500"
-                  } overflow-hidden`}
+                  } overflow-hidden w-full`}
                 >
-                  {/* Drag and Drop List */}
-                  <DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId="locations">
-                      {(provided) => (
-                        <ul
-                          className="characters text-black p-4"
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                        >
-                          {locationPlaning.map((location, index) => (
-                            <Draggable
-                              key={location.id}
-                              draggableId={location.title}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <li
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className="p-4 mb-2 bg-white"
-                                >
-                                  <PlanningCard onDelete={onDelete} id={location.id} index={index} title={location.title} type={location.type} rating={location.rating} ratingCount={location.ratingCount} img={location.img} latitude={location.latitude} longitude={location.longitude} />
-                                </li>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </ul>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                  {planningInformationDataList.length > 0 && (
+                    <DragDropContext onDragEnd={onDragEnd}>
+                      <Droppable droppableId="locations">
+                        {(provided) => (
+                          <ul
+                            className="characters text-black p-4"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                          >
+                            {locationPlaning.map((location, index) => (
+                              <Draggable
+                                key={location.id}
+                                draggableId={location.title}
+                                index={index}
+                              >
+                                {(provided) => (
+                                  <li
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className="p-4 mb-2 bg-white"
+                                  >
+                                    <PlanningCard
+                                      onDelete={onDelete}
+                                      distance={
+                                        planningInformationDataList[index]
+                                          .rangeBetween
+                                      }
+                                      duration={
+                                        planningInformationDataList[index]
+                                          .timeTravel
+                                      }
+                                      id={location.id}
+                                      index={index}
+                                      title={location.title}
+                                      type={location.type}
+                                      rating={location.rating}
+                                      ratingCount={location.ratingCount}
+                                      img={location.img}
+                                      latitude={location.latitude}
+                                      longitude={location.longitude}
+                                    />
+                                  </li>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </ul>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </PerfectScrollbar>
 
-        <div className="flex w-[50%]">
+        <div className="flex h-full w-[50%]">
+
+          <MapContainer
+            center={[12.9228548, 100.8058747]}
+            zoom={14}
+            className="h-[calc(100vh-84px)]"
+            style={{ width: "100%" }}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            />
+            {polyline.length > 0 && (
+              <Polyline positions={polyline} pathOptions={{ color: "green" }} />
+            )}
+            {waypoints.map((position, idx) => (
+              <Marker
+                key={idx}
+                position={position}
+                icon={createCustomIcon(idx +1)}
+              >
+                <Popup>{`Location ${idx + 1}`}</Popup>
+              </Marker>
+            ))}
+            <MapUpdater locationPlaning={locationPlaning} />
+          </MapContainer>
           {/*
                     <MapContainer
             center={[12.9228548, 100.8058747]}

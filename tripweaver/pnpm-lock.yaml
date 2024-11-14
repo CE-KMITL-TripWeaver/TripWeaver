@@ -44,6 +44,9 @@ dependencies:
   react-leaflet:
     specifier: ^4.2.1
     version: 4.2.1(leaflet@1.9.4)(react-dom@18.3.1)(react@18.3.1)
+  react-perfect-scrollbar:
+    specifier: ^1.5.8
+    version: 1.5.8(react-dom@18.3.1)(react@18.3.1)
 
 devDependencies:
   '@types/mapbox__polyline':
@@ -106,7 +109,7 @@ packages:
     dependencies:
       '@babel/helper-validator-identifier': 7.25.9
       js-tokens: 4.0.0
-      picocolors: 1.0.1
+      picocolors: 1.1.1
     dev: false
 
   /@babel/compat-data@7.26.2:
@@ -3055,6 +3058,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /perfect-scrollbar@1.5.6:
+    resolution: {integrity: sha512-rixgxw3SxyJbCaSpo1n35A/fwI1r2rdwMKOTCg/AcG+xOEyZcE8UHVjpZMFCVImzsFoCZeJTT+M/rdEIQYO2nw==}
+    dev: false
+
   /picocolors@1.0.1:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
 
@@ -3289,6 +3296,18 @@ packages:
       react: ^15.0.0 || ^16.0.0
       react-dom: ^15.0.0 || ^16.0.0
     dependencies:
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    dev: false
+
+  /react-perfect-scrollbar@1.5.8(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-bQ46m70gp/HJtiBOF3gRzBISSZn8FFGNxznTdmTG8AAwpxG1bJCyn7shrgjEvGSQ5FJEafVEiosY+ccER11OSA==}
+    peerDependencies:
+      react: '>=16.3.3'
+      react-dom: '>=16.3.3'
+    dependencies:
+      perfect-scrollbar: 1.5.6
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

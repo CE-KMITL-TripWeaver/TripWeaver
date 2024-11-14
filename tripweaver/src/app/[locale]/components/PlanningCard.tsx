@@ -2,7 +2,6 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import locationPlaning from "../interface/locationPlan";
 import Image from "next/image";
-
 export default function PlanningCard({
     id,
     title,
@@ -13,34 +12,42 @@ export default function PlanningCard({
     latitude,
     longitude,
     onDelete,
-    index
-  }: locationPlaning & { onDelete: (id: number) => void } & { index: number}) {
+    index,
+    duration,
+    distance
+  }: locationPlaning & { onDelete: (id: number) => void } & { index: number, distance: number, duration: number}) {
+
+
+
+
     return (
         <>
             <div className="relative group flex w-full h-full flex-row justify-between">
-                <div className="flex w-[55%] flex-col h-full p-4 rounded-lg bg-[#F2F2F2]">
-                    <div className="flex text-lg kanit text-[#595959]">
-                        {title}
-                    </div>
-                    <div className="flex kanit text-[#9B9B9B]">
-                        {type}
-                    </div>
-                    <div className="flex flex-row">
-                        <div className="flex flex-row mr-1">
-                            {Array.from({ length: Math.round(rating) }).map((_, index) => (
-                                <div key={index} className="flex justify-center items-center">
-                                    <Icon
-                                        icon="mynaui:star-solid"
-                                        className="text-lg text-[#666666]"
-                                    />
-                                </div>
-                            ))}
+                <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between">
+                    <div className="flex flex-col">
+                        <div className="flex text-lg kanit text-[#595959]">
+                            {title}
                         </div>
-                        <div className="flex kanit items-center justify-center font-bold text-[#666666] mr-1">
-                            {rating}
+                        <div className="flex kanit text-[#9B9B9B]">
+                            {type}
                         </div>
-                        <div className="flex kanit items-center justify-center font-bold text-[#8A8A8A]">
-                            ({ratingCount})
+                        <div className="flex flex-row">
+                            <div className="flex flex-row mr-1">
+                                {Array.from({ length: Math.round(rating) }).map((_, index) => (
+                                    <div key={index} className="flex justify-center items-center">
+                                        <Icon
+                                            icon="mynaui:star-solid"
+                                            className="text-lg text-[#666666]"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex kanit items-center justify-center font-bold text-[#666666] mr-1">
+                                {rating}
+                            </div>
+                            <div className="flex kanit items-center justify-center font-bold text-[#8A8A8A]">
+                                ({ratingCount})
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-row mt-2 justify-between">
@@ -52,7 +59,7 @@ export default function PlanningCard({
                                 />
                             </div>
                             <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                                10 นาที
+                                {index === 0 ? "จุดเริ่มต้น" : `${duration} นาที`}
                             </div>
                         </div>
                         <div className="flex flex-row">
@@ -63,7 +70,7 @@ export default function PlanningCard({
                                 />
                             </div>
                             <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                               500 เมตร
+                                {index === 0 ? "จุดเริ่มต้น" : `${distance} เมตร`}
                             </div>
                         </div>
                         <div className="flex flex-row">
