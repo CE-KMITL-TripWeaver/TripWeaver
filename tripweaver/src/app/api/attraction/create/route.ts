@@ -4,11 +4,12 @@ import Attraction from '../../../../../models/attraction'
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, description, latitude, longitude, imgPath, phone, website, openingHour, attractionTag, location, rating } = await req.json();
+        const { name, type, description, latitude, longitude, imgPath, phone, website, openingHour, attractionTag, location, rating } = await req.json();
         
         await connectMongoDB();
         await Attraction.create({
             name,
+            type,
             description,
             latitude,
             longitude,

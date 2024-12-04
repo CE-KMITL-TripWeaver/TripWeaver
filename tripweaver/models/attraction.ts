@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import locationSchema from "./location" 
+import locationSchema from "./location"
+import openingHourSchema from './dateOpen';
 import ratingSchema from "./rating"
 import attractionTagFields from "../schemaFields/attractionTagsFields";
 
@@ -9,6 +10,10 @@ const attractionSchema = new Schema({
 
     name: {
         type: String,
+        required: true
+    },
+    type: {
+        type: [String],
         required: true
     },
     description: {
@@ -32,7 +37,8 @@ const attractionSchema = new Schema({
         type: String,
     },
     openingHour: {
-        type: [String],
+        type: [openingHourSchema],
+        default: () => ([])
     },
     attractionTag: {
        type: attractionTagSchema,
