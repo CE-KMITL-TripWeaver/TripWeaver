@@ -55,7 +55,11 @@ export default function OpenDateComponent({
             const existsDate = dateOpen.find(
                 (openDay) => openDay.dateName === day.realName
             );
-            const isExist = !!existsDate;
+            var isExist = !!existsDate;
+
+            if(existsDate && existsDate.openingRange === "หยุด") {
+              isExist = false;
+            }
 
             return (
               <div className="flex flex-row">

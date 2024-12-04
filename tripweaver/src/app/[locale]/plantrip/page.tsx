@@ -2,7 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import NavBar from "../components/NavBar";
-import locationPlaning from "../interface/locationPlan";
+import locationPlanning from "../interface/locationPlan";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -44,8 +44,26 @@ interface planningInformationData {
   rangeBetween: number;
 }
 
+interface DateOpen {
+  dateName: string;
+  openingRange: string;
+}
+
+interface Location {
+  id: number;
+  title: string;
+  type: string;
+  rating: number;
+  ratingCount: number;
+  latitude: number;
+  longitude: number;
+  img: string;
+  dateOpen: DateOpen[];
+  address: string;
+}
+
 export default function Home() {
-  const [locationPlaning, setLocationPlanning] = useState<locationPlaning[]>(
+  const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
   const [name, setName] = useState<string>("");
@@ -59,6 +77,7 @@ export default function Home() {
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
+  const [selectedLocationInfo, setSelectedLocationInfo] = useState<Location | null>(null);
 
   const mockItems = [
     {
@@ -214,7 +233,6 @@ export default function Home() {
     if (inputTitle.current) {
       const textLength =
         inputTitle.current.value.replace(/\s+/g, "").length || 0;
-      console.log(textLength);
       setInputTitleWidth(textLength);
     }
   };
@@ -224,7 +242,7 @@ export default function Home() {
 
     if (!destination) return;
 
-    const reorderedItems = [...locationPlaning];
+    const reorderedItems = [...locationPlanning];
     const [removed] = reorderedItems.splice(source.index, 1);
     reorderedItems.splice(destination.index, 0, removed);
 
@@ -232,7 +250,7 @@ export default function Home() {
     updateWaypoints(reorderedItems);
   };
 
-  const updateWaypoints = (newLocations: typeof locationPlaning) => {
+  const updateWaypoints = (newLocations: typeof locationPlanning) => {
     const newWaypoints = newLocations.map((loc) => [
       loc.latitude,
       loc.longitude,
@@ -242,8 +260,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (locationPlaning.length > 1) {
-      const coordinates = locationPlaning
+    if (locationPlanning.length > 1) {
+      const coordinates = locationPlanning
         .map((loc) => `${loc.longitude},${loc.latitude}`)
         .join(";");
 
@@ -257,7 +275,7 @@ export default function Home() {
             const decodedPolyline = decodePolyline(geometry);
             setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
           }
-          const updatedWaypoints = locationPlaning.map((loc) => [
+          const updatedWaypoints = locationPlanning.map((loc) => [
             loc.latitude,
             loc.longitude,
           ]);
@@ -276,19 +294,32 @@ export default function Home() {
         .catch((error) => {
           console.error("Error fetching route data:", error);
         });
-    } else if (locationPlaning.length == 1) {
+    } else if (locationPlanning.length == 1) {
       setPolyline([]);
       setWaypoints([
-        [locationPlaning[0].latitude, locationPlaning[0].longitude],
+        [locationPlanning[0].latitude, locationPlanning[0].longitude],
       ]);
     }
-  }, [locationPlaning]);
+  }, [locationPlanning]);
 
   const onDelete = (id: number) => {
+
+    const locationToDelete = locationPlanning.find(
+      (location) => location.id === id
+    );
+
+    if(selectedLocationInfo && selectedLocationInfo.title === locationToDelete?.title) {
+      setSelectedLocationInfo(null)
+    }
+
     setLocationPlanning((prev) =>
       prev.filter((location) => location.id !== id)
     );
   };
+
+  const onClick = (location: Location) => {
+    setSelectedLocationInfo(location);
+  }
 
   const createCustomIcon = (number: number) => {
     if (typeof window !== "undefined") {
@@ -321,10 +352,14 @@ export default function Home() {
     }
   };
 
+  const handleClickSelectInfo = () => {
+    setSelectedLocationInfo(null);
+  }
+
   const handleSubmit = () => {
     if (name && latitude !== "" && longitude !== "") {
       setLocationPlanning([
-        ...locationPlaning,
+        ...locationPlanning,
         { name, latitude: Number(latitude), longitude: Number(longitude) },
       ]);
       setName("");
@@ -581,7 +616,7 @@ export default function Home() {
                             {...provided.droppableProps}
                             ref={provided.innerRef}
                           >
-                            {locationPlaning.map((location, index) => (
+                            {locationPlanning.map((location, index) => (
                               <Draggable
                                 key={location.id}
                                 draggableId={location.title}
@@ -596,6 +631,7 @@ export default function Home() {
                                   >
                                     <PlanningCard
                                       onDelete={onDelete}
+                                      handleClick={onClick}
                                       distance={
                                         planningInformationDataList[index]
                                           .rangeBetween
@@ -614,6 +650,7 @@ export default function Home() {
                                       latitude={location.latitude}
                                       longitude={location.longitude}
                                       dateOpen={location.dateOpen}
+                                      address={location.address}
                                     />
                                   </li>
                                 )}
@@ -632,11 +669,15 @@ export default function Home() {
         </PerfectScrollbar>
 
         <div className="flex relative flex-col h-full w-[50%]">
-          <div className="flex w-full absolute bottom-5" style={{zIndex: 1}}>
-            <PlanningCardDetails title={locationPlaning[0].title} type={locationPlaning[0].type} address={locationPlaning[0].address} dateOpen={locationPlaning[0].dateOpen}/>
-          </div>
+          {
+            selectedLocationInfo && (
+              <div className="flex w-full absolute bottom-5" style={{zIndex: 1}}>
+              <PlanningCardDetails title={selectedLocationInfo.title} type={selectedLocationInfo.type} address={selectedLocationInfo.address} dateOpen={selectedLocationInfo.dateOpen} handleClick={handleClickSelectInfo}/>
+            </div>
+            )
+          }
           <div className="flex" style={{zIndex: 0}}>
-            {/* <MapContainer
+             <MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -657,8 +698,8 @@ export default function Home() {
                   <Popup>{`Location ${idx + 1}`}</Popup>
                 </Marker>
               ))}
-              <MapUpdater locationPlaning={locationPlaning} />
-            </MapContainer>*/}
+              <MapUpdater locationPlanning={locationPlanning} />
+            </MapContainer>
           </div>
         </div>
       </div>
