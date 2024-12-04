@@ -8,11 +8,8 @@ const restaurantSchema = new Schema({
         type: String,
         required: true
     },
-    sub_name: {
-        type: String,
-    },
-    wongnai_url: {
-        type: String,
+    type: {
+        type: [String],
     },
     latitude: {
         type: Number,
@@ -21,9 +18,6 @@ const restaurantSchema = new Schema({
     longitude: {
         type: Number,
         required: true
-    },
-    restaurantTag: {
-        type: [String],
     },
     facility: {
         type: [String],
@@ -36,9 +30,6 @@ const restaurantSchema = new Schema({
     },
     website: {
         type: String,
-    },
-    openingHour: {
-        type: [String],
     },
     priceRange: {
         type: String,
