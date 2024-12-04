@@ -4,11 +4,12 @@ import Restaurant from '../../../../../models/restaurant'
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, type, latitude, longitude, facility, openingHour, imgPath, phone, website, priceRange, location, rating } = await req.json();
+        const { name, description, type, latitude, longitude, facility, openingHour, imgPath, phone, website, priceRange, location, rating } = await req.json();
         
         await connectMongoDB();
         await Restaurant.create({
             name,
+            description,
             type,
             latitude,
             longitude,
