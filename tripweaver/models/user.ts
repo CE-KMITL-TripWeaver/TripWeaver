@@ -1,4 +1,7 @@
 import mongoose, { Schema } from "mongoose";
+import attractionTagFields from "../schemaFields/attractionTagsFields";
+
+const attractionTagSchema = new Schema({attractionTagFields}, { _id: false });
 
 const UserSchema: Schema = new Schema({
   username: { type: String, required: true, unique: true },
@@ -11,6 +14,7 @@ const UserSchema: Schema = new Schema({
   lastName: { type: String, default: null },
   points: { type: Number, default: 0 },
   role: { type: String, default: "user" },
+  attractionTagScore: { type: attractionTagSchema, default: () => ({})},
   createdAt: { type: Date, default: Date.now },
 });
 

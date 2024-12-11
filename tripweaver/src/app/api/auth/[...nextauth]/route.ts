@@ -30,6 +30,7 @@ export const authOptions: AuthOptions = {
               email: user.email,
               name: user.displayName,
               role: user.role,
+              imgPath: user.imgPath || undefined,
             };
           }
         }
@@ -52,13 +53,17 @@ export const authOptions: AuthOptions = {
           const username = user.email
 
           existingUser = await User.create({
-            googleId: account.id,
+            googleId: user.id,
             username,
             email: user.email,
             displayName: user.name,
             imgPath: user.image,
+            role: "user",
           });
         }
+        user.id = existingUser._id.toString();
+        (user as { id: string; role: string; }).role = existingUser.role;
+        (user as { id: string; imgPath?: string }).imgPath = existingUser.imgPath;
         return true;
       }
       return true;
@@ -66,9 +71,10 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id: string }).id = token.sub as string;
-        (session.user as { id: string; name: string; username: string }).username = token.username as string;
+        (session.user as { username: string }).username = token.username as string;
         session.user.name = token.name as string;
         (session.user as { role: string }).role = token.role as string;
+        (session.user as { image?: string }).image = token.imgPath as string | undefined;
       }
       return session;
     },
@@ -76,7 +82,8 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = (user as { id: string; username: string }).username;
-        token.role = (user as unknown as { role: string }).role; 
+        token.role = (user as unknown as { role: string }).role;
+        token.imgPath = (user as { imgPath?: string }).imgPath || undefined;
       }
       return token;
     },
