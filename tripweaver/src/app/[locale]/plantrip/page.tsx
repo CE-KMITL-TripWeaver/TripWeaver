@@ -684,7 +684,7 @@ export default function Home() {
               style={{ width: "100%" }}
             >
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png"
               />
               {polyline.length > 0 && (
                 <Polyline positions={polyline} pathOptions={{ color: "green" }} />
