@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import locationSchema from "./location" 
 import ratingSchema from "./rating"
+import openingHourSchema from './dateOpen';
 
 const restaurantSchema = new Schema({
 
@@ -27,6 +28,10 @@ const restaurantSchema = new Schema({
     },
     imgPath: {
         type: [String],
+    },
+    openingHour: {
+        type: [openingHourSchema],
+        default: () => ([])
     },
     phone: {
         type: [String],
