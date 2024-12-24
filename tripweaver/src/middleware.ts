@@ -7,9 +7,9 @@ const intlMiddleware = createMiddleware(routing, {
 });
 
 export default function middleware(req: NextRequest) {
-    console.log(req.nextUrl.pathname);
+    //console.log(req.nextUrl.pathname);
 
-    if (req.nextUrl.pathname.startsWith('/api')) {
+    if (req.nextUrl.pathname.startsWith('/api') || req.nextUrl.pathname.startsWith('/_next/')) {
         
         return NextResponse.next();
     }
@@ -19,6 +19,6 @@ export default function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        '/:path*',
+        '/((?!api|_next/static|_next/image|favicon.ico|apple-touch-icon.png|favicon.svg|images/books|icons|manifest).*)',
     ],
 };

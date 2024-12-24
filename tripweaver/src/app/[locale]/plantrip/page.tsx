@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import NavBar from "../components/NavBar";
 import locationPlanning from "../interface/locationPlan";
+import locationSearch from "../interface/locationSearch";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -11,8 +12,11 @@ import RecommendCard from "../components/RecommendCard";
 import PlanningCard from "../components/PlanningCard";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import PlanningCardDetails from "../components/PlanningCardDetails";
+import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent";
+import Location from "../interface/location";
+import { v4 as uuidv4 } from 'uuid';
 
-import './carousel.css'
+import "./carousel.css";
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
@@ -49,23 +53,188 @@ interface DateOpen {
   openingRange: string;
 }
 
-interface Location {
-  id: number;
-  title: string;
-  type: string;
-  rating: number;
-  ratingCount: number;
-  latitude: number;
-  longitude: number;
-  img: string;
-  dateOpen: DateOpen[];
-  address: string;
-}
+const mockItems = [
+  {
+    id: 1,
+    title: "item #1",
+    type: "ทะเล ชายหาด",
+    rating: 3.9,
+    ratingCount: 9556,
+    img: "/images/sea-01.jpg",
+  },
+  {
+    id: 2,
+    title: "item #2",
+    type: "ทะเล ชายหาด",
+    rating: 3.8,
+    ratingCount: 6521,
+    img: "/images/sea-01.jpg",
+  },
+  {
+    id: 3,
+    title: "item #3",
+    type: "ทะเล ชายหาด",
+    rating: 3.9,
+    ratingCount: 3648,
+    img: "/images/sea-01.jpg",
+  },
+  {
+    id: 4,
+    title: "item #4",
+    type: "ทะเล ชายหาด",
+    rating: 4.1,
+    ratingCount: 5468,
+    img: "/images/sea-01.jpg",
+  },
+  {
+    id: 5,
+    title: "item #5",
+    type: "ทะเล ชายหาด",
+    rating: 4.2,
+    ratingCount: 5696,
+    img: "/images/sea-01.jpg",
+  },
+];
+
+const mockLocation = [
+  {
+    id: "1",
+    title: "หาดป่าตอง (Patong Beach)",
+    type: "ทะเล ชายหาด",
+    rating: 3.9,
+    ratingCount: 9556,
+    latitude: 7.8961957,
+    longitude: 98.2954147,
+    img: "/th/images/patong.jpg",
+    dateOpen: [
+      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
+      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
+      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
+      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
+      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
+    ],
+    address: "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต",
+  },
+  {
+    id: "2",
+    title: "แหลมพรหมเทพ (Promthep Cape)",
+    type: "ทะเล ชายหาด",
+    rating: 3.8,
+    ratingCount: 6521,
+    latitude: 7.7587,
+    longitude: 98.3044,
+    img: "/th/images/phomthep.jpg",
+    dateOpen: [
+      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
+      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
+      { dateName: "พุธ", openingRange: "หยุด" },
+      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
+      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
+      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
+      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
+    ],
+    address: "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี",
+  },
+  {
+    id: "3",
+    title: "วัดฉลอง (Wat Chalong)",
+    type: "ทะเล ชายหาด",
+    rating: 3.9,
+    ratingCount: 3648,
+    latitude: 7.8441,
+    longitude: 98.3383,
+    img: "/th/images/chalong.jpg",
+    dateOpen: [
+      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
+      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
+      { dateName: "พุธ", openingRange: "หยุด" },
+      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
+      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
+      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
+      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
+    ],
+    address: "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+  {
+    id: "4",
+    title: "พระใหญ่ภูเก็ต (Big Buddha)",
+    type: "ทะเล ชายหาด",
+    rating: 4.1,
+    ratingCount: 5468,
+    latitude: 7.8274,
+    longitude: 98.3055,
+    img: "/th/images/bigbudda.jpg",
+    dateOpen: [
+      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
+      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
+      { dateName: "พุธ", openingRange: "หยุด" },
+      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
+      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
+      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
+      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
+    ],
+    address: "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+  {
+    id: "5",
+    title: "หาดกะรน (Karon Beach)",
+    type: "ทะเล ชายหาด",
+    rating: 4.2,
+    ratingCount: 5696,
+    latitude: 7.8474,
+    longitude: 98.2937,
+    img: "/th/images/karon.jpg",
+    dateOpen: [
+      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
+      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
+      { dateName: "พุธ", openingRange: "หยุด" },
+      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
+      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
+      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
+      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
+    ],
+    address: "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+];
+
+const mockLocationSearch = [
+  {
+    id: "1",
+    title: "หาดป่าตอง (Patong Beach)",
+    address: "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต",
+  },
+  {
+    id: "2",
+    title: "แหลมพรหมเทพ (Promthep Cape)",
+    address: "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี",
+  },
+  {
+    id: "3",
+    title: "วัดฉลอง (Wat Chalong)",
+    address: "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+  {
+    id: "4",
+    title: "พระใหญ่ภูเก็ต (Big Buddha)",
+    address: "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+  {
+    id: "5",
+    title: "หาดกะรน (Karon Beach)",
+    address: "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต",
+  },
+];
 
 export default function Home() {
   const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
+  const [locationInSearch, setLocationInSearch] = useState<locationSearch[]>(
+    []
+  );
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRadiusMarkerRef = useRef<HTMLDivElement>(null);
+
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number | "">("");
   const [longitude, setLongitude] = useState<number | "">("");
@@ -77,154 +246,12 @@ export default function Home() {
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
-  const [selectedLocationInfo, setSelectedLocationInfo] = useState<Location | null>(null);
-
-  const mockItems = [
-    {
-      id: 1,
-      title: "item #1",
-      type: "ทะเล ชายหาด",
-      rating: 3.9,
-      ratingCount: 9556,
-      img: "/images/sea-01.jpg",
-    },
-    {
-      id: 2,
-      title: "item #2",
-      type: "ทะเล ชายหาด",
-      rating: 3.8,
-      ratingCount: 6521,
-      img: "/images/sea-01.jpg",
-    },
-    {
-      id: 3,
-      title: "item #3",
-      type: "ทะเล ชายหาด",
-      rating: 3.9,
-      ratingCount: 3648,
-      img: "/images/sea-01.jpg",
-    },
-    {
-      id: 4,
-      title: "item #4",
-      type: "ทะเล ชายหาด",
-      rating: 4.1,
-      ratingCount: 5468,
-      img: "/images/sea-01.jpg",
-    },
-    {
-      id: 5,
-      title: "item #5",
-      type: "ทะเล ชายหาด",
-      rating: 4.2,
-      ratingCount: 5696,
-      img: "/images/sea-01.jpg",
-    },
-  ];
-
-  const mockLocation = [
-    {
-      "id": 1,
-      "title": "หาดป่าตอง (Patong Beach)",
-      "type": "ทะเล ชายหาด",
-      "rating": 3.9,
-      "ratingCount": 9556,
-      "latitude": 7.8961957,
-      "longitude": 98.2954147,
-      "img": "/th/images/patong.jpg",
-      "dateOpen": [
-        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
-        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
-        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
-      ],
-      "address": "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต"
-    },
-    {
-      "id": 2,
-      "title": "แหลมพรหมเทพ (Promthep Cape)",
-      "type": "ทะเล ชายหาด",
-      "rating": 3.8,
-      "ratingCount": 6521,
-      "latitude": 7.7587,
-      "longitude": 98.3044,
-      "img": "/th/images/phomthep.jpg",
-      "dateOpen": [
-        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
-        { "dateName": "พุธ", "openingRange": "หยุด" },
-        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
-        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
-        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
-      ],
-      "address": "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี"
-    },
-    {
-      "id": 3,
-      "title": "วัดฉลอง (Wat Chalong)",
-      "type": "ทะเล ชายหาด",
-      "rating": 3.9,
-      "ratingCount": 3648,
-      "latitude": 7.8441,
-      "longitude": 98.3383,
-      "img": "/th/images/chalong.jpg",
-      "dateOpen": [
-        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
-        { "dateName": "พุธ", "openingRange": "หยุด" },
-        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
-        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
-        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
-      ],
-      "address": "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต"
-    },
-    {
-      "id": 4,
-      "title": "พระใหญ่ภูเก็ต (Big Buddha)",
-      "type": "ทะเล ชายหาด",
-      "rating": 4.1,
-      "ratingCount": 5468,
-      "latitude": 7.8274,
-      "longitude": 98.3055,
-      "img": "/th/images/bigbudda.jpg",
-      "dateOpen": [
-        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
-        { "dateName": "พุธ", "openingRange": "หยุด" },
-        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
-        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
-        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
-      ],
-      "address": "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต"
-    },
-    {
-      "id": 5,
-      "title": "หาดกะรน (Karon Beach)",
-      "type": "ทะเล ชายหาด",
-      "rating": 4.2,
-      "ratingCount": 5696,
-      "latitude": 7.8474,
-      "longitude": 98.2937,
-      "img": "/th/images/karon.jpg",
-      "dateOpen": [
-        { "dateName": "จันทร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "อังคาร", "openingRange": "09:00 - 18:00" },
-        { "dateName": "พุธ", "openingRange": "หยุด" },
-        { "dateName": "พฤหัสบดี", "openingRange": "09:00 - 18:00" },
-        { "dateName": "ศุกร์", "openingRange": "09:00 - 18:00" },
-        { "dateName": "เสาร์", "openingRange": "08:00 - 20:00" },
-        { "dateName": "อาทิตย์", "openingRange": "08:00 - 20:00" }
-      ],
-      "address": "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต"
-    }
-  ]
+  const [selectedLocationInfo, setSelectedLocationInfo] =
+    useState<Location | null>(null);
 
   useEffect(() => {
     setLocationPlanning(mockLocation);
+    setLocationInSearch(mockLocationSearch);
   }, []);
 
   const breakPoints = [{ width: 1, itemsToShow: 3, itemsToScroll: 2 }];
@@ -259,6 +286,10 @@ export default function Home() {
     setPolyline(newWaypoints);
   };
 
+  const handleFocus = () => {
+    setIsSearchOpen(true);
+  };
+
   useEffect(() => {
     if (locationPlanning.length > 1) {
       const coordinates = locationPlanning
@@ -266,7 +297,7 @@ export default function Home() {
         .join(";");
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
-      console.log(url)
+      //console.log(url);
       axios
         .get(url)
         .then((response) => {
@@ -289,7 +320,13 @@ export default function Home() {
 
           setPlanningInformationDataList(planningData);
 
-          console.log(response.data);
+          //console.log(response.data);
+          console.log("-----------------")
+          console.log(locationPlanning)
+          console.log("-----------------")
+          console.log("xxxxxxxxxxxxxxxx")
+          console.log(planningData)
+          console.log("xxxxxxxxxxxxxxxx")
         })
         .catch((error) => {
           console.error("Error fetching route data:", error);
@@ -302,14 +339,16 @@ export default function Home() {
     }
   }, [locationPlanning]);
 
-  const onDelete = (id: number) => {
-
+  const onDelete = (id: string) => {
     const locationToDelete = locationPlanning.find(
       (location) => location.id === id
     );
 
-    if(selectedLocationInfo && selectedLocationInfo.title === locationToDelete?.title) {
-      setSelectedLocationInfo(null)
+    if (
+      selectedLocationInfo &&
+      selectedLocationInfo.title === locationToDelete?.title
+    ) {
+      setSelectedLocationInfo(null);
     }
 
     setLocationPlanning((prev) =>
@@ -319,7 +358,7 @@ export default function Home() {
 
   const onClick = (location: Location) => {
     setSelectedLocationInfo(location);
-  }
+  };
 
   const createCustomIcon = (number: number) => {
     if (typeof window !== "undefined") {
@@ -354,20 +393,38 @@ export default function Home() {
 
   const handleClickSelectInfo = () => {
     setSelectedLocationInfo(null);
-  }
+  };
 
-  const handleSubmit = () => {
-    if (name && latitude !== "" && longitude !== "") {
-      setLocationPlanning([
-        ...locationPlanning,
-        { name, latitude: Number(latitude), longitude: Number(longitude) },
-      ]);
-      setName("");
-      setLatitude("");
-      setLongitude("");
-    } else {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-    }
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRadiusMarkerRef.current &&
+        !searchRadiusMarkerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchRadiusMarkerRef]);
+
+  useEffect(() => {
+    planningInformationDataList.map((data,index) => {
+      console.log("index",index)
+      console.log(data)
+      console.log("==========================")
+    })
+  }, [planningInformationDataList]) 
+
+  const handleAddLocation = (id: string) => {
+    console.log("HELLOOO")
+    const location = mockLocation.find((item) => item.id === id);
+    const newLocation = { ...location, id: uuidv4() };
+    console.log(newLocation);
+    setLocationPlanning((prev) => [...prev, newLocation]);
   };
 
   function myArrow({ type, onClick, isEdge }) {
@@ -558,7 +615,10 @@ export default function Home() {
               </div>
               <div className="flex bg-[#F0F0F0] mb-10" />
             </div>
-            <div className="flex flex-col bg-white px-5 mt-2" id="section-3">
+            <div
+              className="flex flex-col bg-white pl-5 py-5 mt-2"
+              id="section-3"
+            >
               <div className="flex w-full kanit justify-start font-bold">
                 <div className="flex relative items-center rounded-lg group">
                   <input
@@ -601,73 +661,112 @@ export default function Home() {
                   </div>
                 </div>
                 <div
-                  className={`flex flex-col ${
+                  className={`flex flex-col w-full ${
                     showPlanning
-                      ? "max-h-screen transition-all duration-500"
+                      ? "h-auto transition-all duration-500"
                       : "max-h-0 transition-all duration-500"
-                  } overflow-hidden w-full`}
+                  } overflow-hidden h-full`}
                 >
                   {planningInformationDataList.length > 0 && (
-                    <DragDropContext onDragEnd={onDragEnd}>
-                      <Droppable droppableId="locations">
-                        {(provided) => (
-                          <ul
-                            className="characters text-black p-4"
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                          >
-                            {locationPlanning.map((location, index) => (
-                              <Draggable
-                                key={location.id}
-                                draggableId={location.title}
-                                index={index}
-                              >
-                                {(provided) => (
-                                  <li
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className="p-4 mb-2 bg-white"
-                                  >
-                                    <PlanningCard
-                                      onDelete={onDelete}
-                                      handleClick={onClick}
-                                      distance={
-                                        planningInformationDataList[index]
-                                          .rangeBetween
-                                      }
-                                      duration={
-                                        planningInformationDataList[index]
-                                          .timeTravel
-                                      }
-                                      id={location.id}
-                                      index={index}
-                                      title={location.title}
-                                      type={location.type}
-                                      rating={location.rating}
-                                      ratingCount={location.ratingCount}
-                                      img={location.img}
-                                      latitude={location.latitude}
-                                      longitude={location.longitude}
-                                      dateOpen={location.dateOpen}
-                                      address={location.address}
-                                    />
-                                  </li>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </ul>
-                        )}
-                      </Droppable>
-                    </DragDropContext>
+                    <div className="flex flex-col h-full">
+                      <DragDropContext onDragEnd={onDragEnd}>
+                        <Droppable droppableId="locations">
+                          {(provided) => (
+                            <ul
+                              className="characters text-black pt-2 px-3 h-full"
+                              {...provided.droppableProps}
+                              ref={provided.innerRef}
+                            >
+                              {locationPlanning.map((location, index) => (
+                                <Draggable
+                                  key={location.id}
+                                  draggableId={location.title}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <li
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className="p-2 mb-2 bg-white"
+                                    >
+                                      <PlanningCard
+                                        onDelete={onDelete}
+                                        handleClick={onClick}
+                                        distance={
+                                          planningInformationDataList[index]?.rangeBetween ?? 0
+                                        }
+                                        duration={
+                                          planningInformationDataList[index]?.timeTravel ?? 0
+                                        }
+                                        id={location.id}
+                                        index={index}
+                                        title={location.title}
+                                        type={location.type}
+                                        rating={location.rating}
+                                        ratingCount={location.ratingCount}
+                                        img={location.img}
+                                        latitude={location.latitude}
+                                        longitude={location.longitude}
+                                        dateOpen={location.dateOpen}
+                                        address={location.address}
+                                      />
+                                    </li>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </ul>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                    </div>
                   )}
                 </div>
+                <div className={`flex flex-col w-full kanit pr-10 pl-5 ${
+                    showPlanning
+                      ? "max-h-screen transition-all duration-500"
+                      : "max-h-0 transition-all duration-500 overflow-hidden"}`}>
+                  <div className="relative w-full">
+                    <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
+                      <span className="text-gray-500 mr-2">
+                        <Icon icon="ri:map-pin-line"
+                        className="text-lg text-[#9B9B9B]"  />
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="ค้นหาเพื่อเพิ่มสถานที่ของคุณ"
+                        className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                        onFocus={handleFocus}
+                      />
+                    </div>
+
+                    <div className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
+                      isSearchOpen ? "flex w-full flex-col" : "hidden"
+                    }`} ref={searchRadiusMarkerRef}>
+                      <ul className="divide-y divide-gray-200">
+                        {mockLocationSearch.map((item) => (
+                        <SearchPlaceObjectComponent
+                          key={item.id}
+                          id={item.id}
+                          title={item.title}
+                          address={item.address}
+                          onClick={() => handleAddLocation(item.id)}
+                        />
+                      ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                  Next section
               </div>
             </div>
           </div>
         </PerfectScrollbar>
 
+        
         <div className="flex relative flex-col h-full w-[50%]">
           {
             selectedLocationInfo && (

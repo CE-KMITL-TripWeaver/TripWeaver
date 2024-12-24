@@ -1,7 +1,7 @@
 import dateOpen from "./dateOpen";
 
 export default interface locationPlanning {
-    id: number
+    id: string
     title: string;
     type: string;
     rating: number;

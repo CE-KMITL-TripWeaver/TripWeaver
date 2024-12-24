@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon } from "@iconify/react";
-import locationPlanning from "../interface/locationPlan";
+import Location from "../interface/location";
 import Image from "next/image";
 export default function PlanningCard({
   id,
@@ -18,11 +18,15 @@ export default function PlanningCard({
   index,
   duration,
   distance,
-}: locationPlanning & { onDelete: (id: number) => void } & {
+}: Location & { onDelete: (id: string) => void } & {
   index: number;
   distance: number;
   duration: number;
-} & { handleClick: (location: locationPlanning) => void }) {
+} & { handleClick: (location: Location) => void }) {
+
+
+  console.log("index was ",index);
+
   const formattedDistance =
     distance >= 1000 ? `${(distance / 1000).toFixed(1)} กม.` : `${distance} ม.`;
 
@@ -52,7 +56,7 @@ export default function PlanningCard({
             address,
           })
         }
-        className="relative group flex w-full h-full flex-row justify-between"
+        className="relative group flex w-full h-full flex-row justify-between pr-5"
       >
         <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between">
           <div className="flex flex-col">
@@ -116,7 +120,7 @@ export default function PlanningCard({
           width={0}
           height={0}
           sizes="100vw"
-          className="rounded-xl mr-5"
+          className="rounded-xl "
           style={{ width: "30%", height: "auto" }}
         />
         <div className="flex absolute -top-3 -left-3">
@@ -131,7 +135,7 @@ export default function PlanningCard({
           {index + 1}
         </div>
         <div
-          className="flex absolute top-[40%] -right-5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          className="flex absolute top-[40%] -right-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           onClick={(e) => { 
             e.stopPropagation();
             onDelete(id);
