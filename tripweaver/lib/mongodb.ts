@@ -8,11 +8,8 @@ export const connectMongoDB = async () => {
     if (mongoose.connection.readyState === 1) {
         return;
     }
-
     try {
-        console.log("Connecting to MongoDB...");
         await mongoose.connect(mongoURI);
-        console.log("Connected to MongoDB");
     } catch (err) {
         console.error("Error connecting to MongoDB:", err);
         throw new Error("Failed to connect to MongoDB");

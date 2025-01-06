@@ -1,31 +1,21 @@
 import React from "react";
 import { Icon } from "@iconify/react";
-import Location from "../interface/location";
 import Image from "next/image";
-export default function PlanningCard({
-  id,
-  title,
-  type,
-  rating,
-  ratingCount,
-  img,
-  latitude,
-  longitude,
-  address,
-  dateOpen,
-  onDelete,
-  handleClick,
-  index,
-  duration,
+import AccommodationData from "../interface/accommodation";
+
+export default function AccommodationCard({
+  data,
   distance,
-}: Location & { onDelete: (id: string) => void } & {
-  index: number;
+  duration,
+}: {
+  data: AccommodationData;
   distance: number;
   duration: number;
-} & { handleClick: (location: Location) => void }) {
-
+}) {
   const formattedDistance =
-    distance >= 1000 ? `${(distance / 1000).toFixed(1)} กม.` : `${distance} ม.`;
+    distance >= 1000
+      ? `${(distance / 1000).toFixed(1)} กม.`
+      : `${distance} ม.`;
 
   const formattedDuration =
     duration >= 3600
@@ -38,43 +28,32 @@ export default function PlanningCard({
 
   return (
     <>
-      <div
-        onClick={() =>
-            handleClick({
-            id,
-            title,
-            type,
-            rating,
-            ratingCount,
-            img,
-            latitude,
-            longitude,
-            dateOpen,
-            address,
-          })
-        }
-        className="relative group flex w-full h-full flex-row justify-between pr-5"
-      >
+      <div className="relative group flex w-full h-full flex-row justify-between pr-5">
         <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between">
           <div className="flex flex-col">
-            <div className="flex text-lg kanit text-[#595959]">{title}</div>
-            <div className="flex kanit text-[#9B9B9B]">{type}</div>
+            <div className="flex text-lg kanit text-[#595959]">{data.name}</div>
+            <div className="flex kanit text-[#9B9B9B]">{data.type}</div>
             <div className="flex flex-row">
               <div className="flex flex-row mr-1">
-                {Array.from({ length: Math.round(rating) }).map((_, index) => (
-                  <div key={index} className="flex justify-center items-center">
-                    <Icon
-                      icon="mynaui:star-solid"
-                      className="text-lg text-[#666666]"
-                    />
-                  </div>
-                ))}
+                {Array.from({ length: Math.round(data.star) }).map(
+                  (_, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-center items-center"
+                    >
+                      <Icon
+                        icon="mynaui:star-solid"
+                        className="text-lg text-[#666666]"
+                      />
+                    </div>
+                  )
+                )}
               </div>
               <div className="flex kanit items-center justify-center font-bold text-[#666666] mr-1">
-                {rating}
+                {data.star}
               </div>
               <div className="flex kanit items-center justify-center font-bold text-[#8A8A8A]">
-                ({ratingCount})
+                ({data.rating.ratingCount})
               </div>
             </div>
           </div>
@@ -87,7 +66,7 @@ export default function PlanningCard({
                 />
               </div>
               <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                {index === 0 ? "จุดเริ่มต้น" : `${formattedDuration}`}
+                {formattedDuration}
               </div>
             </div>
             <div className="flex flex-row">
@@ -98,7 +77,7 @@ export default function PlanningCard({
                 />
               </div>
               <div className="flex items-center justify-center kanit text-[#9B9B9B]">
-                {index === 0 ? "จุดเริ่มต้น" : `${formattedDistance}`}
+                {formattedDistance}
               </div>
             </div>
             <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]">
@@ -113,38 +92,13 @@ export default function PlanningCard({
         </div>
         <Image
           alt="img-planning-card"
-          src={img}
+          src={data.imgPath[0]}
           width={0}
           height={0}
           sizes="100vw"
           className="rounded-xl "
           style={{ width: "30%", height: "auto" }}
         />
-        <div className="flex absolute -top-3 -left-3">
-          <Icon
-            icon="fontisto:map-marker"
-            className="text-lg text-[#9B9B9B]"
-            width={36}
-            height={36}
-          />
-        </div>
-        <div className="flex absolute kanit font-bold text-white -top-2 left-[2px]">
-          {index + 1}
-        </div>
-        <div
-          className="flex absolute top-[40%] -right-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          onClick={(e) => { 
-            e.stopPropagation();
-            onDelete(id);
-            }}
-        >
-          <Icon
-            icon="gravity-ui:trash-bin"
-            className="text-lg text-[#9B9B9B]"
-            width={24}
-            height={24}
-          />
-        </div>
       </div>
     </>
   );
