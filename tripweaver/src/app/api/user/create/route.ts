@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";  // Import bcrypt for password hashing
+import bcrypt from "bcryptjs";
 import { connectMongoDB } from "../../../../../lib/mongodb";
 import User from "../../../../../models/user";
 import UserRating from "../../../../../models/userRating";
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { username, email, password } = body;
+    const { username, email, password, attractionTagScore } = body;
 
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
       username,
       email,
       password: hashedPassword,
-      displayName: displayName
+      displayName: displayName,
+      attractionTagScore: attractionTagScore || {},
     });
     const savedUser = await newUser.save();
 
