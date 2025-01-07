@@ -1,9 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 import locationSchema from "./location" 
 import ratingSchema from "./rating"
-import openingHourSchema from './dateOpen';
 
-const restaurantSchema = new Schema({
+const accomodationSchema = new Schema({
 
     name: {
         type: String,
@@ -13,6 +12,12 @@ const restaurantSchema = new Schema({
         type: String
     },
     type: {
+        type: [String],
+    },
+    star: {
+        type: Number,
+    },
+    tag: {
         type: [String],
     },
     latitude: {
@@ -29,17 +34,10 @@ const restaurantSchema = new Schema({
     imgPath: {
         type: [String],
     },
-    openingHour: {
-        type: [openingHourSchema],
-        default: () => ([])
-    },
     phone: {
         type: [String],
     },
     website: {
-        type: String,
-    },
-    priceRange: {
         type: String,
     },
     location: {
@@ -53,6 +51,6 @@ const restaurantSchema = new Schema({
 },{ timestamps: true }
 )
 
-const Restaurant = mongoose.models.Restaurant || mongoose.model("Restaurant",restaurantSchema);
+const Accommodation = mongoose.models.Accommodation || mongoose.model("Accommodation",accomodationSchema);
 
-export default Restaurant
+export default Accommodation
