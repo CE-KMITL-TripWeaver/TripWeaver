@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { connectMongoDB } from "../../../../../lib/mongodb";
 import User from "../../../../../models/user";
 import bcrypt from "bcryptjs";
+import UserRating from "../../../../../models/userRating";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -60,7 +61,13 @@ export const authOptions: AuthOptions = {
             imgPath: user.image,
             role: "user",
           });
+
+          await UserRating.create({
+            userId: existingUser._id,
+            rating: [],
+          });
         }
+        
         user.id = existingUser._id.toString();
         (user as { id: string; role: string; }).role = existingUser.role;
         (user as { id: string; imgPath?: string }).imgPath = existingUser.imgPath;

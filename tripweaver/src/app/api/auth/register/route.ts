@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectMongoDB } from "../../../../../lib/mongodb";
 import bcrypt from "bcryptjs";
 import User from "../../../../../models/user";
+import UserRating from "../../../../../models/userRating";
 
 export async function POST(request: Request) {
   await connectMongoDB();
@@ -41,6 +42,13 @@ export async function POST(request: Request) {
     });
 
     await newUser.save();
+
+    const newUserRating = new UserRating({
+      userId: newUser._id,
+      rating: [],
+    });
+
+    await newUserRating.save();
 
     return NextResponse.json({ message: "User created successfully." }, { status: 201 });
   } catch (error: any) {

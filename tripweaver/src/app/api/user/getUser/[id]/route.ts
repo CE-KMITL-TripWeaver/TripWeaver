@@ -25,6 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 lastName: user.lastName,
                 points: user.points,
                 role: user.role,
+                favoritePlaces: user.favoritePlaces,
                 attractionTagScore: user.attractionTagScore,
                 createdAt: user.createdAt,
             });
@@ -61,6 +62,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             lastName: user.lastName,
             points: user.points,
             role: user.role,
+            favoritePlaces: user.favoritePlaces,
             attractionTagScore: user.attractionTagScore,
             createdAt: user.createdAt,
         });
