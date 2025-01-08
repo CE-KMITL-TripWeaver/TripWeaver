@@ -101,71 +101,211 @@ const mockItems = [
 const mockAccomodation = {
   id: "test",
   name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช",
-  type: [
-      "รีสอร์ท"
-  ],
-  description: "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
+  type: ["รีสอร์ท"],
+  description:
+    "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
   latitude: 7.884707,
   longitude: 98.272835,
   imgPath: [
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg"
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
   ],
   phone: "00 66 76 335 300",
-  website: "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
+  website:
+    "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
   star: 5,
   facility: [
-      "ที่จอดรถฟรี",
-      "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
-      "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
-      "สระว่ายน้ำ",
-      "บาร์ / เลานจ์",
-      "ชายหาด",
-      "การดำน้ำ",
-      "เด็กเข้าพักฟรี",
-      "ห้องพักปลอดสารก่อภูมิแพ้",
-      "ม่านกันแสง",
-      "เครื่องปรับอากาศ",
-      "ชายหาดส่วนตัว",
-      "ห้องน้ำเพิ่มเติม",
-      "เครื่องชงกาแฟ / ชา",
-      "เคเบิลทีวี / ทีวีดาวเทียม",
-      "โถชำระล้าง"
+    "ที่จอดรถฟรี",
+    "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
+    "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
+    "สระว่ายน้ำ",
+    "บาร์ / เลานจ์",
+    "ชายหาด",
+    "การดำน้ำ",
+    "เด็กเข้าพักฟรี",
+    "ห้องพักปลอดสารก่อภูมิแพ้",
+    "ม่านกันแสง",
+    "เครื่องปรับอากาศ",
+    "ชายหาดส่วนตัว",
+    "ห้องน้ำเพิ่มเติม",
+    "เครื่องชงกาแฟ / ชา",
+    "เคเบิลทีวี / ทีวีดาวเทียม",
+    "โถชำระล้าง",
   ],
   tag: [
-      "วิวมหาสมุทร",
-      "วิวสระว่ายน้ำ",
-      "ห้องพักปลอดบุหรี่",
-      "ห้องสวีท",
-      "ห้องสำหรับครอบครัว"
+    "วิวมหาสมุทร",
+    "วิวสระว่ายน้ำ",
+    "ห้องพักปลอดบุหรี่",
+    "ห้องสวีท",
+    "ห้องสำหรับครอบครัว",
   ],
   location: {
-      "address": "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
-      "province": "ภูเก็ต",
-      "province_code": 83,
-      "district": "กะทู้",
-      "district_code": 8302,
-      "subDistrict": "",
-      "sub_district_code": 0
+    address:
+      "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
+    province: "ภูเก็ต",
+    province_code: 83,
+    district: "กะทู้",
+    district_code: 8302,
+    subDistrict: "",
+    sub_district_code: 0,
   },
   rating: {
-      "score": 4.5,
-      "ratingCount": 5918
+    score: 4.5,
+    ratingCount: 5918,
+  },
+};
+
+const mockAccomodationLists = [{
+  id: "test",
+  name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช",
+  type: ["รีสอร์ท"],
+  description:
+    "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
+  latitude: 7.884707,
+  longitude: 98.272835,
+  imgPath: [
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
+  ],
+  phone: "00 66 76 335 300",
+  website:
+    "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
+  star: 5,
+  facility: [
+    "ที่จอดรถฟรี",
+    "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
+    "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
+    "สระว่ายน้ำ",
+    "บาร์ / เลานจ์",
+    "ชายหาด",
+    "การดำน้ำ",
+    "เด็กเข้าพักฟรี",
+    "ห้องพักปลอดสารก่อภูมิแพ้",
+    "ม่านกันแสง",
+    "เครื่องปรับอากาศ",
+    "ชายหาดส่วนตัว",
+    "ห้องน้ำเพิ่มเติม",
+    "เครื่องชงกาแฟ / ชา",
+    "เคเบิลทีวี / ทีวีดาวเทียม",
+    "โถชำระล้าง",
+  ],
+  tag: [
+    "วิวมหาสมุทร",
+    "วิวสระว่ายน้ำ",
+    "ห้องพักปลอดบุหรี่",
+    "ห้องสวีท",
+    "ห้องสำหรับครอบครัว",
+  ],
+  location: {
+    address:
+      "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
+    province: "ภูเก็ต",
+    province_code: 83,
+    district: "กะทู้",
+    district_code: 8302,
+    subDistrict: "",
+    sub_district_code: 0,
+  },
+  rating: {
+    score: 4.5,
+    ratingCount: 5918,
+  }
+} , {
+  id: "test02",
+  name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช2",
+  type: ["รีสอร์ท"],
+  description:
+    "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
+  latitude: 7.884707,
+  longitude: 98.272835,
+  imgPath: [
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
+    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
+  ],
+  phone: "00 66 76 335 300",
+  website:
+    "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
+  star: 5,
+  facility: [
+    "ที่จอดรถฟรี",
+    "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
+    "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
+    "สระว่ายน้ำ",
+    "บาร์ / เลานจ์",
+    "ชายหาด",
+    "การดำน้ำ",
+    "เด็กเข้าพักฟรี",
+    "ห้องพักปลอดสารก่อภูมิแพ้",
+    "ม่านกันแสง",
+    "เครื่องปรับอากาศ",
+    "ชายหาดส่วนตัว",
+    "ห้องน้ำเพิ่มเติม",
+    "เครื่องชงกาแฟ / ชา",
+    "เคเบิลทีวี / ทีวีดาวเทียม",
+    "โถชำระล้าง",
+  ],
+  tag: [
+    "วิวมหาสมุทร",
+    "วิวสระว่ายน้ำ",
+    "ห้องพักปลอดบุหรี่",
+    "ห้องสวีท",
+    "ห้องสำหรับครอบครัว",
+  ],
+  location: {
+    address:
+      "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
+    province: "ภูเก็ต",
+    province_code: 83,
+    district: "กะทู้",
+    district_code: 8302,
+    subDistrict: "",
+    sub_district_code: 0,
+  },
+  rating: {
+    score: 4.5,
+    ratingCount: 5918,
   }
 }
+];
 
 const mockLocation = [
   {
@@ -303,9 +443,13 @@ export default function Home() {
   const [locationInSearch, setLocationInSearch] = useState<locationSearch[]>(
     []
   );
-  const [accommodationData, setAccommodationData] = useState<AccommodationData>();
+  const [accommodationData, setAccommodationData] =
+    useState<AccommodationData | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const searchRadiusMarkerRef = useRef<HTMLDivElement>(null);
+  const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
+    useState(false);
+  const searchPlacesRef = useRef<HTMLDivElement>(null);
+  const searchAccommodationRef = useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number | "">("");
@@ -364,16 +508,21 @@ export default function Home() {
     setIsSearchOpen(true);
   };
 
+  const handleAccommodationFocus = () => {
+    setIsSearchAccommodationOpen(true);
+    console.log("Open!!!");
+  };
+
   useEffect(() => {
     if (locationPlanning.length > 1) {
       const coordinates = [
         ...locationPlanning.map((loc) => `${loc.longitude},${loc.latitude}`),
         ...(mockAccomodation
           ? [`${mockAccomodation.longitude},${mockAccomodation.latitude}`]
-          : [])
+          : []),
       ].join(";");
 
-      console.log(coordinates)
+      console.log(coordinates);
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
       //console.log(url);
@@ -398,7 +547,7 @@ export default function Home() {
           planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
 
           setPlanningInformationDataList(planningData);
-          console.log(planningData)
+          console.log(planningData);
         })
         .catch((error) => {
           console.error("Error fetching route data:", error);
@@ -409,7 +558,7 @@ export default function Home() {
         [locationPlanning[0].latitude, locationPlanning[0].longitude],
       ]);
     }
-  }, [locationPlanning,accommodationData]);
+  }, [locationPlanning, accommodationData]);
 
   const onDelete = (id: string) => {
     const locationToDelete = locationPlanning.find(
@@ -426,6 +575,10 @@ export default function Home() {
     setLocationPlanning((prev) =>
       prev.filter((location) => location.id !== id)
     );
+  };
+
+  const onDeleteAccommodation = () => {
+    setAccommodationData(null);
   };
 
   const onClick = (location: Location) => {
@@ -470,8 +623,8 @@ export default function Home() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        searchRadiusMarkerRef.current &&
-        !searchRadiusMarkerRef.current.contains(event.target as Node)
+        searchPlacesRef.current &&
+        !searchPlacesRef.current.contains(event.target as Node)
       ) {
         setIsSearchOpen(false);
       }
@@ -481,12 +634,36 @@ export default function Home() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [searchRadiusMarkerRef]);
+  }, [searchPlacesRef]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchAccommodationRef.current &&
+        !searchAccommodationRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchAccommodationOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchAccommodationRef]);
+
+  const handleSetAccommodation = (id: string) => {
+    const accommodation = mockAccomodationLists.find((item) => item.id === id);
+    if (!accommodation) {
+      console.error(`Accommodation with id ${id} not found`);
+      return;
+    }
+    setAccommodationData(accommodation);
+  };
 
   const handleAddLocation = (id: string) => {
     const location = mockLocation.find((item) => item.id === id);
     const newLocation = { ...location, id: uuidv4() };
-    console.log(newLocation);
     setLocationPlanning((prev) => [...prev, newLocation]);
   };
 
@@ -813,7 +990,7 @@ export default function Home() {
                       className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
                         isSearchOpen ? "flex w-full flex-col" : "hidden"
                       }`}
-                      ref={searchRadiusMarkerRef}
+                      ref={searchPlacesRef}
                     >
                       <ul className="divide-y divide-gray-200">
                         {mockLocationSearch.map((item) => (
@@ -853,13 +1030,67 @@ export default function Home() {
                 </div>
                 <div
                   className={`flex flex-col w-full ${
-                    showAccommodation
-                      ? "h-full"
-                      : "h-0"
-                  } overflow-hidden transition-all duration-500 p-2`}
+                    showAccommodation ? "h-full overflow-visible" : "h-0 overflow-hidden"
+                  } transition-all duration-500`}
                 >
-                  <div className="flex p-2"> 
-                    { accommodationData && <AccommodationCard data={accommodationData} distance={planningInformationDataList[planningInformationDataList.length-1].rangeBetween} duration={planningInformationDataList[planningInformationDataList.length-1].timeTravel} />}
+                  <div className="flex">
+                    {accommodationData ? (
+                      <div className="flex p-5">
+                        <AccommodationCard
+                          onDelete={onDeleteAccommodation}
+                          data={accommodationData}
+                          distance={
+                            planningInformationDataList[
+                              planningInformationDataList.length - 1
+                            ]?.rangeBetween ?? 0
+                          }
+                          duration={
+                            planningInformationDataList[
+                              planningInformationDataList.length - 1
+                            ]?.timeTravel ?? 0
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className={`flex flex-col w-full kanit pr-10 pl-5 mt-2 h-full`}
+                      >
+                        <div className={`relative h-full w-full ${isSearchAccommodationOpen ? 'overflow-visible' : 'overflow-hidden'}`}>
+                          <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
+                            <span className="text-gray-500 mr-2">
+                              <Icon
+                                icon="ri:map-pin-line"
+                                className="text-lg text-[#9B9B9B]"
+                              />
+                            </span>
+                            <input
+                              type="text"
+                              placeholder="ค้นหาเพื่อเพิ่มสถานที่พักของคุณ"
+                              className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                              onFocus={handleAccommodationFocus}
+                            />
+                          </div>
+                          <div
+                            className={`absolute top-full left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
+                              isSearchAccommodationOpen ? "flex w-full flex-col" : "hidden"
+                            }`}
+                            ref={searchAccommodationRef}
+                          >
+                          <ul className="divide-y divide-gray-200">
+                            {mockAccomodationLists.map((item) => (
+                              <SearchPlaceObjectComponent
+                                key={item.id}
+                                id={item.id}
+                                title={item.name}
+                                address={item.location.address}
+                                onClick={() => handleSetAccommodation(item.id)}
+                              />
+                            ))}
+                          </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

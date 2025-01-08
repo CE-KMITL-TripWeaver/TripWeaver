@@ -7,15 +7,15 @@ export default function AccommodationCard({
   data,
   distance,
   duration,
+  onDelete
 }: {
   data: AccommodationData;
   distance: number;
   duration: number;
+  onDelete: () => void; 
 }) {
   const formattedDistance =
-    distance >= 1000
-      ? `${(distance / 1000).toFixed(1)} กม.`
-      : `${distance} ม.`;
+    distance >= 1000 ? `${(distance / 1000).toFixed(1)} กม.` : `${distance} ม.`;
 
   const formattedDuration =
     duration >= 3600
@@ -99,6 +99,20 @@ export default function AccommodationCard({
           className="rounded-xl "
           style={{ width: "30%", height: "auto" }}
         />
+        <div
+          className="flex absolute top-[40%] -right-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Icon
+            icon="gravity-ui:trash-bin"
+            className="text-lg text-[#9B9B9B]"
+            width={24}
+            height={24}
+          />
+        </div>
       </div>
     </>
   );
