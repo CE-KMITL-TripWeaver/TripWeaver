@@ -528,6 +528,14 @@ export default function Home() {
       loc.latitude,
       loc.longitude,
     ]);
+
+    if (accommodationData) {
+      console.log("Add accomodation");
+      newWaypoints.push([accommodationData.latitude, accommodationData.longitude]);
+    } else {
+      console.log("Not add accomodation");
+    }
+    
     setWaypoints(newWaypoints);
     setPolyline(newWaypoints);
   };
@@ -545,15 +553,15 @@ export default function Home() {
     if (locationPlanning.length > 1) {
       const coordinates = [
         ...locationPlanning.map((loc) => `${loc.longitude},${loc.latitude}`),
-        ...(mockAccomodation
-          ? [`${mockAccomodation.longitude},${mockAccomodation.latitude}`]
+        ...(accommodationData
+          ? [`${accommodationData.longitude},${accommodationData.latitude}`]
           : []),
       ].join(";");
 
       //console.log(coordinates);
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
-      //console.log(url);
+      console.log(url);
       axios
         .get(url)
         .then((response) => {
@@ -566,8 +574,14 @@ export default function Home() {
             loc.latitude,
             loc.longitude,
           ]);
+
+          if (accommodationData) {
+            updatedWaypoints.push([accommodationData.latitude, accommodationData.longitude]);
+          }
+
           setWaypoints(updatedWaypoints);
 
+      
           const planningData = legs.map((leg: any) => ({
             timeTravel: leg.duration,
             rangeBetween: leg.distance,
@@ -576,11 +590,12 @@ export default function Home() {
 
           setPlanningInformationDataList(planningData);
           console.log(planningData);
+          console.log("way point : ", waypoints.length)
         })
         .catch((error) => {
           console.error("Error fetching route data:", error);
         });
-    } else if (locationPlanning.length == 1) {
+    } else if (locationPlanning.length == 1 && !accommodationData) {
       setPolyline([]);
       setWaypoints([
         [locationPlanning[0].latitude, locationPlanning[0].longitude],
@@ -1148,7 +1163,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/* 
+             
              <MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
@@ -1171,7 +1186,7 @@ export default function Home() {
                 </Marker>
               ))}
               <MapUpdater locationPlanning={locationPlanning} />
-            </MapContainer> */}
+            </MapContainer>
           </div>
         </div>
       </div>
