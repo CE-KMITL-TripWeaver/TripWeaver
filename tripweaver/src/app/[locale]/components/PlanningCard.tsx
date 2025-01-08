@@ -55,7 +55,15 @@ export default function PlanningCard({
         }
         className="relative group flex w-full h-full flex-row justify-between pr-5"
       >
-        <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between">
+        <div className="flex absolute top-[40%] -left-7">
+          <Icon
+            icon="lsicon:drag-outline"
+            className="text-lg text-[#9B9B9B]"
+            width={36}
+            height={36}
+          />
+        </div>
+        <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between ml-2">
           <div className="flex flex-col">
             <div className="flex text-lg kanit text-[#595959]">{title}</div>
             <div className="flex kanit text-[#9B9B9B]">{type}</div>
@@ -120,7 +128,7 @@ export default function PlanningCard({
           className="rounded-xl "
           style={{ width: "30%", height: "auto" }}
         />
-        <div className="flex absolute -top-3 -left-3">
+        <div className="flex absolute -top-3 -left-2">
           <Icon
             icon="fontisto:map-marker"
             className="text-lg text-[#9B9B9B]"
@@ -128,7 +136,7 @@ export default function PlanningCard({
             height={36}
           />
         </div>
-        <div className="flex absolute kanit font-bold text-white -top-2 left-[2px]">
+        <div className="flex absolute kanit font-bold text-white -top-2 left-[6px]">
           {index + 1}
         </div>
         <div
