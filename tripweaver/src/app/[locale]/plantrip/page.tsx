@@ -466,11 +466,39 @@ export default function Home() {
   const [selectedLocationInfo, setSelectedLocationInfo] =
     useState<Location | null>(null);
 
+  const [searchText, setSearchText] = useState<string>("");
+  const [searchAccommodation, setSearchAccommodation] = useState<string>("");
+
+  const [filteredLocations, setFilteredLocations] = useState<locationSearch[]>([]);
+  const [filteredAccomodations, setFilteredAccommodations] = useState<AccommodationData[]>([]);
+
   useEffect(() => {
     setLocationPlanning(mockLocation);
     setLocationInSearch(mockLocationSearch);
+    setFilteredLocations(mockLocationSearch);
     setAccommodationData(mockAccomodation);
+    setFilteredAccommodations(mockAccomodationLists);
   }, []);
+
+  useEffect(() => {
+    const filtered = mockLocationSearch.filter((item) =>
+      item.title.startsWith(searchText));
+    setFilteredLocations(filtered);
+  }, [searchText]);
+
+  useEffect(() => {
+    const filtered = mockAccomodationLists.filter((item) =>
+      item.name.startsWith(searchAccommodation));
+    setFilteredAccommodations(filtered);
+  }, [searchAccommodation]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSearchAccommodationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchAccommodation(e.target.value);
+  };
 
   const breakPoints = [{ width: 1, itemsToShow: 3, itemsToScroll: 2 }];
 
@@ -522,7 +550,7 @@ export default function Home() {
           : []),
       ].join(";");
 
-      console.log(coordinates);
+      //console.log(coordinates);
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
       //console.log(url);
@@ -627,6 +655,7 @@ export default function Home() {
         !searchPlacesRef.current.contains(event.target as Node)
       ) {
         setIsSearchOpen(false);
+        setSearchText("");
       }
     };
 
@@ -643,6 +672,7 @@ export default function Home() {
         !searchAccommodationRef.current.contains(event.target as Node)
       ) {
         setIsSearchAccommodationOpen(false);
+        setSearchAccommodation("");
       }
     };
 
@@ -983,6 +1013,8 @@ export default function Home() {
                         placeholder="ค้นหาเพื่อเพิ่มสถานที่ของคุณ"
                         className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
                         onFocus={handleFocus}
+                        value={searchText}
+                        onChange={handleSearchChange}
                       />
                     </div>
 
@@ -993,7 +1025,7 @@ export default function Home() {
                       ref={searchPlacesRef}
                     >
                       <ul className="divide-y divide-gray-200">
-                        {mockLocationSearch.map((item) => (
+                        {filteredLocations.map((item) => (
                           <SearchPlaceObjectComponent
                             key={item.id}
                             id={item.id}
@@ -1068,6 +1100,8 @@ export default function Home() {
                               placeholder="ค้นหาเพื่อเพิ่มสถานที่พักของคุณ"
                               className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
                               onFocus={handleAccommodationFocus}
+                              value={searchAccommodation}
+                              onChange={handleSearchAccommodationChange}
                             />
                           </div>
                           <div
@@ -1077,7 +1111,7 @@ export default function Home() {
                             ref={searchAccommodationRef}
                           >
                           <ul className="divide-y divide-gray-200">
-                            {mockAccomodationLists.map((item) => (
+                            {filteredAccomodations.map((item) => (
                               <SearchPlaceObjectComponent
                                 key={item.id}
                                 id={item.id}
