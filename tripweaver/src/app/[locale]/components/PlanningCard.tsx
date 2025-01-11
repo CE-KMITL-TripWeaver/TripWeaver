@@ -63,7 +63,8 @@ export default function PlanningCard({
             height={36}
           />
         </div>
-        <div className="flex w-[55%] flex-col h-auto p-4 rounded-lg bg-[#F2F2F2] justify-between ml-2">
+        <div className="flex flex-row bg-[#F2F2F2] w-full rounded-lg justify-between">
+        <div className="flex w-[55%] flex-col h-auto p-4 ml-2">
           <div className="flex flex-col">
             <div className="flex text-lg kanit text-[#595959]">{title}</div>
             <div className="flex kanit text-[#9B9B9B]">{type}</div>
@@ -128,6 +129,7 @@ export default function PlanningCard({
           className="rounded-xl "
           style={{ width: "30%", height: "auto" }}
         />
+        </div>
         <div className="flex absolute -top-3 -left-2">
           <Icon
             icon="fontisto:map-marker"
