@@ -64,7 +64,7 @@ export default function PlanningCard({
           />
         </div>
         <div className="flex flex-row bg-[#F2F2F2] w-full rounded-lg justify-between">
-        <div className="flex w-[55%] flex-col h-auto p-4 ml-2">
+        <div className="flex w-[60%] flex-col h-auto p-4 ml-2">
           <div className="flex flex-col">
             <div className="flex text-lg kanit text-[#595959]">{title}</div>
             <div className="flex kanit text-[#9B9B9B]">{type}</div>
@@ -120,15 +120,16 @@ export default function PlanningCard({
             </div>
           </div>
         </div>
+        <div className="flex h-full w-[40%] justify-end">
         <Image
           alt="img-planning-card"
           src={img}
           width={0}
           height={0}
           sizes="100vw"
-          className="rounded-xl "
-          style={{ width: "30%", height: "auto" }}
+          className="rounded-xl w-full max-w-48 max-h-40 "
         />
+        </div>
         </div>
         <div className="flex absolute -top-3 -left-2">
           <Icon
