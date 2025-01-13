@@ -25,7 +25,7 @@ import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
 
-import haversine from 'haversine-distance';
+import haversine from "haversine-distance";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -55,6 +55,12 @@ interface planningInformationData {
 interface DateOpen {
   dateName: string;
   openingRange: string;
+}
+
+interface MyArrowProps {
+  type: string;
+  onClick: () => void;
+  isEdge: boolean;
 }
 
 const mockItems = [
@@ -441,7 +447,6 @@ const mockLocationSearch = [
 ];
 
 export default function Home() {
-
   const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
@@ -521,7 +526,6 @@ export default function Home() {
       const textLength =
         inputTitle.current.value.replace(/\s+/g, "").length || 0;
 
-        
       setInputTitleWidth(textLength);
     }
   };
@@ -649,30 +653,46 @@ export default function Home() {
     setSelectedLocationInfo(location);
   };
 
-  const createCustomIcon = (number: number) => {
+  const createCustomIcon = (number: number, isAccommodation: boolean) => {
     if (typeof window !== "undefined") {
       const L = require("leaflet");
       const ReactDOMServer = require("react-dom/server");
+      const iconHtml = isAccommodation ? (
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M1 19V4h2v10h8V6h8q1.65 0 2.825 1.175T23 10v9h-2v-3H3v3zm6-6q-1.25 0-2.125-.875T4 10t.875-2.125T7 7t2.125.875T10 10t-.875 2.125T7 13"
+            />
+          </svg>
+        </div>
+      ) : (
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="40"
+            viewBox="0 0 256 256"
+          >
+            <path
+              fill="currentColor"
+              d="M128 60a44 44 0 1 0 44 44a44.05 44.05 0 0 0-44-44m0 64a20 20 0 1 1 20-20a20 20 0 0 1-20 20m0-112a92.1 92.1 0 0 0-92 92c0 77.36 81.64 135.4 85.12 137.83a12 12 0 0 0 13.76 0a259 259 0 0 0 42.18-39C205.15 170.57 220 136.37 220 104a92.1 92.1 0 0 0-92-92m31.3 174.71a249.4 249.4 0 0 1-31.3 30.18a249.4 249.4 0 0 1-31.3-30.18C80 167.37 60 137.31 60 104a68 68 0 0 1 136 0c0 33.31-20 63.37-36.7 82.71"
+            />
+          </svg>
+          <span className="absolute top-[5px] left-[20px] transform -translate-x-1/2 bg-white text-black rounded-full px-2 py-1 text-xs font-bold border border-black z-20">
+            {number}
+          </span>
+        </div>
+      );
+
       return L.divIcon({
         className: "custom icon",
-        html: ReactDOMServer.renderToString(
-          <div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="40"
-              height="40"
-              viewBox="0 0 256 256"
-            >
-              <path
-                fill="currentColor"
-                d="M128 60a44 44 0 1 0 44 44a44.05 44.05 0 0 0-44-44m0 64a20 20 0 1 1 20-20a20 20 0 0 1-20 20m0-112a92.1 92.1 0 0 0-92 92c0 77.36 81.64 135.4 85.12 137.83a12 12 0 0 0 13.76 0a259 259 0 0 0 42.18-39C205.15 170.57 220 136.37 220 104a92.1 92.1 0 0 0-92-92m31.3 174.71a249.4 249.4 0 0 1-31.3 30.18a249.4 249.4 0 0 1-31.3-30.18C80 167.37 60 137.31 60 104a68 68 0 0 1 136 0c0 33.31-20 63.37-36.7 82.71"
-              />
-            </svg>
-            <span className="absolute top-[5px] left-[20px] transform -translate-x-1/2 bg-white text-black rounded-full px-2 py-1 text-xs font-bold border border-black z-20">
-              {number}
-            </span>
-          </div>
-        ),
+        html: ReactDOMServer.renderToString(iconHtml),
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32],
@@ -730,7 +750,7 @@ export default function Home() {
   const handleAddLocation = (id: string) => {
     const location = mockLocation.find((item) => item.id === id);
     const newLocation = { ...location, id: uuidv4() };
-  
+
     if (useAutoPlanDistance) {
       const allLocations = [...locationPlanning, newLocation];
       const distances = allLocations.map((loc1) =>
@@ -739,58 +759,81 @@ export default function Home() {
           const lon1 = loc1.longitude ?? 0;
           const lat2 = loc2.latitude ?? 0;
           const lon2 = loc2.longitude ?? 0;
-  
-          return haversine({ latitude: lat1, longitude: lon1 }, { latitude: lat2, longitude: lon2 });
+
+          return haversine(
+            { latitude: lat1, longitude: lon1 },
+            { latitude: lat2, longitude: lon2 }
+          );
         })
       );
-  
-      // Nearest Neighbor Algorithm
-      const calculateDistance = (path: number[]): number => {
-        let totalDistance = 0;
-        for (let i = 0; i < path.length - 1; i++) {
-          totalDistance += distances[path[i]][path[i + 1]];
-        }
-        totalDistance += distances[path[path.length - 1]][path[0]];
-        return totalDistance;
-      };
-  
-      let visited = [0];  // Start at the first location
+
+      let visited = [0];
       let totalDistance = 0;
-  
-      // Nearest Neighbor to visit the next closest locations
+
       while (visited.length < allLocations.length) {
         let lastVisited = visited[visited.length - 1];
         let nearestNeighbor = -1;
         let minDistance = Infinity;
-  
+
         for (let i = 0; i < allLocations.length; i++) {
           if (!visited.includes(i) && distances[lastVisited][i] < minDistance) {
             nearestNeighbor = i;
             minDistance = distances[lastVisited][i];
           }
         }
-  
+
         visited.push(nearestNeighbor);
         totalDistance += minDistance;
       }
-  
-      // Return to the start
+
       totalDistance += distances[visited[visited.length - 1]][visited[0]];
-  
-      console.log('Total Distance using Nearest Neighbor:', totalDistance);
-      console.log('Best Path:', visited);
-  
-      setLocationPlanning(visited.map((index) => allLocations[index]));
+
+      console.log("Total Distance using Nearest Neighbor:", totalDistance);
+      console.log("Best Path:", visited);
+
+      setLocationPlanning(
+        visited.map((index) => {
+          const location = allLocations[index];
+          return {
+            ...location,
+            title: location.title ?? "",
+            latitude: location.latitude ?? 0,
+            longitude: location.longitude ?? 0,
+            type: location.type ?? "",
+            rating: location.rating ?? 0,
+            ratingCount: location.rating ?? 0,
+            address: location.address ?? "",
+            img: location.img ?? "",
+            dateOpen: location.dateOpen ?? [],
+          };
+        })
+      );
     } else {
-      setLocationPlanning((prev) => [...prev, newLocation]);
+      setLocationPlanning((prev) => [
+        ...prev,
+        {
+          id: newLocation.id,
+          title: newLocation.title ?? "",
+          latitude: newLocation.latitude ?? 0,
+          longitude: newLocation.longitude ?? 0,
+          type: newLocation.type ?? "",
+          rating: newLocation.rating ?? 0,
+          ratingCount: newLocation.rating ?? 0,
+          address: newLocation.address ?? "",
+          img: newLocation.img ?? "",
+          dateOpen: newLocation.dateOpen ?? [],
+        },
+      ]);
     }
   };
 
-  const handleAutoPlanDistance = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAutoPlanDistance = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setUseAutoPlanDistance(event.target.checked);
   };
 
-  function myArrow({ type, onClick, isEdge }) {
+  const myArrow: React.FC<MyArrowProps> = ({ type, onClick, isEdge }) => {
     const pointer =
       type === "PREV" ? (
         <div className="flex items-center justify-center rounded-full bg-[#D9D9D9] w-8 h-8">
@@ -816,7 +859,7 @@ export default function Home() {
         {pointer}
       </button>
     );
-  }
+  };
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -962,7 +1005,6 @@ export default function Home() {
                     pagination={false}
                     renderArrow={myArrow}
                   >
-                    {/*{mockItems.map(item => <div key={item.id}>{item.title}</div>)}*/}
                     {mockItems.map((item) => (
                       <RecommendCard
                         key={item.id}
@@ -1003,10 +1045,16 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="flex justify-center items-center mr-2">
-                    <input type="checkbox" value="" checked={useAutoPlanDistance} onChange={handleAutoPlanDistance} className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded"/>
+                    <input
+                      type="checkbox"
+                      value=""
+                      checked={useAutoPlanDistance}
+                      onChange={handleAutoPlanDistance}
+                      className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded"
+                    />
                   </div>
                   <div className="flex kanit -mt-1 font-normal">
-                      การจัดระยะห่างของสถานที่อัติโนมัติ
+                    การจัดระยะห่างของสถานที่อัติโนมัติ
                   </div>
                 </div>
               </div>
@@ -1261,7 +1309,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*<MapContainer
+            <MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1284,8 +1332,8 @@ export default function Home() {
                     position={position}
                     icon={
                       isLastWaypointWithAccommodation
-                        ? createCustomIcon(idx + 99)
-                        : createCustomIcon(idx + 1)
+                        ? createCustomIcon(idx + 99, true)
+                        : createCustomIcon(idx + 1, false)
                     }
                   >
                     <Popup>{`Location ${idx + 1}`}</Popup>
@@ -1293,7 +1341,7 @@ export default function Home() {
                 );
               })}
               <MapUpdater locationPlanning={locationPlanning} />
-            </MapContainer>*/}
+            </MapContainer>
           </div>
         </div>
       </div>
