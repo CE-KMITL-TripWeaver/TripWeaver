@@ -16,14 +16,16 @@ import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent
 import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import Location from "../interface/location";
-import { v4 as uuidv4 } from "uuid";
 
+import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
+
+import haversine from 'haversine-distance';
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -439,6 +441,7 @@ const mockLocationSearch = [
 ];
 
 export default function Home() {
+
   const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
@@ -463,6 +466,7 @@ export default function Home() {
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
+  const [useAutoPlanDistance, setUseAutoPlanDistance] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
   const [selectedLocationInfo, setSelectedLocationInfo] =
@@ -516,6 +520,8 @@ export default function Home() {
     if (inputTitle.current) {
       const textLength =
         inputTitle.current.value.replace(/\s+/g, "").length || 0;
+
+        
       setInputTitleWidth(textLength);
     }
   };
@@ -724,7 +730,64 @@ export default function Home() {
   const handleAddLocation = (id: string) => {
     const location = mockLocation.find((item) => item.id === id);
     const newLocation = { ...location, id: uuidv4() };
-    setLocationPlanning((prev) => [...prev, newLocation]);
+  
+    if (useAutoPlanDistance) {
+      const allLocations = [...locationPlanning, newLocation];
+      const distances = allLocations.map((loc1) =>
+        allLocations.map((loc2) => {
+          const lat1 = loc1.latitude ?? 0;
+          const lon1 = loc1.longitude ?? 0;
+          const lat2 = loc2.latitude ?? 0;
+          const lon2 = loc2.longitude ?? 0;
+  
+          return haversine({ latitude: lat1, longitude: lon1 }, { latitude: lat2, longitude: lon2 });
+        })
+      );
+  
+      // Nearest Neighbor Algorithm
+      const calculateDistance = (path: number[]): number => {
+        let totalDistance = 0;
+        for (let i = 0; i < path.length - 1; i++) {
+          totalDistance += distances[path[i]][path[i + 1]];
+        }
+        totalDistance += distances[path[path.length - 1]][path[0]];
+        return totalDistance;
+      };
+  
+      let visited = [0];  // Start at the first location
+      let totalDistance = 0;
+  
+      // Nearest Neighbor to visit the next closest locations
+      while (visited.length < allLocations.length) {
+        let lastVisited = visited[visited.length - 1];
+        let nearestNeighbor = -1;
+        let minDistance = Infinity;
+  
+        for (let i = 0; i < allLocations.length; i++) {
+          if (!visited.includes(i) && distances[lastVisited][i] < minDistance) {
+            nearestNeighbor = i;
+            minDistance = distances[lastVisited][i];
+          }
+        }
+  
+        visited.push(nearestNeighbor);
+        totalDistance += minDistance;
+      }
+  
+      // Return to the start
+      totalDistance += distances[visited[visited.length - 1]][visited[0]];
+  
+      console.log('Total Distance using Nearest Neighbor:', totalDistance);
+      console.log('Best Path:', visited);
+  
+      setLocationPlanning(visited.map((index) => allLocations[index]));
+    } else {
+      setLocationPlanning((prev) => [...prev, newLocation]);
+    }
+  };
+
+  const handleAutoPlanDistance = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseAutoPlanDistance(event.target.checked);
   };
 
   function myArrow({ type, onClick, isEdge }) {
@@ -919,13 +982,13 @@ export default function Home() {
               className="flex flex-col bg-white pl-5 py-5 mt-2"
               id="section-3"
             >
-              <div className="flex w-full kanit justify-start font-bold">
+              <div className="flex w-full kanit justify-between font-bold pr-10">
                 <div className="flex relative items-center rounded-lg group">
                   <input
                     ref={inputTitle}
                     type="text"
                     className={`flex w-full text-lg kanit justify-start font-bold p-2 focus:outline-none rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] pr-8 ${
-                      inputTitleWidth === 0 ? "min-w-96" : ""
+                      inputTitleWidth === 0 ? "min-w-96" : "max-w-[450px]"
                     }`}
                     placeholder="เพื่มชื่อทริปของคุณ (เช่น ทริปเดินทางสู่...)"
                     size={inputTitleWidth}
@@ -937,6 +1000,14 @@ export default function Home() {
                     height={16}
                     width={16}
                   />
+                </div>
+                <div className="flex items-center justify-center">
+                  <div className="flex justify-center items-center mr-2">
+                    <input type="checkbox" value="" checked={useAutoPlanDistance} onChange={handleAutoPlanDistance} className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded"/>
+                  </div>
+                  <div className="flex kanit -mt-1 font-normal">
+                      การจัดระยะห่างของสถานที่อัติโนมัติ
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col mt-2">
@@ -1190,7 +1261,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            <MapContainer
+            {/*<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1222,7 +1293,7 @@ export default function Home() {
                 );
               })}
               <MapUpdater locationPlanning={locationPlanning} />
-            </MapContainer>
+            </MapContainer>*/}
           </div>
         </div>
       </div>
