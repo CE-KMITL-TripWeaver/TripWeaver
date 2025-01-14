@@ -586,6 +586,16 @@ export default function Home() {
           [locationPlanning[0].latitude, locationPlanning[0].longitude],
         ]);
         return;
+      } else if(accommodationData && locationPlanning.length == 0) {
+        setPolyline([]);
+        setWaypoints([
+          [accommodationData.latitude, accommodationData.longitude],
+        ]);
+        return;
+      } else if(!accommodationData && locationPlanning.length == 0) {
+        setPolyline([]);
+        setWaypoints([]);
+        return;
       }
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
