@@ -573,7 +573,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (locationPlanning.length > 1) {
       const coordinates = [
         ...locationPlanning.map((loc) => `${loc.longitude},${loc.latitude}`),
         ...(accommodationData
@@ -581,10 +580,15 @@ export default function Home() {
           : []),
       ].join(";");
 
-      //console.log(coordinates);
+      if(locationPlanning.length == 1 && !accommodationData) {
+        setPolyline([]);
+        setWaypoints([
+          [locationPlanning[0].latitude, locationPlanning[0].longitude],
+        ]);
+        return;
+      }
 
       const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
-      console.log(url);
       axios
         .get(url)
         .then((response) => {
@@ -614,18 +618,12 @@ export default function Home() {
           planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
 
           setPlanningInformationDataList(planningData);
-          console.log(planningData);
-          console.log("way point : ", waypoints.length);
+          //console.log(planningData);
+          //console.log("way point : ", waypoints.length);
         })
         .catch((error) => {
           console.error("Error fetching route data:", error);
         });
-    } else if (locationPlanning.length == 1 && !accommodationData) {
-      setPolyline([]);
-      setWaypoints([
-        [locationPlanning[0].latitude, locationPlanning[0].longitude],
-      ]);
-    }
   }, [locationPlanning, accommodationData]);
 
   const onDelete = (id: string) => {

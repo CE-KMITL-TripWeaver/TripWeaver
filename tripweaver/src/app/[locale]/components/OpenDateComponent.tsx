@@ -62,7 +62,7 @@ export default function OpenDateComponent({
             }
 
             return (
-              <div className="flex flex-row">
+              <div className="flex flex-row" key={index}>
                 <div className="flex">
                     <OpenDatePropsComponent
                     key={index}
