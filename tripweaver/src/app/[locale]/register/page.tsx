@@ -33,6 +33,17 @@ export default function Register() {
         e.preventDefault();
         const { username, email, password, confirmPassword } = formData;
 
+        if (password.length < 8) {
+            Swal.fire({
+                icon: 'error',
+                title: t('Register.errorTitle'),
+                text: t('Register.passwordTooShort'),
+                confirmButtonText: "โอเค",
+                confirmButtonColor: "#2563ea",
+            });
+            return;
+        }
+        
         if (password !== confirmPassword) {
             Swal.fire({
                 icon: 'error',

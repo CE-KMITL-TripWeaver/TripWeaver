@@ -3,15 +3,32 @@ import bcrypt from "bcryptjs";
 import { connectMongoDB } from "../../../../../lib/mongodb";
 import User from "../../../../../models/user";
 import UserRating from "../../../../../models/userRating";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
   const apiKey = req.headers.get("Authorization");
   const isApiKeyValid = apiKey === process.env.API_KEY;
 
-  if (!isApiKeyValid) {
-    return NextResponse.json({ message: "Invalid API key" }, { status: 403 });
+  if (isApiKeyValid) {
+    return await handleApiKeyRequest(req);
   }
 
+  const session = await getServerSession({ req, ...authOptions });
+  const currentUser = session?.user as { id: string; role: string };
+
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  if (currentUser.role !== "admin") {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
+
+  return await handleApiKeyRequest(req);
+}
+
+async function handleApiKeyRequest(req: NextRequest) {
   try {
     const body = await req.json();
     const { username, email, password, attractionTagScore } = body;
