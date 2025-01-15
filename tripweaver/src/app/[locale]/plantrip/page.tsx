@@ -755,52 +755,88 @@ export default function Home() {
     setAccommodationData(accommodation);
   };
 
-  const handleAddLocation = (id: string) => {
-    const location = mockLocation.find((item) => item.id === id);
-    const newLocation = { ...location, id: uuidv4() };
+const handleAddLocation = (id: string) => {
+  const location = mockLocation.find((item) => item.id === id);
+  const newLocation = { ...location, id: uuidv4() };
 
-    if (useAutoPlanDistance) {
-      const allLocations = [...locationPlanning, newLocation];
-      const distances = allLocations.map((loc1) =>
-        allLocations.map((loc2) => {
-          const lat1 = loc1.latitude ?? 0;
-          const lon1 = loc1.longitude ?? 0;
-          const lat2 = loc2.latitude ?? 0;
-          const lon2 = loc2.longitude ?? 0;
-
-          return haversine(
-            { latitude: lat1, longitude: lon1 },
-            { latitude: lat2, longitude: lon2 }
-          );
-        })
-      );
-
-      let visited = [0];
-      let totalDistance = 0;
-
-      while (visited.length < allLocations.length) {
-        let lastVisited = visited[visited.length - 1];
-        let nearestNeighbor = -1;
-        let minDistance = Infinity;
-
-        for (let i = 0; i < allLocations.length; i++) {
-          if (!visited.includes(i) && distances[lastVisited][i] < minDistance) {
-            nearestNeighbor = i;
-            minDistance = distances[lastVisited][i];
+  if (useAutoPlanDistance) {
+    // ตรวจสอบว่า accommodationData ไม่เป็น null หรือ undefined
+    const accommodation =
+      accommodationData != null
+        ? {
+            id: "accommodation",
+            title: "Accommodation",
+            latitude: accommodationData.latitude, // กำหนดข้อมูล latitude ของ accommodation
+            longitude: accommodationData.longitude, // กำหนดข้อมูล longitude ของ accommodation
+            type: "accommodation",
+            rating: 5, // ค่า rating (สมมติ)
+            ratingCount: 1,
+            address: "Accommodation Address",
+            img: "",
+            dateOpen: [],
           }
-        }
+        : null;
 
-        visited.push(nearestNeighbor);
-        totalDistance += minDistance;
+    const allLocations = accommodation
+      ? [...locationPlanning, newLocation, accommodation]
+      : [...locationPlanning, newLocation];
+
+    const distances = allLocations.map((loc1) =>
+      allLocations.map((loc2) => {
+        const lat1 = loc1.latitude ?? 0;
+        const lon1 = loc1.longitude ?? 0;
+        const lat2 = loc2.latitude ?? 0;
+        const lon2 = loc2.longitude ?? 0;
+
+        return haversine(
+          { latitude: lat1, longitude: lon1 },
+          { latitude: lat2, longitude: lon2 }
+        );
+      })
+    );
+
+    let visited = [0];
+    let totalDistance = 0;
+
+    while (
+      visited.length <
+      (accommodation ? allLocations.length - 1 : allLocations.length)
+    ) {
+      let lastVisited = visited[visited.length - 1];
+      let nearestNeighbor = -1;
+      let minDistance = Infinity;
+
+      for (let i = 0; i < allLocations.length; i++) {
+        if (
+          (!accommodation || i !== allLocations.length - 1) &&
+          !visited.includes(i) &&
+          distances[lastVisited][i] < minDistance
+        ) {
+          nearestNeighbor = i;
+          minDistance = distances[lastVisited][i];
+        }
       }
 
-      totalDistance += distances[visited[visited.length - 1]][visited[0]];
+      visited.push(nearestNeighbor);
+      totalDistance += minDistance;
+    }
 
-      console.log("Total Distance using Nearest Neighbor:", totalDistance);
-      console.log("Best Path:", visited);
+    if (accommodation) {
+      visited.push(allLocations.length - 1);
+      totalDistance +=
+        distances[visited[visited.length - 2]][visited[visited.length - 1]];
+    }
 
-      setLocationPlanning(
-        visited.map((index) => {
+    console.log("Total Distance using Nearest Neighbor:", totalDistance);
+    console.log("Best Path:", visited);
+
+    setLocationPlanning(
+      visited
+        .filter((index) => {
+          const location = allLocations[index];
+          return location.id !== "accommodation";
+        })
+        .map((index) => {
           const location = allLocations[index];
           return {
             ...location,
@@ -815,25 +851,25 @@ export default function Home() {
             dateOpen: location.dateOpen ?? [],
           };
         })
-      );
-    } else {
-      setLocationPlanning((prev) => [
-        ...prev,
-        {
-          id: newLocation.id,
-          title: newLocation.title ?? "",
-          latitude: newLocation.latitude ?? 0,
-          longitude: newLocation.longitude ?? 0,
-          type: newLocation.type ?? "",
-          rating: newLocation.rating ?? 0,
-          ratingCount: newLocation.rating ?? 0,
-          address: newLocation.address ?? "",
-          img: newLocation.img ?? "",
-          dateOpen: newLocation.dateOpen ?? [],
-        },
-      ]);
-    }
-  };
+    );
+  } else {
+    setLocationPlanning((prev) => [
+      ...prev,
+      {
+        id: newLocation.id,
+        title: newLocation.title ?? "",
+        latitude: newLocation.latitude ?? 0,
+        longitude: newLocation.longitude ?? 0,
+        type: newLocation.type ?? "",
+        rating: newLocation.rating ?? 0,
+        ratingCount: newLocation.rating ?? 0,
+        address: newLocation.address ?? "",
+        img: newLocation.img ?? "",
+        dateOpen: newLocation.dateOpen ?? [],
+      },
+    ]);
+  }
+};
 
   const handleAutoPlanDistance = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -1224,9 +1260,9 @@ export default function Home() {
                       : "h-0 overflow-hidden"
                   } transition-all duration-500`}
                 >
-                  <div className="flex">
+                  <div className="flex w-full">
                     {accommodationData ? (
-                      <div className="flex p-5">
+                      <div className="flex p-5 w-full">
                         <AccommodationCard
                           onDelete={onDeleteAccommodation}
                           data={accommodationData}
