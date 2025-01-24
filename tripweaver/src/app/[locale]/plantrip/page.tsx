@@ -16,6 +16,7 @@ import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent
 import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import Location from "../interface/location";
+import {useTranslations} from 'next-intl';
 
 import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
@@ -447,6 +448,9 @@ const mockLocationSearch = [
 ];
 
 export default function Home() {
+
+  const t = useTranslations();
+
   const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
@@ -755,21 +759,17 @@ export default function Home() {
     setAccommodationData(accommodation);
   };
 
-const handleAddLocation = (id: string) => {
-  const location = mockLocation.find((item) => item.id === id);
-  const newLocation = { ...location, id: uuidv4() };
+const handleClickAutoPlan = () => {
 
-  if (useAutoPlanDistance) {
-    // ตรวจสอบว่า accommodationData ไม่เป็น null หรือ undefined
     const accommodation =
       accommodationData != null
         ? {
             id: "accommodation",
             title: "Accommodation",
-            latitude: accommodationData.latitude, // กำหนดข้อมูล latitude ของ accommodation
-            longitude: accommodationData.longitude, // กำหนดข้อมูล longitude ของ accommodation
+            latitude: accommodationData.latitude,
+            longitude: accommodationData.longitude, 
             type: "accommodation",
-            rating: 5, // ค่า rating (สมมติ)
+            rating: 5,
             ratingCount: 1,
             address: "Accommodation Address",
             img: "",
@@ -778,8 +778,8 @@ const handleAddLocation = (id: string) => {
         : null;
 
     const allLocations = accommodation
-      ? [...locationPlanning, newLocation, accommodation]
-      : [...locationPlanning, newLocation];
+      ? [...locationPlanning, accommodation]
+      : [...locationPlanning];
 
     const distances = allLocations.map((loc1) =>
       allLocations.map((loc2) => {
@@ -852,30 +852,28 @@ const handleAddLocation = (id: string) => {
           };
         })
     );
-  } else {
-    setLocationPlanning((prev) => [
-      ...prev,
-      {
-        id: newLocation.id,
-        title: newLocation.title ?? "",
-        latitude: newLocation.latitude ?? 0,
-        longitude: newLocation.longitude ?? 0,
-        type: newLocation.type ?? "",
-        rating: newLocation.rating ?? 0,
-        ratingCount: newLocation.rating ?? 0,
-        address: newLocation.address ?? "",
-        img: newLocation.img ?? "",
-        dateOpen: newLocation.dateOpen ?? [],
-      },
-    ]);
-  }
-};
+}
 
-  const handleAutoPlanDistance = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setUseAutoPlanDistance(event.target.checked);
-  };
+const handleAddLocation = (id: string) => {
+  const location = mockLocation.find((item) => item.id === id);
+  const newLocation = { ...location, id: uuidv4() };
+
+  setLocationPlanning((prev) => [
+    ...prev,
+    {
+      id: newLocation.id,
+      title: newLocation.title ?? "",
+      latitude: newLocation.latitude ?? 0,
+      longitude: newLocation.longitude ?? 0,
+      type: newLocation.type ?? "",
+      rating: newLocation.rating ?? 0,
+      ratingCount: newLocation.rating ?? 0,
+      address: newLocation.address ?? "",
+      img: newLocation.img ?? "",
+      dateOpen: newLocation.dateOpen ?? [],
+    },
+  ]);
+};
 
   const myArrow: React.FC<MyArrowProps> = ({ type, onClick, isEdge }) => {
     const pointer =
@@ -905,15 +903,80 @@ const handleAddLocation = (id: string) => {
     );
   };
 
+  const startDate = new Date(2567-543, 0, 29);
+  const durationInDay = 5;
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + durationInDay - 1); 
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    });
+  
+  const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+  const items = Array.from({ length: durationInDay }, (_, index) => {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + index);
+    return date.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    });
+  });
+
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
-      <NavBar />
+      <NavBar /> 
       <div className="flex flex-row w-full h-[calc(100vh-84px)]">
-        <div className="flex w-[8%] border-r-2 border-r-[#B7B7B7]">d</div>
+        <div className="flex flex-col w-[8%] kanit mt-5">
+          <div className="flex w-full justify-center">
+            <div className="flex w-full justify-center rounded-tr-xl rounded-br-xl border border-[#B7B7B7] bg-[#3B3B3B] text-white font-bold mr-3 py-2">
+              ภาพรวม
+            </div>
+          </div>
+          <div className="flex h-[100%] w-full">
+            <div className="flex flex-col w-full items-center mt-40 kanit">
+              <div className="flex bg-[#070707] rounded-full p-[10px]">
+                <Icon
+                    icon="tdesign:calendar-2"
+                    className="text-lg text-white "
+                    height={32}
+                    width={32}
+                />
+              </div>
+              <div className="flex flex-col w-full items-center font-bold">
+                <div className="flex">
+                  วางแผน
+                </div>
+                <div className="flex">
+                  การเดินทาง
+                </div>
+              </div>
+              <PerfectScrollbar
+              className="flex flex-col w-full max-h-72 relative bg-white mt-2"
+              style={{
+                overflow: "auto",
+              }}
+              >
+              {items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex border-b border-gray-300 p-2 bg-[#F4F4F4] hover:bg-[#c0c0c0] cursor-pointer justify-center items-center"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </PerfectScrollbar>
+            </div>
+          </div>
+        </div>
         <PerfectScrollbar
           className="flex flex-col w-[42%] h-full relative bg-white"
           style={{
-            overflow: "hidden", // Prevents default overflow
+            overflow: "hidden",
           }}
         >
           <div className="flex flex-col">
@@ -940,7 +1003,7 @@ const handleAddLocation = (id: string) => {
                         />
                       </div>
                       <div className="flex justify-center items-center text-[#828282] kanit mr-4">
-                        4 Sep 24 - 7 Sep 24
+                        {dateRange}
                       </div>
                       <div className="flex justify-center items-center mr-1">
                         <Icon
@@ -1088,18 +1151,12 @@ const handleAddLocation = (id: string) => {
                   />
                 </div>
                 <div className="flex items-center justify-center">
-                  <div className="flex justify-center items-center mr-2">
-                    <input
-                      type="checkbox"
-                      value=""
-                      checked={useAutoPlanDistance}
-                      onChange={handleAutoPlanDistance}
-                      className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded"
-                    />
-                  </div>
-                  <div className="flex kanit -mt-1 font-normal">
-                    การจัดระยะห่างของสถานที่อัติโนมัติ
-                  </div>
+                  <button
+                    className="flex kanit -mt-1 font-normal border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 focus:outline-none focus:ring-gray-300 transition"
+                    onClick={handleClickAutoPlan}
+                  >
+                    จัดเส้นทางอัติโนมัติ
+                  </button>
                 </div>
               </div>
               <div className="flex flex-col mt-2">
@@ -1353,7 +1410,8 @@ const handleAddLocation = (id: string) => {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            <MapContainer
+            {/* 
+                        <MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1386,6 +1444,7 @@ const handleAddLocation = (id: string) => {
               })}
               <MapUpdater locationPlanning={locationPlanning} />
             </MapContainer>
+            */}
           </div>
         </div>
       </div>
