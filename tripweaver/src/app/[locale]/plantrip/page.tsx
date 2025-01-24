@@ -451,15 +451,40 @@ export default function Home() {
 
   const t = useTranslations();
 
+  const startDate = new Date(2567-543, 0, 29);
+  const durationInDay = 5;
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + durationInDay - 1); 
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    });
+  
+  const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+  const items = Array.from({ length: durationInDay }, (_, index) => {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + index);
+    return date.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    });
+  });
+
+  const [accommodationData, setAccommodationData] = useState<(AccommodationData | null)[]>(Array(durationInDay).fill(null));
+
   const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
     []
   );
   const [locationInSearch, setLocationInSearch] = useState<locationSearch[]>(
     []
   );
-  const [accommodationData, setAccommodationData] =
-    useState<AccommodationData | null>(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
   const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
     useState(false);
   const searchPlacesRef = useRef<HTMLDivElement>(null);
@@ -475,7 +500,6 @@ export default function Home() {
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
-  const [useAutoPlanDistance, setUseAutoPlanDistance] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
   const [selectedLocationInfo, setSelectedLocationInfo] =
@@ -495,7 +519,7 @@ export default function Home() {
     setLocationPlanning(mockLocation);
     setLocationInSearch(mockLocationSearch);
     setFilteredLocations(mockLocationSearch);
-    setAccommodationData(mockAccomodation);
+    //setAccommodationData(mockAccomodation);
     setFilteredAccommodations(mockAccomodationLists);
   }, []);
 
@@ -553,11 +577,11 @@ export default function Home() {
       loc.longitude,
     ]);
 
-    if (accommodationData) {
+    if (accommodationData[currentIndexDate]) {
       console.log("Add accomodation");
       newWaypoints.push([
-        accommodationData.latitude,
-        accommodationData.longitude,
+        accommodationData[currentIndexDate].latitude,
+        accommodationData[currentIndexDate].longitude,
       ]);
     } else {
       console.log("Not add accomodation");
@@ -573,30 +597,29 @@ export default function Home() {
 
   const handleAccommodationFocus = () => {
     setIsSearchAccommodationOpen(true);
-    console.log("Open!!!");
   };
 
   useEffect(() => {
       const coordinates = [
         ...locationPlanning.map((loc) => `${loc.longitude},${loc.latitude}`),
-        ...(accommodationData
-          ? [`${accommodationData.longitude},${accommodationData.latitude}`]
+        ...(accommodationData[currentIndexDate]
+          ? [`${accommodationData[currentIndexDate].longitude},${accommodationData[currentIndexDate].latitude}`]
           : []),
       ].join(";");
 
-      if(locationPlanning.length == 1 && !accommodationData) {
+      if(locationPlanning.length == 1 && !accommodationData[currentIndexDate]) {
         setPolyline([]);
         setWaypoints([
           [locationPlanning[0].latitude, locationPlanning[0].longitude],
         ]);
         return;
-      } else if(accommodationData && locationPlanning.length == 0) {
+      } else if(accommodationData[currentIndexDate] && locationPlanning.length == 0) {
         setPolyline([]);
         setWaypoints([
-          [accommodationData.latitude, accommodationData.longitude],
+          [accommodationData[currentIndexDate].latitude, accommodationData[currentIndexDate].longitude],
         ]);
         return;
-      } else if(!accommodationData && locationPlanning.length == 0) {
+      } else if(!accommodationData[currentIndexDate] && locationPlanning.length == 0) {
         setPolyline([]);
         setWaypoints([]);
         return;
@@ -616,10 +639,10 @@ export default function Home() {
             loc.longitude,
           ]);
 
-          if (accommodationData) {
+          if (accommodationData[currentIndexDate]) {
             updatedWaypoints.push([
-              accommodationData.latitude,
-              accommodationData.longitude,
+              accommodationData[currentIndexDate].latitude,
+              accommodationData[currentIndexDate].longitude,
             ]);
           }
 
@@ -658,7 +681,11 @@ export default function Home() {
   };
 
   const onDeleteAccommodation = () => {
-    setAccommodationData(null);
+    setAccommodationData((prevData) => {
+      const updatedData = [...prevData];
+      updatedData[currentIndexDate] = null;
+      return updatedData;
+    });
   };
 
   const onClick = (location: Location) => {
@@ -756,18 +783,25 @@ export default function Home() {
       console.error(`Accommodation with id ${id} not found`);
       return;
     }
-    setAccommodationData(accommodation);
+    
+    setAccommodationData((prevData) => {
+      if (!prevData) return prevData;
+  
+      const updatedData = [...prevData];
+      updatedData[currentIndexDate] = accommodation; 
+      return updatedData;
+    });
   };
 
 const handleClickAutoPlan = () => {
 
     const accommodation =
-      accommodationData != null
+      accommodationData[currentIndexDate] != null
         ? {
             id: "accommodation",
             title: "Accommodation",
-            latitude: accommodationData.latitude,
-            longitude: accommodationData.longitude, 
+            latitude: accommodationData[currentIndexDate].latitude,
+            longitude: accommodationData[currentIndexDate].longitude, 
             type: "accommodation",
             rating: 5,
             ratingCount: 1,
@@ -903,29 +937,9 @@ const handleAddLocation = (id: string) => {
     );
   };
 
-  const startDate = new Date(2567-543, 0, 29);
-  const durationInDay = 5;
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + durationInDay - 1); 
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-    });
-  
-  const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
-
-  const items = Array.from({ length: durationInDay }, (_, index) => {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + index);
-    return date.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-    });
-  });
+  const handleClickChangeDate = (index: number) => {
+    setCurrentIndexDate(index);
+  }
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -964,7 +978,8 @@ const handleAddLocation = (id: string) => {
               {items.map((item, index) => (
                   <div
                     key={index}
-                    className="flex border-b border-gray-300 p-2 bg-[#F4F4F4] hover:bg-[#c0c0c0] cursor-pointer justify-center items-center"
+                    className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${currentIndexDate == index ? 'bg-[#929191]' : 'bg-[#F4F4F4]'}`}
+                    onClick={() => handleClickChangeDate(index)}
                   >
                     {item}
                   </div>
@@ -1318,11 +1333,11 @@ const handleAddLocation = (id: string) => {
                   } transition-all duration-500`}
                 >
                   <div className="flex w-full">
-                    {accommodationData ? (
+                    {accommodationData[currentIndexDate] ? (
                       <div className="flex p-5 w-full">
                         <AccommodationCard
                           onDelete={onDeleteAccommodation}
-                          data={accommodationData}
+                          data={accommodationData[currentIndexDate]}
                           distance={
                             planningInformationDataList[
                               planningInformationDataList.length - 1
@@ -1426,7 +1441,7 @@ const handleAddLocation = (id: string) => {
               )}
               {waypoints.map((position, idx) => {
                 const isLastWaypointWithAccommodation =
-                  idx === waypoints.length - 1 && accommodationData !== null;
+                  idx === waypoints.length - 1 && accommodationData[currentIndexDate] !== null;
 
                 return (
                   <Marker
