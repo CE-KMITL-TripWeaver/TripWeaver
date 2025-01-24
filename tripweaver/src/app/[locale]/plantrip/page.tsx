@@ -16,7 +16,7 @@ import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent
 import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import Location from "../interface/location";
-import {useTranslations} from 'next-intl';
+import { useTranslations } from "next-intl";
 
 import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
@@ -448,13 +448,12 @@ const mockLocationSearch = [
 ];
 
 export default function Home() {
-
   const t = useTranslations();
 
-  const startDate = new Date(2567-543, 0, 29);
+  const startDate = new Date(2567 - 543, 0, 29);
   const durationInDay = 5;
   const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + durationInDay - 1); 
+  endDate.setDate(startDate.getDate() + durationInDay - 1);
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString("th-TH", {
@@ -462,7 +461,7 @@ export default function Home() {
       month: "short",
       year: "2-digit",
     });
-  
+
   const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
 
   const items = Array.from({ length: durationInDay }, (_, index) => {
@@ -475,11 +474,13 @@ export default function Home() {
     });
   });
 
-  const [accommodationData, setAccommodationData] = useState<(AccommodationData | null)[]>(Array(durationInDay).fill(null));
+  const [accommodationData, setAccommodationData] = useState<
+    (AccommodationData | null)[]
+  >(Array(durationInDay).fill(null));
+  const [locationPlanning, setLocationPlanning] = useState<
+    locationPlanning[][]
+  >(Array(durationInDay).fill([]));
 
-  const [locationPlanning, setLocationPlanning] = useState<locationPlanning[]>(
-    []
-  );
   const [locationInSearch, setLocationInSearch] = useState<locationSearch[]>(
     []
   );
@@ -516,7 +517,7 @@ export default function Home() {
   >([]);
 
   useEffect(() => {
-    setLocationPlanning(mockLocation);
+    //setLocationPlanning(mockLocation);
     setLocationInSearch(mockLocationSearch);
     setFilteredLocations(mockLocationSearch);
     //setAccommodationData(mockAccomodation);
@@ -557,22 +558,27 @@ export default function Home() {
       setInputTitleWidth(textLength);
     }
   };
-
   const onDragEnd = (result: any) => {
     const { destination, source } = result;
 
     if (!destination) return;
 
     const reorderedItems = [...locationPlanning];
-    const [removed] = reorderedItems.splice(source.index, 1);
-    reorderedItems.splice(destination.index, 0, removed);
 
-    setLocationPlanning(reorderedItems);
-    updateWaypoints(reorderedItems);
+    if (reorderedItems[currentIndexDate]) {
+      const currentItems = reorderedItems[currentIndexDate];
+
+      const [removed] = currentItems.splice(source.index, 1);
+      currentItems.splice(destination.index, 0, removed);
+      reorderedItems[currentIndexDate] = currentItems;
+
+      setLocationPlanning(reorderedItems);
+      updateWaypoints(reorderedItems);
+    }
   };
 
   const updateWaypoints = (newLocations: typeof locationPlanning) => {
-    const newWaypoints = newLocations.map((loc) => [
+    const newWaypoints = newLocations[currentIndexDate].map((loc) => [
       loc.latitude,
       loc.longitude,
     ]);
@@ -600,71 +606,92 @@ export default function Home() {
   };
 
   useEffect(() => {
-      const coordinates = [
-        ...locationPlanning.map((loc) => `${loc.longitude},${loc.latitude}`),
-        ...(accommodationData[currentIndexDate]
-          ? [`${accommodationData[currentIndexDate].longitude},${accommodationData[currentIndexDate].latitude}`]
-          : []),
-      ].join(";");
 
-      if(locationPlanning.length == 1 && !accommodationData[currentIndexDate]) {
-        setPolyline([]);
-        setWaypoints([
-          [locationPlanning[0].latitude, locationPlanning[0].longitude],
-        ]);
-        return;
-      } else if(accommodationData[currentIndexDate] && locationPlanning.length == 0) {
-        setPolyline([]);
-        setWaypoints([
-          [accommodationData[currentIndexDate].latitude, accommodationData[currentIndexDate].longitude],
-        ]);
-        return;
-      } else if(!accommodationData[currentIndexDate] && locationPlanning.length == 0) {
-        setPolyline([]);
-        setWaypoints([]);
-        return;
-      }
+    const coordinates = [
+      ...locationPlanning[currentIndexDate].map(
+        (loc) => `${loc.longitude},${loc.latitude}`
+      ),
+      ...(accommodationData[currentIndexDate]
+        ? [
+            `${accommodationData[currentIndexDate].longitude},${accommodationData[currentIndexDate].latitude}`,
+          ]
+        : []),
+    ].join(";");
 
-      const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
-      axios
-        .get(url)
-        .then((response) => {
-          const { geometry, legs } = response.data.routes[0];
-          if (geometry) {
-            const decodedPolyline = decodePolyline(geometry);
-            setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
-          }
-          const updatedWaypoints = locationPlanning.map((loc) => [
-            loc.latitude,
-            loc.longitude,
+    if (
+      locationPlanning[currentIndexDate].length == 1 &&
+      !accommodationData[currentIndexDate]
+    ) {
+      setPolyline([]);
+      setWaypoints([
+        [
+          locationPlanning[currentIndexDate][0].latitude,
+          locationPlanning[currentIndexDate][0].longitude,
+        ],
+      ]);
+      return;
+    } else if (
+      accommodationData[currentIndexDate] &&
+      locationPlanning[currentIndexDate].length == 0
+    ) {
+      setPolyline([]);
+      setWaypoints([
+        [
+          accommodationData[currentIndexDate].latitude,
+          accommodationData[currentIndexDate].longitude,
+        ],
+      ]);
+      return;
+    } else if (
+      !accommodationData[currentIndexDate] &&
+      locationPlanning[currentIndexDate].length == 0
+    ) {
+      setPolyline([]);
+      setWaypoints([]);
+      return;
+    }
+
+    const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
+    axios
+      .get(url)
+      .then((response) => {
+        const { geometry, legs } = response.data.routes[0];
+        if (geometry) {
+          const decodedPolyline = decodePolyline(geometry);
+          setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
+        }
+        const updatedWaypoints = locationPlanning[currentIndexDate].map(
+          (loc) => [loc.latitude, loc.longitude]
+        );
+
+        if (accommodationData[currentIndexDate]) {
+          updatedWaypoints.push([
+            accommodationData[currentIndexDate].latitude,
+            accommodationData[currentIndexDate].longitude,
           ]);
+        }
 
-          if (accommodationData[currentIndexDate]) {
-            updatedWaypoints.push([
-              accommodationData[currentIndexDate].latitude,
-              accommodationData[currentIndexDate].longitude,
-            ]);
-          }
+        setWaypoints(updatedWaypoints);
 
-          setWaypoints(updatedWaypoints);
+        const planningData = legs.map((leg: any) => ({
+          timeTravel: leg.duration,
+          rangeBetween: leg.distance,
+        }));
+        planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
 
-          const planningData = legs.map((leg: any) => ({
-            timeTravel: leg.duration,
-            rangeBetween: leg.distance,
-          }));
-          planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
-
-          setPlanningInformationDataList(planningData);
-          //console.log(planningData);
-          //console.log("way point : ", waypoints.length);
-        })
-        .catch((error) => {
-          console.error("Error fetching route data:", error);
-        });
+        setPlanningInformationDataList(planningData);
+        //console.log(planningData);
+        //console.log("way point : ", waypoints.length);
+      })
+      .catch((error) => {
+        console.error("Error fetching route data:", error);
+      });
   }, [locationPlanning, accommodationData]);
 
+
+
   const onDelete = (id: string) => {
-    const locationToDelete = locationPlanning.find(
+    const locationToDelete = locationPlanning[currentIndexDate].find(
       (location) => location.id === id
     );
 
@@ -675,9 +702,13 @@ export default function Home() {
       setSelectedLocationInfo(null);
     }
 
-    setLocationPlanning((prev) =>
-      prev.filter((location) => location.id !== id)
-    );
+    setLocationPlanning((prev) => {
+      const updatedPlanning = [...prev];
+      updatedPlanning[currentIndexDate] = updatedPlanning[
+        currentIndexDate
+      ].filter((location) => location.id !== id);
+      return updatedPlanning;
+    });
   };
 
   const onDeleteAccommodation = () => {
@@ -783,17 +814,25 @@ export default function Home() {
       console.error(`Accommodation with id ${id} not found`);
       return;
     }
-    
+
     setAccommodationData((prevData) => {
       if (!prevData) return prevData;
-  
+
       const updatedData = [...prevData];
-      updatedData[currentIndexDate] = accommodation; 
+      updatedData[currentIndexDate] = accommodation;
       return updatedData;
     });
+
+    setIsSearchAccommodationOpen(false);
+    setSearchAccommodation("");
   };
 
-const handleClickAutoPlan = () => {
+  const handleClickAutoPlan = () => {
+
+    if(locationPlanning[currentIndexDate].length == 0 && !accommodationData[currentIndexDate]) {
+      console.log("Error no data");
+      return;
+    }
 
     const accommodation =
       accommodationData[currentIndexDate] != null
@@ -801,7 +840,7 @@ const handleClickAutoPlan = () => {
             id: "accommodation",
             title: "Accommodation",
             latitude: accommodationData[currentIndexDate].latitude,
-            longitude: accommodationData[currentIndexDate].longitude, 
+            longitude: accommodationData[currentIndexDate].longitude,
             type: "accommodation",
             rating: 5,
             ratingCount: 1,
@@ -812,8 +851,8 @@ const handleClickAutoPlan = () => {
         : null;
 
     const allLocations = accommodation
-      ? [...locationPlanning, accommodation]
-      : [...locationPlanning];
+      ? [...locationPlanning[currentIndexDate], accommodation]
+      : [...locationPlanning[currentIndexDate]];
 
     const distances = allLocations.map((loc1) =>
       allLocations.map((loc2) => {
@@ -864,8 +903,9 @@ const handleClickAutoPlan = () => {
     console.log("Total Distance using Nearest Neighbor:", totalDistance);
     console.log("Best Path:", visited);
 
-    setLocationPlanning(
-      visited
+    setLocationPlanning((prev) => {
+      const updatedLocationPlanning = [...prev];
+      updatedLocationPlanning[currentIndexDate] = visited
         .filter((index) => {
           const location = allLocations[index];
           return location.id !== "accommodation";
@@ -884,30 +924,43 @@ const handleClickAutoPlan = () => {
             img: location.img ?? "",
             dateOpen: location.dateOpen ?? [],
           };
-        })
-    );
-}
+        });
 
-const handleAddLocation = (id: string) => {
-  const location = mockLocation.find((item) => item.id === id);
-  const newLocation = { ...location, id: uuidv4() };
+      // คืนค่าการอัพเดต
+      return updatedLocationPlanning;
+    });
+  };
 
-  setLocationPlanning((prev) => [
-    ...prev,
-    {
-      id: newLocation.id,
-      title: newLocation.title ?? "",
-      latitude: newLocation.latitude ?? 0,
-      longitude: newLocation.longitude ?? 0,
-      type: newLocation.type ?? "",
-      rating: newLocation.rating ?? 0,
-      ratingCount: newLocation.rating ?? 0,
-      address: newLocation.address ?? "",
-      img: newLocation.img ?? "",
-      dateOpen: newLocation.dateOpen ?? [],
-    },
-  ]);
-};
+  const handleAddLocation = (id: string) => {
+    const location = mockLocation.find((item) => item.id === id);
+    const newLocation = { ...location, id: uuidv4() };
+
+    setLocationPlanning((prev) => {
+      const updatedLocationPlanning = [...prev];
+
+      updatedLocationPlanning[currentIndexDate] = [
+        ...updatedLocationPlanning[currentIndexDate],
+        {
+          id: newLocation.id,
+          title: newLocation.title ?? "",
+          latitude: newLocation.latitude ?? 0,
+          longitude: newLocation.longitude ?? 0,
+          type: newLocation.type ?? "",
+          rating: newLocation.rating ?? 0,
+          ratingCount: newLocation.rating ?? 0,
+          address: newLocation.address ?? "",
+          img: newLocation.img ?? "",
+          dateOpen: newLocation.dateOpen ?? [],
+        },
+      ];
+
+      return updatedLocationPlanning;
+    });
+
+    setIsSearchOpen(false);
+    setSearchText("");
+
+  };
 
   const myArrow: React.FC<MyArrowProps> = ({ type, onClick, isEdge }) => {
     const pointer =
@@ -939,11 +992,11 @@ const handleAddLocation = (id: string) => {
 
   const handleClickChangeDate = (index: number) => {
     setCurrentIndexDate(index);
-  }
+  };
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
-      <NavBar /> 
+      <NavBar />
       <div className="flex flex-row w-full h-[calc(100vh-84px)]">
         <div className="flex flex-col w-[8%] kanit mt-5">
           <div className="flex w-full justify-center">
@@ -955,30 +1008,30 @@ const handleAddLocation = (id: string) => {
             <div className="flex flex-col w-full items-center mt-40 kanit">
               <div className="flex bg-[#070707] rounded-full p-[10px]">
                 <Icon
-                    icon="tdesign:calendar-2"
-                    className="text-lg text-white "
-                    height={32}
-                    width={32}
+                  icon="tdesign:calendar-2"
+                  className="text-lg text-white "
+                  height={32}
+                  width={32}
                 />
               </div>
               <div className="flex flex-col w-full items-center font-bold">
-                <div className="flex">
-                  วางแผน
-                </div>
-                <div className="flex">
-                  การเดินทาง
-                </div>
+                <div className="flex">วางแผน</div>
+                <div className="flex">การเดินทาง</div>
               </div>
               <PerfectScrollbar
-              className="flex flex-col w-full max-h-72 relative bg-white mt-2"
-              style={{
-                overflow: "auto",
-              }}
+                className="flex flex-col w-full max-h-72 relative bg-white mt-2"
+                style={{
+                  overflow: "auto",
+                }}
               >
-              {items.map((item, index) => (
+                {items.map((item, index) => (
                   <div
                     key={index}
-                    className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${currentIndexDate == index ? 'bg-[#929191]' : 'bg-[#F4F4F4]'}`}
+                    className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${
+                      currentIndexDate == index
+                        ? "bg-[#929191]"
+                        : "bg-[#F4F4F4]"
+                    }`}
                     onClick={() => handleClickChangeDate(index)}
                   >
                     {item}
@@ -1202,7 +1255,7 @@ const handleAddLocation = (id: string) => {
                       : "h-0 transition-all duration-500"
                   } overflow-hidden`}
                 >
-                  {planningInformationDataList.length > 0 && (
+                  {planningInformationDataList.length >= 0 && (
                     <div className="flex flex-col h-full">
                       <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="locations">
@@ -1212,46 +1265,48 @@ const handleAddLocation = (id: string) => {
                               {...provided.droppableProps}
                               ref={provided.innerRef}
                             >
-                              {locationPlanning.map((location, index) => (
-                                <Draggable
-                                  key={location.id}
-                                  draggableId={location.title}
-                                  index={index}
-                                >
-                                  {(provided) => (
-                                    <li
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      className="p-2 mb-2 bg-white"
-                                    >
-                                      <PlanningCard
-                                        onDelete={onDelete}
-                                        handleClick={onClick}
-                                        distance={
-                                          planningInformationDataList[index]
-                                            ?.rangeBetween ?? 0
-                                        }
-                                        duration={
-                                          planningInformationDataList[index]
-                                            ?.timeTravel ?? 0
-                                        }
-                                        id={location.id}
-                                        index={index}
-                                        title={location.title}
-                                        type={location.type}
-                                        rating={location.rating}
-                                        ratingCount={location.ratingCount}
-                                        img={location.img}
-                                        latitude={location.latitude}
-                                        longitude={location.longitude}
-                                        dateOpen={location.dateOpen}
-                                        address={location.address}
-                                      />
-                                    </li>
-                                  )}
-                                </Draggable>
-                              ))}
+                              {locationPlanning[currentIndexDate].map(
+                                (location, index) => (
+                                  <Draggable
+                                    key={location.id}
+                                    draggableId={location.id}
+                                    index={index}
+                                  >
+                                    {(provided) => (
+                                      <li
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className="p-2 mb-2 bg-white"
+                                      >
+                                        <PlanningCard
+                                          onDelete={onDelete}
+                                          handleClick={onClick}
+                                          distance={
+                                            planningInformationDataList[index]
+                                              ?.rangeBetween ?? 0
+                                          }
+                                          duration={
+                                            planningInformationDataList[index]
+                                              ?.timeTravel ?? 0
+                                          }
+                                          id={location.id}
+                                          index={index}
+                                          title={location.title}
+                                          type={location.type}
+                                          rating={location.rating}
+                                          ratingCount={location.ratingCount}
+                                          img={location.img}
+                                          latitude={location.latitude}
+                                          longitude={location.longitude}
+                                          dateOpen={location.dateOpen}
+                                          address={location.address}
+                                        />
+                                      </li>
+                                    )}
+                                  </Draggable>
+                                )
+                              )}
                               {provided.placeholder}
                             </ul>
                           )}
@@ -1425,8 +1480,7 @@ const handleAddLocation = (id: string) => {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/* 
-                        <MapContainer
+            <MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1457,9 +1511,8 @@ const handleAddLocation = (id: string) => {
                   </Marker>
                 );
               })}
-              <MapUpdater locationPlanning={locationPlanning} />
+              <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
-            */}
           </div>
         </div>
       </div>
