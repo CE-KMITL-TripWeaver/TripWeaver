@@ -607,6 +607,8 @@ export default function Home() {
 
   useEffect(() => {
 
+    console.log("Come here!!");
+
     const coordinates = [
       ...locationPlanning[currentIndexDate].map(
         (loc) => `${loc.longitude},${loc.latitude}`
@@ -686,7 +688,7 @@ export default function Home() {
       .catch((error) => {
         console.error("Error fetching route data:", error);
       });
-  }, [locationPlanning, accommodationData]);
+  }, [locationPlanning, accommodationData, currentIndexDate]);
 
 
 
