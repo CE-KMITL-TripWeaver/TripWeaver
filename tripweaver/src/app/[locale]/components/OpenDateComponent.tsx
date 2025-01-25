@@ -57,7 +57,7 @@ export default function OpenDateComponent({
             );
             var isExist = !!existsDate;
 
-            if(existsDate && existsDate.openingHour === "หยุด") {
+            if(existsDate && existsDate.openingHour === "ปิด") {
               isExist = false;
             }
 

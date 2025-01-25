@@ -44,7 +44,7 @@ export default function PlanningCardDetails({
           >
             <div className="flex flex-col">
               <div className="flex font-bold text-lg">{title}</div>
-              <div className="flex -mt-2 text-[#9B9B9B]">{type}</div>
+              <div className="flex text-[#9B9B9B]">{type}</div>
               <div className="flex flex-row gap-x-1">
                 <div className="flex justify-center items-center">
                   <Icon
