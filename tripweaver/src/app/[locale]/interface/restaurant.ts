@@ -14,7 +14,7 @@ export default interface RestaurantData {
     openingHour: dateOpen[];
     phone: string[];
     website: string;
-    priceRange: string;
+    priceRange: string | undefined;
     location: LocationObject;
     rating: RatingObject;
 }

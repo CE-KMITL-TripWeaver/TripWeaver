@@ -146,7 +146,7 @@ export default function Home() {
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
-  const [selectedLocationInfo, setSelectedLocationInfo] = useState<Location | null>(null);
+  const [selectedLocationInfo, setSelectedLocationInfo] = useState<AttractionData | RestaurantData | null>(null);
   
   const [searchPlace, setSearchPlace] = useState<string>("");
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
@@ -354,7 +354,7 @@ export default function Home() {
 
     if (
       selectedLocationInfo &&
-      selectedLocationInfo.title === locationToDelete?.name
+      selectedLocationInfo.name === locationToDelete?.name
     ) {
       setSelectedLocationInfo(null);
     }
@@ -376,7 +376,7 @@ export default function Home() {
     });
   };
 
-  const onClick = (location: Location) => {
+  const onClick = (location: AttractionData | RestaurantData) => {
     setSelectedLocationInfo(location);
   };
 
@@ -979,17 +979,21 @@ export default function Home() {
                                             planningInformationDataList[index]
                                               ?.timeTravel ?? 0
                                           }
-                                          id={location._id}
+                                          _id={location._id}
                                           index={index}
-                                          title={location.name}
+                                          name={location.name}
                                           type={location.type}
-                                          rating={location.rating.score}
-                                          ratingCount={location.rating.ratingCount}
-                                          img={location.imgPath[0]}
+                                          rating={location.rating}
+                                          imgPath={location.imgPath}
                                           latitude={location.latitude}
                                           longitude={location.longitude}
-                                          dateOpen={location.openingHour}
-                                          address={location.location.address}
+                                          openingHour={location.openingHour}
+                                          location={location.location}
+                                          priceRange={isRestaurantData(location) ? location.priceRange : undefined} 
+                                          description={location.description}
+                                          facility={location.facility}
+                                          phone={location.phone}
+                                          website={location.website}
                                         />
                                       </li>
                                     )}
@@ -1160,10 +1164,12 @@ export default function Home() {
               style={{ zIndex: 1 }}
             >
               <PlanningCardDetails
-                title={selectedLocationInfo.title}
+                title={selectedLocationInfo.name}
                 type={selectedLocationInfo.type}
-                address={selectedLocationInfo.address}
-                dateOpen={selectedLocationInfo.dateOpen}
+                address={selectedLocationInfo.location.address}
+                dateOpen={selectedLocationInfo.openingHour}
+                phone={selectedLocationInfo.phone[0]}
+                imgPath={selectedLocationInfo.imgPath}
                 handleClick={handleClickSelectInfo}
               />
             </div>

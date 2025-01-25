@@ -38,8 +38,8 @@ export default function OpenDateComponent({
             <Icon
               icon="mdi:clock-outline"
               className="text-lg text-[#636363]"
-              width={16}
-              height={16}
+              width={18}
+              height={18}
             />
           </div>
           <div className="flex text-[#9B9B9B]">

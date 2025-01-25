@@ -1,28 +1,44 @@
 import React from "react";
 import { Icon } from "@iconify/react";
-import Location from "../interface/location";
 import Image from "next/image";
+import AttractionData from "../interface/attraction";
+import RestaurantData from "../interface/restaurant";
+
+
+type PlanningCardProps = (AttractionData | RestaurantData) & {
+  priceRange?: string;
+  description?: string;
+  facility?: string[];
+  phone?: string[];
+  website?: string;
+  onDelete: (id: string) => void;
+  handleClick: (location: AttractionData | RestaurantData) => void;
+  index: number;
+  distance: number;
+  duration: number;
+};
+
 export default function PlanningCard({
-  id,
-  title,
+  _id,
+  name,
   type,
   rating,
-  ratingCount,
-  img,
+  imgPath,
   latitude,
   longitude,
-  address,
-  dateOpen,
+  location,
+  openingHour,
+  description,
+  facility,
+  phone,
+  website,
+  priceRange,
   onDelete,
   handleClick,
   index,
   distance = 0,
   duration = 0,
-}: Location & { onDelete: (id: string) => void } & {
-  index: number;
-  distance: number;
-  duration: number;
-} & { handleClick: (location: Location) => void }) {
+}: PlanningCardProps) {
 
   const formattedDistance =
     distance >= 1000 ? `${(distance / 1000).toFixed(1)} กม.` : `${distance} ม.`;
@@ -41,16 +57,20 @@ export default function PlanningCard({
       <div
         onClick={() =>
             handleClick({
-            id,
-            title,
+            _id,
+            name,
             type,
             rating,
-            ratingCount,
-            img,
+            imgPath,
             latitude,
             longitude,
-            dateOpen,
-            address,
+            openingHour,
+            location,
+            description,
+            facility,
+            phone,
+            website,
+            priceRange: priceRange ?? "",
           })
         }
         className="relative group flex w-full h-full flex-row justify-between pr-5"
@@ -66,11 +86,11 @@ export default function PlanningCard({
         <div className="flex flex-row bg-[#F2F2F2] w-full rounded-lg justify-between">
         <div className="flex w-[60%] flex-col h-auto p-4 ml-2">
           <div className="flex flex-col">
-            <div className="flex text-lg kanit text-[#595959]">{title}</div>
+            <div className="flex text-lg kanit text-[#595959]">{name}</div>
             <div className="flex kanit text-[#9B9B9B]">{type}</div>
             <div className="flex flex-row">
               <div className="flex flex-row mr-1">
-                {Array.from({ length: Math.round(rating) }).map((_, index) => (
+                {Array.from({ length: Math.round(rating.score) }).map((_, index) => (
                   <div key={index} className="flex justify-center items-center">
                     <Icon
                       icon="mynaui:star-solid"
@@ -80,10 +100,10 @@ export default function PlanningCard({
                 ))}
               </div>
               <div className="flex kanit items-center justify-center font-bold text-[#666666] mr-1">
-                {rating}
+                {rating.score}
               </div>
               <div className="flex kanit items-center justify-center font-bold text-[#8A8A8A]">
-                ({ratingCount})
+                ({rating.ratingCount})
               </div>
             </div>
           </div>
@@ -123,7 +143,7 @@ export default function PlanningCard({
         <div className="flex h-full w-[40%] justify-end">
         <Image
           alt="img-planning-card"
-          src={img}
+          src={imgPath[0]}
           width={0}
           height={0}
           sizes="100vw"
@@ -146,7 +166,7 @@ export default function PlanningCard({
           className="flex absolute top-[40%] -right-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           onClick={(e) => { 
             e.stopPropagation();
-            onDelete(id);
+            onDelete(_id);
             }}
         >
           <Icon
