@@ -100,7 +100,6 @@ const mockItems = [
     img: "/images/sea-01.jpg",
   },
 ];
-import { LatLngExpression } from 'leaflet';
 
 export default function Home() {
   const t = useTranslations();
@@ -682,6 +681,7 @@ export default function Home() {
   const handleClickChangeDate = (index: number) => {
     setCurrentIndexDate(index);
   };
+  
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -864,21 +864,22 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex mt-2">
-                <Carousel
-                      breakPoints={breakPoints}
-                      pagination={false}
-                      renderArrow={myArrow}
-                      {...({ items: mockItems.map((item) => (
-                        <RecommendCard
-                          key={item.id}
-                          title={item.title}
-                          type={item.type}
-                          img={item.img}
-                          rating={item.rating}
-                          ratingCount={item.ratingCount}
-                        />
-                      ))} as any)}
-                    />
+                  <Carousel
+                    breakPoints={breakPoints}
+                    pagination={false}
+                    renderArrow={myArrow}
+                  >
+                    {mockItems.map((item) => (
+                      <RecommendCard
+                        key={item.id}
+                        title={item.title}
+                        type={item.type}
+                        img={item.img}
+                        rating={item.rating}
+                        ratingCount={item.ratingCount}
+                      />
+                    ))}
+                  </Carousel>
                 </div>
               </div>
               <div className="flex bg-[#F0F0F0] mb-10" />
