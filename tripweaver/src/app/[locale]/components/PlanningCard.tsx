@@ -16,8 +16,8 @@ export default function PlanningCard({
   onDelete,
   handleClick,
   index,
-  duration,
-  distance,
+  distance = 0,
+  duration = 0,
 }: Location & { onDelete: (id: string) => void } & {
   index: number;
   distance: number;

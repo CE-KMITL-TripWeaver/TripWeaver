@@ -100,10 +100,10 @@ const mockItems = [
     img: "/images/sea-01.jpg",
   },
 ];
+import { LatLngExpression } from 'leaflet';
 
 export default function Home() {
   const t = useTranslations();
-
   const startDate = new Date(2567 - 543, 0, 29);
   const durationInDay = 5;
   const endDate = new Date(startDate);
@@ -489,18 +489,21 @@ export default function Home() {
   };
 
   const handleClickAutoPlan = () => {
-
     if (locationPlanning[currentIndexDate].length === 0 && !accommodationData[currentIndexDate]) {
-      //console.log("Error no data");
+      console.log("Error: No data available.");
       return;
     }
+  
     const allLocations: { latitude: number; longitude: number }[] = [];
-
+  
     allLocations.push(...locationPlanning[currentIndexDate].map(location => ({
       latitude: location.latitude,
       longitude: location.longitude,
     })));
   
+    console.log("All Locations:", allLocations);
+  
+    // คำนวณระยะทางระหว่างสถานที่ทั้งหมด
     const distances = allLocations.map((loc1) =>
       allLocations.map((loc2) => {
         const lat1 = loc1.latitude ?? 0;
@@ -508,16 +511,19 @@ export default function Home() {
         const lat2 = loc2.latitude ?? 0;
         const lon2 = loc2.longitude ?? 0;
   
-        return haversine(
+        const distance = haversine(
           { latitude: lat1, longitude: lon1 },
           { latitude: lat2, longitude: lon2 }
         );
+        //console.log(`Distance from (${lat1}, ${lon1}) to (${lat2}, ${lon2}): ${distance} km`);
+        return distance;
       })
     );
   
     let visited = [0]; 
     let totalDistance = 0;
-
+  
+    // คำนวณการเยี่ยมชมสถานที่ตามวิธี Nearest Neighbor
     while (visited.length < allLocations.length) {
       let lastVisited = visited[visited.length - 1];
       let nearestNeighbor = -1;
@@ -532,6 +538,8 @@ export default function Home() {
   
       visited.push(nearestNeighbor);
       totalDistance += minDistance;
+  
+      //console.log(`Visited: ${nearestNeighbor}, Distance from ${lastVisited} to ${nearestNeighbor}: ${minDistance} km`);
     }
   
     if (accommodationData[currentIndexDate]) {
@@ -551,15 +559,17 @@ export default function Home() {
       totalDistance += lastToAccommodationDistance;
       visited.push(allLocations.length);
   
-      //console.log("Best Path:", visited);
+      //console.log(`Accommodation Location: (${accommodationLocation.latitude}, ${accommodationLocation.longitude})`);
+      //console.log(`Distance from last location to accommodation: ${lastToAccommodationDistance} km`);
+      //console.log("Best Path (Including Accommodation):", visited);
       //console.log("Total Distance using Nearest Neighbor (Including Accommodation):", totalDistance);
     }
-
+  
     const updatedLocations = visited
       .filter((index) => index < allLocations.length) 
       .map((index) => locationPlanning[currentIndexDate][index]);
   
-    //console.log("Updated Locations:", updatedLocations);
+    console.log("Updated Locations:", updatedLocations);
   
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
@@ -567,6 +577,7 @@ export default function Home() {
       return updatedLocationPlanning;
     });
   };
+  
   
 
   function isRestaurantData(location: AttractionData | RestaurantData): location is RestaurantData {
@@ -853,22 +864,21 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex mt-2">
-                  <Carousel
-                    breakPoints={breakPoints}
-                    pagination={false}
-                    renderArrow={myArrow}
-                  >
-                    {mockItems.map((item) => (
-                      <RecommendCard
-                        key={item.id}
-                        title={item.title}
-                        type={item.type}
-                        img={item.img}
-                        rating={item.rating}
-                        ratingCount={item.ratingCount}
-                      />
-                    ))}
-                  </Carousel>
+                <Carousel
+                      breakPoints={breakPoints}
+                      pagination={false}
+                      renderArrow={myArrow}
+                      {...({ items: mockItems.map((item) => (
+                        <RecommendCard
+                          key={item.id}
+                          title={item.title}
+                          type={item.type}
+                          img={item.img}
+                          rating={item.rating}
+                          ratingCount={item.ratingCount}
+                        />
+                      ))} as any)}
+                    />
                 </div>
               </div>
               <div className="flex bg-[#F0F0F0] mb-10" />
@@ -1178,7 +1188,7 @@ export default function Home() {
                 return (
                   <Marker
                     key={idx}
-                    position={position}
+                    position={position as L.LatLngTuple}
                     icon={
                       isLastWaypointWithAccommodation
                         ? createCustomIcon(idx + 99, true)
