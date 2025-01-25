@@ -2,7 +2,7 @@ import LocationObject from "../interface/locationObject";
 import RatingObject from "../interface/ratingObject";
 
 export default interface AccommodationData {
-  id: string;
+  _id: string;
   name: string;
   type: string[];
   description: string;

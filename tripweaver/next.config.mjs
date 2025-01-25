@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig = {
     reactStrictMode: false,
     images: {
-      domains: ['thumbs.dreamstime.com', 'media-cdn.tripadvisor.com'],
+      domains: ['thumbs.dreamstime.com', 'media-cdn.tripadvisor.com', 'dynamic-media-cdn.tripadvisor.com'],
     },
     async redirects() {
       return [];

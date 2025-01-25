@@ -96,7 +96,7 @@ export default function AccommodationCard({
           width={0}
           height={0}
           sizes="100vw"
-          className="rounded-xl "
+          className="rounded-xl max-w-48 max-h-40"
           style={{ width: "30%", height: "auto" }}
         />
         <div

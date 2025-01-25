@@ -55,7 +55,7 @@ export default function PlanningCard({
         }
         className="relative group flex w-full h-full flex-row justify-between pr-5"
       >
-        <div className="flex absolute top-[40%] -left-7">
+        <div className="flex absolute top-[40%] -left-8">
           <Icon
             icon="lsicon:drag-outline"
             className="text-lg text-[#9B9B9B]"

@@ -3,7 +3,7 @@ import DateOpen from "./dateOpen";
 export default interface Location {
     id: string;
     title: string;
-    type: string;
+    type: string[];
     rating: number;
     ratingCount: number;
     latitude: number;

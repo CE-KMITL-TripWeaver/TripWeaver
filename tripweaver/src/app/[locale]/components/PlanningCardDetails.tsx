@@ -8,7 +8,7 @@ import "../plantrip/carousel.css";
 
 interface PlanningCardDetailsProps {
   title: string;
-  type: string;
+  type: string[];
   address: string;
   dateOpen: dateOpen[];
 }

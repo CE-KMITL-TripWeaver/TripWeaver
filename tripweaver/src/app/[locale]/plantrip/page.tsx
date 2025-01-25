@@ -2,10 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import NavBar from "../components/NavBar";
-import locationPlanning from "../interface/locationPlan";
-import locationSearch from "../interface/locationSearch";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import Image from "next/image";
 import { Icon } from "@iconify/react";
 import Carousel from "react-elastic-carousel";
 import RecommendCard from "../components/RecommendCard";
@@ -25,6 +22,8 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
+import AttractionData from "../interface/attraction";
+import RestaurantData from "../interface/restaurant";
 
 import haversine from "haversine-distance";
 
@@ -51,11 +50,6 @@ const Marker = dynamic(
 interface planningInformationData {
   timeTravel: number;
   rangeBetween: number;
-}
-
-interface DateOpen {
-  dateName: string;
-  openingRange: string;
 }
 
 interface MyArrowProps {
@@ -107,346 +101,6 @@ const mockItems = [
   },
 ];
 
-const mockAccomodation = {
-  id: "test",
-  name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช",
-  type: ["รีสอร์ท"],
-  description:
-    "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
-  latitude: 7.884707,
-  longitude: 98.272835,
-  imgPath: [
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
-    "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
-  ],
-  phone: "00 66 76 335 300",
-  website:
-    "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
-  star: 5,
-  facility: [
-    "ที่จอดรถฟรี",
-    "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
-    "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
-    "สระว่ายน้ำ",
-    "บาร์ / เลานจ์",
-    "ชายหาด",
-    "การดำน้ำ",
-    "เด็กเข้าพักฟรี",
-    "ห้องพักปลอดสารก่อภูมิแพ้",
-    "ม่านกันแสง",
-    "เครื่องปรับอากาศ",
-    "ชายหาดส่วนตัว",
-    "ห้องน้ำเพิ่มเติม",
-    "เครื่องชงกาแฟ / ชา",
-    "เคเบิลทีวี / ทีวีดาวเทียม",
-    "โถชำระล้าง",
-  ],
-  tag: [
-    "วิวมหาสมุทร",
-    "วิวสระว่ายน้ำ",
-    "ห้องพักปลอดบุหรี่",
-    "ห้องสวีท",
-    "ห้องสำหรับครอบครัว",
-  ],
-  location: {
-    address:
-      "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
-    province: "ภูเก็ต",
-    province_code: 83,
-    district: "กะทู้",
-    district_code: 8302,
-    subDistrict: "",
-    sub_district_code: 0,
-  },
-  rating: {
-    score: 4.5,
-    ratingCount: 5918,
-  },
-};
-
-const mockAccomodationLists = [
-  {
-    id: "test",
-    name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช",
-    type: ["รีสอร์ท"],
-    description:
-      "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
-    latitude: 7.884707,
-    longitude: 98.272835,
-    imgPath: [
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
-    ],
-    phone: "00 66 76 335 300",
-    website:
-      "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
-    star: 5,
-    facility: [
-      "ที่จอดรถฟรี",
-      "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
-      "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
-      "สระว่ายน้ำ",
-      "บาร์ / เลานจ์",
-      "ชายหาด",
-      "การดำน้ำ",
-      "เด็กเข้าพักฟรี",
-      "ห้องพักปลอดสารก่อภูมิแพ้",
-      "ม่านกันแสง",
-      "เครื่องปรับอากาศ",
-      "ชายหาดส่วนตัว",
-      "ห้องน้ำเพิ่มเติม",
-      "เครื่องชงกาแฟ / ชา",
-      "เคเบิลทีวี / ทีวีดาวเทียม",
-      "โถชำระล้าง",
-    ],
-    tag: [
-      "วิวมหาสมุทร",
-      "วิวสระว่ายน้ำ",
-      "ห้องพักปลอดบุหรี่",
-      "ห้องสวีท",
-      "ห้องสำหรับครอบครัว",
-    ],
-    location: {
-      address:
-        "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
-      province: "ภูเก็ต",
-      province_code: 83,
-      district: "กะทู้",
-      district_code: 8302,
-      subDistrict: "",
-      sub_district_code: 0,
-    },
-    rating: {
-      score: 4.5,
-      ratingCount: 5918,
-    },
-  },
-  {
-    id: "test02",
-    name: "ภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีช2",
-    type: ["รีสอร์ท"],
-    description:
-      "หากคุณกำลังมองหารีสอร์ทหรูหราในป่าตองแล้วล่ะก็ ลองมาดูภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชได้เลย ด้วยทำเลที่อยู่ใกล้กับสถานที่ท่องเที่ยวยอดนิยม เช่น หาดป่าตอง (2.9 กม.) และถนนบางลา (2.9 กม.) แขกของ Merlin Beach Resort Phuket จึงสามารถเยี่ยมชมสถานที่ท่องเที่ยวสำคัญต่างๆ ของป่าตองได้อย่างง่ายดาย ห้องพักมีทีวีจอแบน เครื่องปรับอากาศ และมินิบาร์ และคุณยังสามารถเชื่อมต่ออินเทอร์เน็ตได้ด้วยบริการ Wifi ฟรี ช่วยให้คุณพักผ่อนพร้อมความสะดวกสบายเต็มที่ Beach Merlin Resort มีรูมเซอร์วิส และเจ้าหน้าที่อำนวยความสะดวกให้บริการ นอกจากนี้ ในฐานะแขกของ Merlin Beach Resort Phuket คุณยังสามารถใช้บริการสระว่ายน้ำ และอาหารเช้าได้อีกด้วย แขกที่เลือกขับรถมาสามารถใช้ที่จอดรถฟรีได้ เมื่อความหิวถามหา อย่าลืมแวะไปที่บ้านริมผา, Sizzle Rooftop Restaurant และ No.6 Restaurant ซึ่งเป็นร้านอาหารซีฟู้ดที่คนในท้องถิ่นและนักท่องเที่ยวต่างชื่นชอบ บริเวณนี้มีสิ่งให้เที่ยวชมมากมาย ลองดูหอศิลป์ยอดนิยม เช่น Patong Inn Art, Apichart art gallery และ The Phuket Gallery่ พนักงานของภูเก็ต แมริออท รีสอร์ท แอนด์ สปา, เมอร์ลิน บีชพร้อมแล้วที่จะให้บริการคุณในทริปต่อไป",
-    latitude: 7.884707,
-    longitude: 98.272835,
-    imgPath: [
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9b/df/tri-trang-beach.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/4a/86/c7/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/fe/family-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/22/ef/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/8c/kids-club.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/10/balcony-pool-view.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/15/10/23/01/pool-terrace.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/6c/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9d/00/spa-tub.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/45/merchant-kitchen-all.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a9/a4/wellness.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/ae/e6/docg-italian-restaurant.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0d/e0/af/42/lobby-bar.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/9f/97/nam-tok-pool.jpg",
-      "https://media-cdn.tripadvisor.com/media/photo-s/0f/6f/a0/05/family-pool.jpg",
-    ],
-    phone: "00 66 76 335 300",
-    website:
-      "https://th.tripadvisor.com/Hotel_Review-g297930-d315568-Reviews-Phuket_Marriott_Resort_Spa_Merlin_Beach-Patong_Kathu_Phuket.html",
-    star: 5,
-    facility: [
-      "ที่จอดรถฟรี",
-      "อินเตอร์เน็ตความเร็วสูง (WiFi) ฟรี",
-      "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย",
-      "สระว่ายน้ำ",
-      "บาร์ / เลานจ์",
-      "ชายหาด",
-      "การดำน้ำ",
-      "เด็กเข้าพักฟรี",
-      "ห้องพักปลอดสารก่อภูมิแพ้",
-      "ม่านกันแสง",
-      "เครื่องปรับอากาศ",
-      "ชายหาดส่วนตัว",
-      "ห้องน้ำเพิ่มเติม",
-      "เครื่องชงกาแฟ / ชา",
-      "เคเบิลทีวี / ทีวีดาวเทียม",
-      "โถชำระล้าง",
-    ],
-    tag: [
-      "วิวมหาสมุทร",
-      "วิวสระว่ายน้ำ",
-      "ห้องพักปลอดบุหรี่",
-      "ห้องสวีท",
-      "ห้องสำหรับครอบครัว",
-    ],
-    location: {
-      address:
-        "99 ถนนหมื่นเงิน หาดไตรตรัง, ป่าตอง, กะทู้, จังหวัดภูเก็ต 83150 ไทย",
-      province: "ภูเก็ต",
-      province_code: 83,
-      district: "กะทู้",
-      district_code: 8302,
-      subDistrict: "",
-      sub_district_code: 0,
-    },
-    rating: {
-      score: 4.5,
-      ratingCount: 5918,
-    },
-  },
-];
-
-const mockLocation = [
-  {
-    id: "1",
-    title: "หาดป่าตอง (Patong Beach)",
-    type: "ทะเล ชายหาด",
-    rating: 3.9,
-    ratingCount: 9556,
-    latitude: 7.8961957,
-    longitude: 98.2954147,
-    img: "/th/images/patong.jpg",
-    dateOpen: [
-      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
-      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
-      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
-      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
-      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
-    ],
-    address: "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต",
-  },
-  {
-    id: "2",
-    title: "แหลมพรหมเทพ (Promthep Cape)",
-    type: "ทะเล ชายหาด",
-    rating: 3.8,
-    ratingCount: 6521,
-    latitude: 7.7587,
-    longitude: 98.3044,
-    img: "/th/images/phomthep.jpg",
-    dateOpen: [
-      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
-      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
-      { dateName: "พุธ", openingRange: "หยุด" },
-      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
-      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
-      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
-      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
-    ],
-    address: "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี",
-  },
-  {
-    id: "3",
-    title: "วัดฉลอง (Wat Chalong)",
-    type: "ทะเล ชายหาด",
-    rating: 3.9,
-    ratingCount: 3648,
-    latitude: 7.8441,
-    longitude: 98.3383,
-    img: "/th/images/chalong.jpg",
-    dateOpen: [
-      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
-      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
-      { dateName: "พุธ", openingRange: "หยุด" },
-      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
-      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
-      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
-      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
-    ],
-    address: "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-  {
-    id: "4",
-    title: "พระใหญ่ภูเก็ต (Big Buddha)",
-    type: "ทะเล ชายหาด",
-    rating: 4.1,
-    ratingCount: 5468,
-    latitude: 7.8274,
-    longitude: 98.3055,
-    img: "/th/images/bigbudda.jpg",
-    dateOpen: [
-      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
-      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
-      { dateName: "พุธ", openingRange: "หยุด" },
-      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
-      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
-      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
-      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
-    ],
-    address: "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-  {
-    id: "5",
-    title: "หาดกะรน (Karon Beach)",
-    type: "ทะเล ชายหาด",
-    rating: 4.2,
-    ratingCount: 5696,
-    latitude: 7.8474,
-    longitude: 98.2937,
-    img: "/th/images/karon.jpg",
-    dateOpen: [
-      { dateName: "จันทร์", openingRange: "09:00 - 18:00" },
-      { dateName: "อังคาร", openingRange: "09:00 - 18:00" },
-      { dateName: "พุธ", openingRange: "หยุด" },
-      { dateName: "พฤหัสบดี", openingRange: "09:00 - 18:00" },
-      { dateName: "ศุกร์", openingRange: "09:00 - 18:00" },
-      { dateName: "เสาร์", openingRange: "08:00 - 20:00" },
-      { dateName: "อาทิตย์", openingRange: "08:00 - 20:00" },
-    ],
-    address: "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-];
-
-const mockLocationSearch = [
-  {
-    id: "1",
-    title: "หาดป่าตอง (Patong Beach)",
-    address: "Q8G4+M4H ตำบล ป่าตอง อำเภอกะทู้ ภูเก็ต",
-  },
-  {
-    id: "2",
-    title: "แหลมพรหมเทพ (Promthep Cape)",
-    address: "Q8J6+F8P ตำบล นาจอมเทียน อำเภอสัตหีบ ชลบุรี",
-  },
-  {
-    id: "3",
-    title: "วัดฉลอง (Wat Chalong)",
-    address: "Q8J7+G3F ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-  {
-    id: "4",
-    title: "พระใหญ่ภูเก็ต (Big Buddha)",
-    address: "Q8J7+JQF ตำบล ฉลอง อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-  {
-    id: "5",
-    title: "หาดกะรน (Karon Beach)",
-    address: "Q8J7+M39 ตำบล กะรน อำเภอเมืองภูเก็ต ภูเก็ต",
-  },
-];
-
 export default function Home() {
   const t = useTranslations();
 
@@ -474,16 +128,9 @@ export default function Home() {
     });
   });
 
-  const [accommodationData, setAccommodationData] = useState<
-    (AccommodationData | null)[]
-  >(Array(durationInDay).fill(null));
-  const [locationPlanning, setLocationPlanning] = useState<
-    locationPlanning[][]
-  >(Array(durationInDay).fill([]));
+  const [accommodationData, setAccommodationData] = useState<(AccommodationData | null)[]>(Array(durationInDay).fill(null));
+  const [locationPlanning, setLocationPlanning] = useState<(AttractionData | RestaurantData)[][]>(Array(durationInDay).fill([]));
 
-  const [locationInSearch, setLocationInSearch] = useState<locationSearch[]>(
-    []
-  );
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
   const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
@@ -491,9 +138,6 @@ export default function Home() {
   const searchPlacesRef = useRef<HTMLDivElement>(null);
   const searchAccommodationRef = useRef<HTMLDivElement>(null);
 
-  const [name, setName] = useState<string>("");
-  const [latitude, setLatitude] = useState<number | "">("");
-  const [longitude, setLongitude] = useState<number | "">("");
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
   const [planningInformationDataList, setPlanningInformationDataList] =
@@ -503,43 +147,62 @@ export default function Home() {
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
-  const [selectedLocationInfo, setSelectedLocationInfo] =
-    useState<Location | null>(null);
-
-  const [searchText, setSearchText] = useState<string>("");
+  const [selectedLocationInfo, setSelectedLocationInfo] = useState<Location | null>(null);
+  
+  const [searchPlace, setSearchPlace] = useState<string>("");
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
 
-  const [filteredLocations, setFilteredLocations] = useState<locationSearch[]>(
-    []
-  );
-  const [filteredAccomodations, setFilteredAccommodations] = useState<
-    AccommodationData[]
-  >([]);
+  const [filteredAccomodations, setFilteredAccommodations] = useState<AccommodationData[]>([]);
+  const [accommodationsData, setAccommodationsData] = useState<AccommodationData[]>([]);
+  const [placesData, setPlacesData] = useState<(AttractionData | RestaurantData)[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<(AttractionData | RestaurantData)[]>([]);
+
 
   useEffect(() => {
-    //setLocationPlanning(mockLocation);
-    setLocationInSearch(mockLocationSearch);
-    setFilteredLocations(mockLocationSearch);
-    //setAccommodationData(mockAccomodation);
-    setFilteredAccommodations(mockAccomodationLists);
+
+    const fetchData = async () => {
+      try {
+
+        const attractionResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
+        );
+        const restaurantResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
+        );
+
+        const accommodationResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`);
+
+        const attractions = attractionResponse.data.attractions || [];
+        const restaurants = restaurantResponse.data.restaurants || [];
+    
+        setAccommodationsData(accommodationResponse.data.accommodations)
+        setFilteredAccommodations(accommodationResponse.data.accommodations);
+        setPlacesData([...attractions, ...restaurants]);
+        setFilteredLocations([...attractions, ...restaurants])
+      } catch (error) {
+        console.error("Error fetching places data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
-    const filtered = mockLocationSearch.filter((item) =>
-      item.title.startsWith(searchText)
+    const filtered = placesData.filter((item) =>
+      item.name.toLocaleLowerCase().startsWith(searchPlace.toLocaleLowerCase())
     );
     setFilteredLocations(filtered);
-  }, [searchText]);
+  }, [searchPlace]);
 
   useEffect(() => {
-    const filtered = mockAccomodationLists.filter((item) =>
-      item.name.startsWith(searchAccommodation)
+    const filtered = accommodationsData.filter((item) =>
+      item.name.toLocaleLowerCase().startsWith(searchAccommodation.toLocaleLowerCase())
     );
     setFilteredAccommodations(filtered);
   }, [searchAccommodation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
+    setSearchPlace(e.target.value);
   };
 
   const handleSearchAccommodationChange = (
@@ -584,13 +247,10 @@ export default function Home() {
     ]);
 
     if (accommodationData[currentIndexDate]) {
-      console.log("Add accomodation");
       newWaypoints.push([
         accommodationData[currentIndexDate].latitude,
         accommodationData[currentIndexDate].longitude,
       ]);
-    } else {
-      console.log("Not add accomodation");
     }
 
     setWaypoints(newWaypoints);
@@ -606,8 +266,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-
-    console.log("Come here!!");
 
     const coordinates = [
       ...locationPlanning[currentIndexDate].map(
@@ -652,8 +310,8 @@ export default function Home() {
       setWaypoints([]);
       return;
     }
-
-    const url = `https://osrm.tripweaver.site/route/v1/driving/${coordinates}`;
+ 
+    const url = `${process.env.NEXT_PUBLIC_OSRM_API_URL}/route/v1/driving/${coordinates}`;
     axios
       .get(url)
       .then((response) => {
@@ -682,8 +340,6 @@ export default function Home() {
         planningData.unshift({ timeTravel: 0, rangeBetween: 0 });
 
         setPlanningInformationDataList(planningData);
-        //console.log(planningData);
-        //console.log("way point : ", waypoints.length);
       })
       .catch((error) => {
         console.error("Error fetching route data:", error);
@@ -694,12 +350,12 @@ export default function Home() {
 
   const onDelete = (id: string) => {
     const locationToDelete = locationPlanning[currentIndexDate].find(
-      (location) => location.id === id
+      (location) => location._id === id
     );
 
     if (
       selectedLocationInfo &&
-      selectedLocationInfo.title === locationToDelete?.title
+      selectedLocationInfo.title === locationToDelete?.name
     ) {
       setSelectedLocationInfo(null);
     }
@@ -708,7 +364,7 @@ export default function Home() {
       const updatedPlanning = [...prev];
       updatedPlanning[currentIndexDate] = updatedPlanning[
         currentIndexDate
-      ].filter((location) => location.id !== id);
+      ].filter((location) => location._id !== id);
       return updatedPlanning;
     });
   };
@@ -783,7 +439,7 @@ export default function Home() {
         !searchPlacesRef.current.contains(event.target as Node)
       ) {
         setIsSearchOpen(false);
-        setSearchText("");
+        setSearchPlace("");
       }
     };
 
@@ -811,7 +467,10 @@ export default function Home() {
   }, [searchAccommodationRef]);
 
   const handleSetAccommodation = (id: string) => {
-    const accommodation = mockAccomodationLists.find((item) => item.id === id);
+
+    console.log("ID ", id);
+
+    const accommodation = accommodationsData.find((item) => item._id === id);
     if (!accommodation) {
       console.error(`Accommodation with id ${id} not found`);
       return;
@@ -831,136 +490,153 @@ export default function Home() {
 
   const handleClickAutoPlan = () => {
 
-    if(locationPlanning[currentIndexDate].length == 0 && !accommodationData[currentIndexDate]) {
-      console.log("Error no data");
+    if (locationPlanning[currentIndexDate].length === 0 && !accommodationData[currentIndexDate]) {
+      //console.log("Error no data");
       return;
     }
+    const allLocations: { latitude: number; longitude: number }[] = [];
 
-    const accommodation =
-      accommodationData[currentIndexDate] != null
-        ? {
-            id: "accommodation",
-            title: "Accommodation",
-            latitude: accommodationData[currentIndexDate].latitude,
-            longitude: accommodationData[currentIndexDate].longitude,
-            type: "accommodation",
-            rating: 5,
-            ratingCount: 1,
-            address: "Accommodation Address",
-            img: "",
-            dateOpen: [],
-          }
-        : null;
-
-    const allLocations = accommodation
-      ? [...locationPlanning[currentIndexDate], accommodation]
-      : [...locationPlanning[currentIndexDate]];
-
+    allLocations.push(...locationPlanning[currentIndexDate].map(location => ({
+      latitude: location.latitude,
+      longitude: location.longitude,
+    })));
+  
     const distances = allLocations.map((loc1) =>
       allLocations.map((loc2) => {
         const lat1 = loc1.latitude ?? 0;
         const lon1 = loc1.longitude ?? 0;
         const lat2 = loc2.latitude ?? 0;
         const lon2 = loc2.longitude ?? 0;
-
+  
         return haversine(
           { latitude: lat1, longitude: lon1 },
           { latitude: lat2, longitude: lon2 }
         );
       })
     );
-
-    let visited = [0];
+  
+    let visited = [0]; 
     let totalDistance = 0;
 
-    while (
-      visited.length <
-      (accommodation ? allLocations.length - 1 : allLocations.length)
-    ) {
+    while (visited.length < allLocations.length) {
       let lastVisited = visited[visited.length - 1];
       let nearestNeighbor = -1;
       let minDistance = Infinity;
-
+  
       for (let i = 0; i < allLocations.length; i++) {
-        if (
-          (!accommodation || i !== allLocations.length - 1) &&
-          !visited.includes(i) &&
-          distances[lastVisited][i] < minDistance
-        ) {
+        if (!visited.includes(i) && distances[lastVisited][i] < minDistance) {
           nearestNeighbor = i;
           minDistance = distances[lastVisited][i];
         }
       }
-
+  
       visited.push(nearestNeighbor);
       totalDistance += minDistance;
     }
-
-    if (accommodation) {
-      visited.push(allLocations.length - 1);
-      totalDistance +=
-        distances[visited[visited.length - 2]][visited[visited.length - 1]];
+  
+    if (accommodationData[currentIndexDate]) {
+      const accommodationLocation = {
+        latitude: accommodationData[currentIndexDate].latitude,
+        longitude: accommodationData[currentIndexDate].longitude,
+      };
+  
+      const lastLocationIndex = visited[visited.length - 1];
+      const lastLocation = allLocations[lastLocationIndex];
+  
+      const lastToAccommodationDistance = haversine(
+        { latitude: lastLocation.latitude, longitude: lastLocation.longitude },
+        accommodationLocation
+      );
+  
+      totalDistance += lastToAccommodationDistance;
+      visited.push(allLocations.length);
+  
+      //console.log("Best Path:", visited);
+      //console.log("Total Distance using Nearest Neighbor (Including Accommodation):", totalDistance);
     }
 
-    console.log("Total Distance using Nearest Neighbor:", totalDistance);
-    console.log("Best Path:", visited);
-
+    const updatedLocations = visited
+      .filter((index) => index < allLocations.length) 
+      .map((index) => locationPlanning[currentIndexDate][index]);
+  
+    //console.log("Updated Locations:", updatedLocations);
+  
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
-      updatedLocationPlanning[currentIndexDate] = visited
-        .filter((index) => {
-          const location = allLocations[index];
-          return location.id !== "accommodation";
-        })
-        .map((index) => {
-          const location = allLocations[index];
-          return {
-            ...location,
-            title: location.title ?? "",
-            latitude: location.latitude ?? 0,
-            longitude: location.longitude ?? 0,
-            type: location.type ?? "",
-            rating: location.rating ?? 0,
-            ratingCount: location.rating ?? 0,
-            address: location.address ?? "",
-            img: location.img ?? "",
-            dateOpen: location.dateOpen ?? [],
-          };
-        });
-
-      // คืนค่าการอัพเดต
+      updatedLocationPlanning[currentIndexDate] = updatedLocations;
       return updatedLocationPlanning;
     });
   };
+  
+
+  function isRestaurantData(location: AttractionData | RestaurantData): location is RestaurantData {
+    return (location as RestaurantData).priceRange !== undefined;
+  }
+  function isAttractionData(location: AttractionData | RestaurantData): location is AttractionData {
+    return (location as AttractionData).attractionTag !== undefined;
+  }
 
   const handleAddLocation = (id: string) => {
-    const location = mockLocation.find((item) => item.id === id);
+    const location = placesData.find((item) => item._id === id);
+
+    if (!location) {
+      console.log("Location not found");
+      return;
+    }
+
     const newLocation = { ...location, id: uuidv4() };
+    let updatedLocation: AttractionData | RestaurantData;
+
+    if (isRestaurantData(newLocation)) {
+      updatedLocation = {
+        _id: newLocation.id,
+        name: newLocation.name ?? "",
+        latitude: newLocation.latitude ?? 0,
+        longitude: newLocation.longitude ?? 0,
+        type: newLocation.type ?? [],
+        rating: newLocation.rating ?? { rating: 0, count: 0 },
+        location: newLocation.location ?? { latitude: 0, longitude: 0 },
+        imgPath: newLocation.imgPath ?? [],
+        openingHour: newLocation.openingHour ?? [],
+        description: newLocation.description ?? "",
+        facility: newLocation.facility ?? [],
+        phone: newLocation.phone ?? "",
+        website: newLocation.website ?? "",
+        priceRange: newLocation.priceRange ?? "",
+      };
+    } else if (isAttractionData(newLocation)) {
+      updatedLocation = {
+        _id: newLocation.id,
+        name: newLocation.name ?? "",
+        latitude: newLocation.latitude ?? 0,
+        longitude: newLocation.longitude ?? 0,
+        type: newLocation.type ?? [],
+        rating: newLocation.rating ?? { rating: 0, count: 0 },
+        location: newLocation.location ?? { latitude: 0, longitude: 0 },
+        imgPath: newLocation.imgPath ?? [],
+        openingHour: newLocation.openingHour ?? [],
+        description: newLocation.description ?? "",
+        facility: newLocation.facility ?? [],
+        phone: newLocation.phone ?? "",
+        website: newLocation.website ?? "",
+        attractionTag: newLocation.attractionTag,
+      };
+    }
 
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
-
+  
       updatedLocationPlanning[currentIndexDate] = [
         ...updatedLocationPlanning[currentIndexDate],
-        {
-          id: newLocation.id,
-          title: newLocation.title ?? "",
-          latitude: newLocation.latitude ?? 0,
-          longitude: newLocation.longitude ?? 0,
-          type: newLocation.type ?? "",
-          rating: newLocation.rating ?? 0,
-          ratingCount: newLocation.rating ?? 0,
-          address: newLocation.address ?? "",
-          img: newLocation.img ?? "",
-          dateOpen: newLocation.dateOpen ?? [],
-        },
+        updatedLocation,
       ];
-
+  
       return updatedLocationPlanning;
     });
 
+
     setIsSearchOpen(false);
-    setSearchText("");
+    setSearchPlace("");
 
   };
 
@@ -1270,8 +946,8 @@ export default function Home() {
                               {locationPlanning[currentIndexDate].map(
                                 (location, index) => (
                                   <Draggable
-                                    key={location.id}
-                                    draggableId={location.id}
+                                    key={location._id}
+                                    draggableId={location._id}
                                     index={index}
                                   >
                                     {(provided) => (
@@ -1292,17 +968,17 @@ export default function Home() {
                                             planningInformationDataList[index]
                                               ?.timeTravel ?? 0
                                           }
-                                          id={location.id}
+                                          id={location._id}
                                           index={index}
-                                          title={location.title}
+                                          title={location.name}
                                           type={location.type}
-                                          rating={location.rating}
-                                          ratingCount={location.ratingCount}
-                                          img={location.img}
+                                          rating={location.rating.score}
+                                          ratingCount={location.rating.ratingCount}
+                                          img={location.imgPath[0]}
                                           latitude={location.latitude}
                                           longitude={location.longitude}
-                                          dateOpen={location.dateOpen}
-                                          address={location.address}
+                                          dateOpen={location.openingHour}
+                                          address={location.location.address}
                                         />
                                       </li>
                                     )}
@@ -1335,7 +1011,7 @@ export default function Home() {
                         placeholder="ค้นหาเพื่อเพิ่มสถานที่ของคุณ"
                         className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
                         onFocus={handleFocus}
-                        value={searchText}
+                        value={searchPlace}
                         onChange={handleSearchChange}
                       />
                     </div>
@@ -1347,13 +1023,13 @@ export default function Home() {
                       ref={searchPlacesRef}
                     >
                       <ul className="divide-y divide-gray-200">
-                        {filteredLocations.map((item) => (
+                        {filteredLocations.slice(0, 5).map((item) => (
                           <SearchPlaceObjectComponent
-                            key={item.id}
-                            id={item.id}
-                            title={item.title}
-                            address={item.address}
-                            onClick={() => handleAddLocation(item.id)}
+                            key={item._id}
+                            id={item._id}
+                            title={item.name}
+                            address={item.location.address}
+                            onClick={() => handleAddLocation(item._id)}
                           />
                         ))}
                       </ul>
@@ -1443,14 +1119,14 @@ export default function Home() {
                             ref={searchAccommodationRef}
                           >
                             <ul className="divide-y divide-gray-200">
-                              {filteredAccomodations.map((item) => (
+                              {filteredAccomodations.slice(0, 5).map((item) => (
                                 <SearchPlaceObjectComponent
-                                  key={item.id}
-                                  id={item.id}
+                                  key={item._id}
+                                  id={item._id}
                                   title={item.name}
                                   address={item.location.address}
                                   onClick={() =>
-                                    handleSetAccommodation(item.id)
+                                    handleSetAccommodation(item._id)
                                   }
                                 />
                               ))}
@@ -1482,7 +1158,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            <MapContainer
+            {<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1515,6 +1191,7 @@ export default function Home() {
               })}
               <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
+            }
           </div>
         </div>
       </div>

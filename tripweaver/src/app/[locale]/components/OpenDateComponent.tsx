@@ -26,9 +26,9 @@ export default function OpenDateComponent({
   const currentDay = new Date().getDay();
   const currentDayInThai = dayData[currentDay].realName;
   const currentDayData = dateOpen.find(
-    (day) => day.dateName === currentDayInThai
+    (day) => day.day === currentDayInThai
   );
-  const openingRange = currentDayData ? currentDayData.openingRange : "หยุด";
+  const openingRange = currentDayData ? currentDayData.openingHour : "หยุด";
 
   return (
     <>
@@ -53,11 +53,11 @@ export default function OpenDateComponent({
         >
           {dayData.map((day, index) => {
             const existsDate = dateOpen.find(
-                (openDay) => openDay.dateName === day.realName
+                (openDay) => openDay.day === day.realName
             );
             var isExist = !!existsDate;
 
-            if(existsDate && existsDate.openingRange === "หยุด") {
+            if(existsDate && existsDate.openingHour === "หยุด") {
               isExist = false;
             }
 
@@ -75,7 +75,7 @@ export default function OpenDateComponent({
                         {day.realName}: 
                     </div>   
                     <div className="flex">
-                        {existsDate ? existsDate.openingRange : "หยุด"}
+                        {existsDate ? existsDate.openingHour : "หยุด"}
                     </div>   
                 </div>
               </div>

@@ -1,4 +1,4 @@
 export default interface dateOpen {
-    dateName: string,
-    openingRange: string
+    day: string,
+    openingHour: string
 }
