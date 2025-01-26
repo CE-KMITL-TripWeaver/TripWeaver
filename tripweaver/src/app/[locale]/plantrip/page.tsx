@@ -1175,7 +1175,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {<MapContainer
+            {/*<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1202,13 +1202,18 @@ export default function Home() {
                         : createCustomIcon(idx + 1, false)
                     }
                   >
-                    <Popup>{`Location ${idx + 1}`}</Popup>
+                    
+                    <Popup>
+                      {isLastWaypointWithAccommodation
+                        ? `${accommodationData[currentIndexDate]?.name}`
+                        : `${locationPlanning[currentIndexDate][idx]?.name}`}
+                    </Popup>
                   </Marker>
                 );
               })}
               <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
-            }
+            */}
           </div>
         </div>
       </div>

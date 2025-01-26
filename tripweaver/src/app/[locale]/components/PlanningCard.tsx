@@ -83,7 +83,7 @@ export default function PlanningCard({
             height={36}
           />
         </div>
-        <div className="flex flex-row bg-[#F2F2F2] w-full rounded-lg justify-between">
+        <div className="flex flex-row bg-[#F2F2F2] hover:bg-[#e6e6e6] w-full rounded-lg justify-between">
         <div className="flex w-[60%] flex-col h-auto p-4 ml-2">
           <div className="flex flex-col">
             <div className="flex text-lg kanit text-[#595959]">{name}</div>
