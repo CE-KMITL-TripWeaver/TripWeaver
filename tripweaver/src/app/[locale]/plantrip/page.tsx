@@ -680,6 +680,7 @@ export default function Home() {
 
   const handleClickChangeDate = (index: number) => {
     setCurrentIndexDate(index);
+    setSelectedLocationInfo(null);
   };
   
 
