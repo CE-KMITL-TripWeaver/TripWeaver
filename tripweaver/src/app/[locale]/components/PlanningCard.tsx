@@ -12,10 +12,12 @@ type PlanningCardProps = (AttractionData | RestaurantData) & {
   phone?: string[];
   website?: string;
   onDelete: (id: string) => void;
+  handleClickEditDuration: (id: string) => void;
   handleClick: (location: AttractionData | RestaurantData) => void;
   index: number;
   distance: number;
   duration: number;
+  stayDuration: number;
 };
 
 export default function PlanningCard({
@@ -35,9 +37,11 @@ export default function PlanningCard({
   priceRange,
   onDelete,
   handleClick,
+  handleClickEditDuration,
   index,
   distance = 0,
   duration = 0,
+  stayDuration,
 }: PlanningCardProps) {
 
   const formattedDistance =
@@ -51,6 +55,13 @@ export default function PlanningCard({
             : ""
         }`
       : `${Math.floor(duration / 60)} น.`;
+
+      const formattedDurationPlace =
+      stayDuration >= 60
+        ? `${Math.floor(stayDuration / 60)} ชม.${
+          stayDuration % 60 !== 0 ? ` ${stayDuration % 60} น.` : ""
+          }`
+        : `${stayDuration} น.`;
 
   return (
     <>
@@ -107,8 +118,8 @@ export default function PlanningCard({
               </div>
             </div>
           </div>
-          <div className="flex flex-row mt-2 justify-between">
-            <div className="flex flex-row">
+          <div className="flex flex-row mt-2 justify-start w-full ">
+            <div className="flex flex-row w-[33%]">
               <div className="flex items-center justify-center mr-1">
                 <Icon
                   icon="material-symbols:flag-outline"
@@ -119,7 +130,7 @@ export default function PlanningCard({
                 {index === 0 ? "จุดเริ่มต้น" : `${formattedDuration}`}
               </div>
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row w-[33%]">
               <div className="flex items-center justify-center mr-1">
                 <Icon
                   icon="teenyicons:pin-outline"
@@ -130,12 +141,16 @@ export default function PlanningCard({
                 {index === 0 ? "จุดเริ่มต้น" : `${formattedDistance}`}
               </div>
             </div>
-            <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]">
+            <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]  w-[33%]">
               <div className="flex items-center justify-center mr-1">
                 <Icon icon="mdi:clock-outline" className="text-lg" />
               </div>
-              <div className="flex items-center justify-center kanit">
-                120 นาที
+              <div className="flex items-center justify-center kanit" onClick={
+                (e) => {
+                  e.stopPropagation();
+                  handleClickEditDuration(_id)}}
+                >
+                {formattedDurationPlace}
               </div>
             </div>
           </div>

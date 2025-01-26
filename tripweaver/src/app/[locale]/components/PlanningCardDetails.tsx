@@ -54,7 +54,7 @@ export default function PlanningCardDetails({
               overflow: "auto",
             }}
           >
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-[80%]">
               <div className="flex flex-row justify-between w-full">
                 <div className="flex flex-col">
                   <div className="flex font-bold text-lg">{title}</div>

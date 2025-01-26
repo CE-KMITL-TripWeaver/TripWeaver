@@ -12,7 +12,7 @@ import PlanningCardDetails from "../components/PlanningCardDetails";
 import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent";
 import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
-import Location from "../interface/location";
+import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
 
 import { v4 as uuidv4 } from "uuid";
@@ -50,6 +50,16 @@ const Marker = dynamic(
 interface planningInformationData {
   timeTravel: number;
   rangeBetween: number;
+}
+
+interface planningPlacesDuration {
+  uuid: string;
+  time: number;
+}
+
+interface modalEditorProps {
+  placeID: string;
+  isOpen: boolean;
 }
 
 interface MyArrowProps {
@@ -127,8 +137,12 @@ export default function Home() {
     });
   });
 
-  const [accommodationData, setAccommodationData] = useState<(AccommodationData | null)[]>(Array(durationInDay).fill(null));
-  const [locationPlanning, setLocationPlanning] = useState<(AttractionData | RestaurantData)[][]>(Array(durationInDay).fill([]));
+  const [accommodationData, setAccommodationData] = useState<
+    (AccommodationData | null)[]
+  >(Array(durationInDay).fill(null));
+  const [locationPlanning, setLocationPlanning] = useState<
+    (AttractionData | RestaurantData)[][]
+  >(Array(durationInDay).fill([]));
 
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
@@ -141,27 +155,44 @@ export default function Home() {
   const [waypoints, setWaypoints] = useState<number[][]>([]);
   const [planningInformationDataList, setPlanningInformationDataList] =
     useState<planningInformationData[]>([]);
+  const [placesStayDurationList, setPlacesStayDurationList] = useState<
+    planningPlacesDuration[][]
+  >(Array(durationInDay).fill([]));
+
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
-  const [selectedLocationInfo, setSelectedLocationInfo] = useState<AttractionData | RestaurantData | null>(null);
-  
+  const [selectedLocationInfo, setSelectedLocationInfo] = useState<
+    AttractionData | RestaurantData | null
+  >(null);
+
   const [searchPlace, setSearchPlace] = useState<string>("");
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
 
-  const [filteredAccomodations, setFilteredAccommodations] = useState<AccommodationData[]>([]);
-  const [accommodationsData, setAccommodationsData] = useState<AccommodationData[]>([]);
-  const [placesData, setPlacesData] = useState<(AttractionData | RestaurantData)[]>([]);
-  const [filteredLocations, setFilteredLocations] = useState<(AttractionData | RestaurantData)[]>([]);
+  const [filteredAccomodations, setFilteredAccommodations] = useState<
+    AccommodationData[]
+  >([]);
+  const [accommodationsData, setAccommodationsData] = useState<
+    AccommodationData[]
+  >([]);
+  const [placesData, setPlacesData] = useState<
+    (AttractionData | RestaurantData)[]
+  >([]);
+  const [filteredLocations, setFilteredLocations] = useState<
+    (AttractionData | RestaurantData)[]
+  >([]);
 
+  const [duration, setDuration] = useState<number>(120);
+  const [isModalOpen, setIsModalOpen] = useState<modalEditorProps>({
+    placeID: "",
+    isOpen: false,
+  });
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
-
         const attractionResponse = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
         );
@@ -169,15 +200,17 @@ export default function Home() {
           `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
         );
 
-        const accommodationResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`);
+        const accommodationResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`
+        );
 
         const attractions = attractionResponse.data.attractions || [];
         const restaurants = restaurantResponse.data.restaurants || [];
-    
-        setAccommodationsData(accommodationResponse.data.accommodations)
+
+        setAccommodationsData(accommodationResponse.data.accommodations);
         setFilteredAccommodations(accommodationResponse.data.accommodations);
         setPlacesData([...attractions, ...restaurants]);
-        setFilteredLocations([...attractions, ...restaurants])
+        setFilteredLocations([...attractions, ...restaurants]);
       } catch (error) {
         console.error("Error fetching places data:", error);
       }
@@ -195,7 +228,9 @@ export default function Home() {
 
   useEffect(() => {
     const filtered = accommodationsData.filter((item) =>
-      item.name.toLocaleLowerCase().startsWith(searchAccommodation.toLocaleLowerCase())
+      item.name
+        .toLocaleLowerCase()
+        .startsWith(searchAccommodation.toLocaleLowerCase())
     );
     setFilteredAccommodations(filtered);
   }, [searchAccommodation]);
@@ -239,6 +274,19 @@ export default function Home() {
     }
   };
 
+  const handleSaveDuration = (newDuration: number): void => {
+    setPlacesStayDurationList((prev) => {
+      const currentData = [...prev];
+      const placeIndex = currentData[currentIndexDate].findIndex(
+        (place) => place.uuid === isModalOpen.placeID
+      );
+      if (placeIndex !== -1) {
+        currentData[currentIndexDate][placeIndex].time = newDuration;
+      }
+      return currentData;
+    });
+  };
+
   const updateWaypoints = (newLocations: typeof locationPlanning) => {
     const newWaypoints = newLocations[currentIndexDate].map((loc) => [
       loc.latitude,
@@ -265,7 +313,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-
     const coordinates = [
       ...locationPlanning[currentIndexDate].map(
         (loc) => `${loc.longitude},${loc.latitude}`
@@ -309,7 +356,7 @@ export default function Home() {
       setWaypoints([]);
       return;
     }
- 
+
     const url = `${process.env.NEXT_PUBLIC_OSRM_API_URL}/route/v1/driving/${coordinates}`;
     axios
       .get(url)
@@ -345,8 +392,6 @@ export default function Home() {
       });
   }, [locationPlanning, accommodationData, currentIndexDate]);
 
-
-
   const onDelete = (id: string) => {
     const locationToDelete = locationPlanning[currentIndexDate].find(
       (location) => location._id === id
@@ -366,6 +411,14 @@ export default function Home() {
       ].filter((location) => location._id !== id);
       return updatedPlanning;
     });
+
+    setPlacesStayDurationList((prev) => {
+      const currentPlacesStayDuration = [...prev];
+      currentPlacesStayDuration[currentIndexDate] = currentPlacesStayDuration[
+        currentIndexDate
+      ].filter((element) => element.uuid !== id);
+      return currentPlacesStayDuration;
+    });
   };
 
   const onDeleteAccommodation = () => {
@@ -378,6 +431,11 @@ export default function Home() {
 
   const onClick = (location: AttractionData | RestaurantData) => {
     setSelectedLocationInfo(location);
+  };
+
+  const handleClickEditDuration = (id: string) => {
+    setDuration(120);
+    setIsModalOpen({ placeID: id, isOpen: true });
   };
 
   const createCustomIcon = (number: number, isAccommodation: boolean) => {
@@ -466,8 +524,7 @@ export default function Home() {
   }, [searchAccommodationRef]);
 
   const handleSetAccommodation = (id: string) => {
-
-    console.log("ID ", id);
+    //console.log("ID ", id);
 
     const accommodation = accommodationsData.find((item) => item._id === id);
     if (!accommodation) {
@@ -488,20 +545,25 @@ export default function Home() {
   };
 
   const handleClickAutoPlan = () => {
-    if (locationPlanning[currentIndexDate].length === 0 && !accommodationData[currentIndexDate]) {
+    if (
+      locationPlanning[currentIndexDate].length === 0 &&
+      !accommodationData[currentIndexDate]
+    ) {
       console.log("Error: No data available.");
       return;
     }
-  
+
     const allLocations: { latitude: number; longitude: number }[] = [];
-  
-    allLocations.push(...locationPlanning[currentIndexDate].map(location => ({
-      latitude: location.latitude,
-      longitude: location.longitude,
-    })));
-  
+
+    allLocations.push(
+      ...locationPlanning[currentIndexDate].map((location) => ({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      }))
+    );
+
     console.log("All Locations:", allLocations);
-  
+
     // คำนวณระยะทางระหว่างสถานที่ทั้งหมด
     const distances = allLocations.map((loc1) =>
       allLocations.map((loc2) => {
@@ -509,7 +571,7 @@ export default function Home() {
         const lon1 = loc1.longitude ?? 0;
         const lat2 = loc2.latitude ?? 0;
         const lon2 = loc2.longitude ?? 0;
-  
+
         const distance = haversine(
           { latitude: lat1, longitude: lon1 },
           { latitude: lat2, longitude: lon2 }
@@ -518,71 +580,73 @@ export default function Home() {
         return distance;
       })
     );
-  
-    let visited = [0]; 
+
+    let visited = [0];
     let totalDistance = 0;
-  
+
     // คำนวณการเยี่ยมชมสถานที่ตามวิธี Nearest Neighbor
     while (visited.length < allLocations.length) {
       let lastVisited = visited[visited.length - 1];
       let nearestNeighbor = -1;
       let minDistance = Infinity;
-  
+
       for (let i = 0; i < allLocations.length; i++) {
         if (!visited.includes(i) && distances[lastVisited][i] < minDistance) {
           nearestNeighbor = i;
           minDistance = distances[lastVisited][i];
         }
       }
-  
+
       visited.push(nearestNeighbor);
       totalDistance += minDistance;
-  
+
       //console.log(`Visited: ${nearestNeighbor}, Distance from ${lastVisited} to ${nearestNeighbor}: ${minDistance} km`);
     }
-  
+
     if (accommodationData[currentIndexDate]) {
       const accommodationLocation = {
         latitude: accommodationData[currentIndexDate].latitude,
         longitude: accommodationData[currentIndexDate].longitude,
       };
-  
+
       const lastLocationIndex = visited[visited.length - 1];
       const lastLocation = allLocations[lastLocationIndex];
-  
+
       const lastToAccommodationDistance = haversine(
         { latitude: lastLocation.latitude, longitude: lastLocation.longitude },
         accommodationLocation
       );
-  
+
       totalDistance += lastToAccommodationDistance;
       visited.push(allLocations.length);
-  
+
       //console.log(`Accommodation Location: (${accommodationLocation.latitude}, ${accommodationLocation.longitude})`);
       //console.log(`Distance from last location to accommodation: ${lastToAccommodationDistance} km`);
       //console.log("Best Path (Including Accommodation):", visited);
       //console.log("Total Distance using Nearest Neighbor (Including Accommodation):", totalDistance);
     }
-  
+
     const updatedLocations = visited
-      .filter((index) => index < allLocations.length) 
+      .filter((index) => index < allLocations.length)
       .map((index) => locationPlanning[currentIndexDate][index]);
-  
+
     console.log("Updated Locations:", updatedLocations);
-  
+
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
       updatedLocationPlanning[currentIndexDate] = updatedLocations;
       return updatedLocationPlanning;
     });
   };
-  
-  
 
-  function isRestaurantData(location: AttractionData | RestaurantData): location is RestaurantData {
+  function isRestaurantData(
+    location: AttractionData | RestaurantData
+  ): location is RestaurantData {
     return (location as RestaurantData).priceRange !== undefined;
   }
-  function isAttractionData(location: AttractionData | RestaurantData): location is AttractionData {
+  function isAttractionData(
+    location: AttractionData | RestaurantData
+  ): location is AttractionData {
     return (location as AttractionData).attractionTag !== undefined;
   }
 
@@ -635,19 +699,26 @@ export default function Home() {
 
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
-  
+
       updatedLocationPlanning[currentIndexDate] = [
         ...updatedLocationPlanning[currentIndexDate],
         updatedLocation,
       ];
-  
+
       return updatedLocationPlanning;
     });
 
+    setPlacesStayDurationList((prev) => {
+      const currentPlacesStayDuration = [...prev];
+      currentPlacesStayDuration[currentIndexDate] = [
+        ...currentPlacesStayDuration[currentIndexDate],
+        { uuid: newLocation.id, time: 0 },
+      ];
+      return currentPlacesStayDuration;
+    });
 
     setIsSearchOpen(false);
     setSearchPlace("");
-
   };
 
   const myArrow: React.FC<MyArrowProps> = ({ type, onClick, isEdge }) => {
@@ -682,7 +753,6 @@ export default function Home() {
     setCurrentIndexDate(index);
     setSelectedLocationInfo(null);
   };
-  
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -956,50 +1026,69 @@ export default function Home() {
                               ref={provided.innerRef}
                             >
                               {locationPlanning[currentIndexDate].map(
-                                (location, index) => (
-                                  <Draggable
-                                    key={location._id}
-                                    draggableId={location._id}
-                                    index={index}
-                                  >
-                                    {(provided) => (
-                                      <li
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className="p-2 mb-2 bg-white"
-                                      >
-                                        <PlanningCard
-                                          onDelete={onDelete}
-                                          handleClick={onClick}
-                                          distance={
-                                            planningInformationDataList[index]
-                                              ?.rangeBetween ?? 0
-                                          }
-                                          duration={
-                                            planningInformationDataList[index]
-                                              ?.timeTravel ?? 0
-                                          }
-                                          _id={location._id}
-                                          index={index}
-                                          name={location.name}
-                                          type={location.type}
-                                          rating={location.rating}
-                                          imgPath={location.imgPath}
-                                          latitude={location.latitude}
-                                          longitude={location.longitude}
-                                          openingHour={location.openingHour}
-                                          location={location.location}
-                                          priceRange={isRestaurantData(location) ? location.priceRange : undefined} 
-                                          description={location.description}
-                                          facility={location.facility}
-                                          phone={location.phone}
-                                          website={location.website}
-                                        />
-                                      </li>
-                                    )}
-                                  </Draggable>
-                                )
+                                (location, index) => {
+                                  const filteredStayDuration =
+                                    placesStayDurationList[
+                                      currentIndexDate
+                                    ].find(
+                                      (place) => place.uuid === location._id
+                                    );
+
+                                  return (
+                                    <Draggable
+                                      key={location._id}
+                                      draggableId={location._id}
+                                      index={index}
+                                    >
+                                      {(provided) => (
+                                        <li
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          className="p-2 mb-2 bg-white"
+                                        >
+                                          <PlanningCard
+                                            onDelete={onDelete}
+                                            handleClick={onClick}
+                                            handleClickEditDuration={
+                                              handleClickEditDuration
+                                            }
+                                            distance={
+                                              planningInformationDataList[index]
+                                                ?.rangeBetween ?? 0
+                                            }
+                                            duration={
+                                              planningInformationDataList[index]
+                                                ?.timeTravel ?? 0
+                                            }
+                                            stayDuration={
+                                              filteredStayDuration?.time ?? 0
+                                            }
+                                            _id={location._id}
+                                            index={index}
+                                            name={location.name}
+                                            type={location.type}
+                                            rating={location.rating}
+                                            imgPath={location.imgPath}
+                                            latitude={location.latitude}
+                                            longitude={location.longitude}
+                                            openingHour={location.openingHour}
+                                            location={location.location}
+                                            priceRange={
+                                              isRestaurantData(location)
+                                                ? location.priceRange
+                                                : undefined
+                                            }
+                                            description={location.description}
+                                            facility={location.facility}
+                                            phone={location.phone}
+                                            website={location.website}
+                                          />
+                                        </li>
+                                      )}
+                                    </Draggable>
+                                  );
+                                }
                               )}
                               {provided.placeholder}
                             </ul>
@@ -1176,7 +1265,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*<MapContainer
+            {<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1214,10 +1303,16 @@ export default function Home() {
               })}
               <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
-            */}
+            }
           </div>
         </div>
       </div>
+      <EditDurationModal
+        isOpen={isModalOpen.isOpen}
+        onClose={() => setIsModalOpen({ placeID: "", isOpen: false })}
+        onSave={handleSaveDuration}
+        duration={duration}
+      />
     </div>
   );
 }
