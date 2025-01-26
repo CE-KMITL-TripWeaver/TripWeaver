@@ -195,6 +195,8 @@ export default function Home() {
     isOpen: false,
   });
 
+  const [isDataSaved, setIsDataSaved] = useState<boolean>(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -223,7 +225,7 @@ export default function Home() {
 
     fetchData();
 
-    const intervalId = setInterval(() => {
+    const autoUpdate = setInterval(() => {
       const accommodations = accommodationRef.current
         ? accommodationRef.current.map((accommodation) => ({
             accommodationID: accommodation?._id,
@@ -245,17 +247,32 @@ export default function Home() {
         accommodations,
         plans,
       };
-  
+      setIsDataSaved(true);
       console.log(JSON.stringify(customJson, null, 2));
-    }, 1 * 1000);
+    }, 1 * 5 * 1000);
   
-    return () => clearInterval(intervalId);
+    return () => clearInterval(autoUpdate);
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDataSaved) {
+        const message = "You have unsaved changes. Do you want to save before leaving?";
+        event.returnValue = message;
+        return message;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDataSaved]); 
 
   useEffect(() => {
     accommodationRef.current = accommodationData;
     planLocationRef.current = locationPlanning;
     planDurationRef.current = placesStayDurationList;
+    setIsDataSaved(false);
   }, [accommodationData,locationPlanning,placesStayDurationList]);
 
   useEffect(() => {
@@ -1308,7 +1325,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*<MapContainer
+            {<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1346,7 +1363,7 @@ export default function Home() {
               })}
               <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
-            */}
+            }
           </div>
         </div>
       </div>

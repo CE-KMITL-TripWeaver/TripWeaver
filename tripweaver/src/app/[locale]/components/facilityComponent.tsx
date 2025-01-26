@@ -78,7 +78,7 @@ export default function FacilityComponent({ facility }: FacilityComponentProps) 
 
     return(
         <>
-          <div className="flex text-sm items-center h-8 justify-center w-[calc(33.333%-8px)] bg-gray-200 text-[#9B9B9B] rounded-md flex-row">
+          <div className="flex text-sm items-center h-8 justify-center w-[calc(33.333%-8px)] bg-gray-200 text-[#555555] rounded-md flex-row">
             <div className="flex mr-1">
                 <Icon
                     icon={iconName}

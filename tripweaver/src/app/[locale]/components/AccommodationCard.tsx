@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import AccommodationData from "../interface/accommodation";
-import FacilityComponent from "./facilityComponent";
+import FacilityComponent from "./FacilityComponent";
 import ReactLightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 
@@ -89,7 +89,7 @@ export default function AccommodationCard({
           </div>
           <div className="flex flex-col mt-2">
             <div className="flex text-[#595959]">สิ่งอำนวยความสะดวก</div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap mt-2 gap-2">
               {data.facility.map((item, index) => (
                 <FacilityComponent key={index} facility={item} />
               ))}
