@@ -22,6 +22,7 @@ type PlanningCardProps = (AttractionData | RestaurantData) & {
 
 export default function PlanningCard({
   _id,
+  uuid,
   name,
   type,
   rating,
@@ -70,6 +71,7 @@ export default function PlanningCard({
             handleClick({
             _id,
             name,
+            uuid,
             type,
             rating,
             imgPath,
@@ -148,7 +150,7 @@ export default function PlanningCard({
               <div className="flex items-center justify-center kanit" onClick={
                 (e) => {
                   e.stopPropagation();
-                  handleClickEditDuration(_id)}}
+                  handleClickEditDuration(uuid)}}
                 >
                 {formattedDurationPlace}
               </div>
@@ -181,7 +183,7 @@ export default function PlanningCard({
           className="flex absolute top-[40%] -right-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           onClick={(e) => { 
             e.stopPropagation();
-            onDelete(_id);
+            onDelete(uuid);
             }}
         >
           <Icon

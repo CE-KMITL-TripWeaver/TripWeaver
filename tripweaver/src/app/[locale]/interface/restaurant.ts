@@ -3,7 +3,8 @@ import LocationObject from "../interface/locationObject";
 import RatingObject from "../interface/ratingObject";
 
 export default interface RestaurantData {
-    _id: string
+    _id: string;
+    uuid: string;
     name: string;
     description: string;
     type: string[];

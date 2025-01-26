@@ -4,7 +4,8 @@ import RatingObject from "../interface/ratingObject";
 import AttractionTag  from "../interface/attractionTag"
 
 export default interface AttractionData {
-    _id: string
+    _id: string;
+    uuid: string;
     name: string;
     description: string;
     type: string[];

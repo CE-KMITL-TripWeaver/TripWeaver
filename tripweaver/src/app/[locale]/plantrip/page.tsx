@@ -113,6 +113,7 @@ const mockItems = [
 
 export default function Home() {
   const t = useTranslations();
+  const travelers = 3;
   const startDate = new Date(2567 - 543, 0, 29);
   const durationInDay = 5;
   const endDate = new Date(startDate);
@@ -184,6 +185,10 @@ export default function Home() {
     (AttractionData | RestaurantData)[]
   >([]);
 
+  const accommodationRef = useRef<(AccommodationData | null)[]>(accommodationData);
+  const planLocationRef = useRef<(AttractionData | RestaurantData | null)[][]>(locationPlanning);
+  const planDurationRef = useRef<planningPlacesDuration[][]>(placesStayDurationList);
+
   const [duration, setDuration] = useState<number>(120);
   const [isModalOpen, setIsModalOpen] = useState<modalEditorProps>({
     placeID: "",
@@ -217,7 +222,41 @@ export default function Home() {
     };
 
     fetchData();
+
+    const intervalId = setInterval(() => {
+      const accommodations = accommodationRef.current
+        ? accommodationRef.current.map((accommodation) => ({
+            accommodationID: accommodation?._id,
+          }))
+        : [];
+
+        const plans = planLocationRef.current.map((dayPlans,dayIndex) =>
+          dayPlans.map((place,placeIndex) => ({
+            placeID: place?._id, 
+            type: isRestaurantData(place!) ? "restaurant" : "attraction",
+            duration: planDurationRef.current[dayIndex][placeIndex].time
+          }))
+        );
+
+      const customJson = {
+        travelers,
+        startDate,
+        dayDuration: durationInDay,
+        accommodations,
+        plans,
+      };
+  
+      console.log(JSON.stringify(customJson, null, 2));
+    }, 1 * 1000);
+  
+    return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    accommodationRef.current = accommodationData;
+    planLocationRef.current = locationPlanning;
+    planDurationRef.current = placesStayDurationList;
+  }, [accommodationData,locationPlanning,placesStayDurationList]);
 
   useEffect(() => {
     const filtered = placesData.filter((item) =>
@@ -275,11 +314,13 @@ export default function Home() {
   };
 
   const handleSaveDuration = (newDuration: number): void => {
+
     setPlacesStayDurationList((prev) => {
       const currentData = [...prev];
       const placeIndex = currentData[currentIndexDate].findIndex(
         (place) => place.uuid === isModalOpen.placeID
       );
+
       if (placeIndex !== -1) {
         currentData[currentIndexDate][placeIndex].time = newDuration;
       }
@@ -392,9 +433,9 @@ export default function Home() {
       });
   }, [locationPlanning, accommodationData, currentIndexDate]);
 
-  const onDelete = (id: string) => {
+  const onDelete = (uuid: string) => {
     const locationToDelete = locationPlanning[currentIndexDate].find(
-      (location) => location._id === id
+      (location) => location.uuid === uuid
     );
 
     if (
@@ -408,7 +449,7 @@ export default function Home() {
       const updatedPlanning = [...prev];
       updatedPlanning[currentIndexDate] = updatedPlanning[
         currentIndexDate
-      ].filter((location) => location._id !== id);
+      ].filter((location) => location.uuid !== uuid);
       return updatedPlanning;
     });
 
@@ -416,7 +457,7 @@ export default function Home() {
       const currentPlacesStayDuration = [...prev];
       currentPlacesStayDuration[currentIndexDate] = currentPlacesStayDuration[
         currentIndexDate
-      ].filter((element) => element.uuid !== id);
+      ].filter((element) => element.uuid !== uuid);
       return currentPlacesStayDuration;
     });
   };
@@ -435,6 +476,7 @@ export default function Home() {
 
   const handleClickEditDuration = (id: string) => {
     setDuration(120);
+
     setIsModalOpen({ placeID: id, isOpen: true });
   };
 
@@ -562,7 +604,7 @@ export default function Home() {
       }))
     );
 
-    console.log("All Locations:", allLocations);
+   // console.log("All Locations:", allLocations);
 
     // คำนวณระยะทางระหว่างสถานที่ทั้งหมด
     const distances = allLocations.map((loc1) =>
@@ -630,8 +672,6 @@ export default function Home() {
       .filter((index) => index < allLocations.length)
       .map((index) => locationPlanning[currentIndexDate][index]);
 
-    console.log("Updated Locations:", updatedLocations);
-
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
       updatedLocationPlanning[currentIndexDate] = updatedLocations;
@@ -658,12 +698,13 @@ export default function Home() {
       return;
     }
 
-    const newLocation = { ...location, id: uuidv4() };
+    const newLocation = { ...location, uuid: uuidv4() };
     let updatedLocation: AttractionData | RestaurantData;
 
     if (isRestaurantData(newLocation)) {
       updatedLocation = {
-        _id: newLocation.id,
+        _id: newLocation._id,
+        uuid: newLocation.uuid,
         name: newLocation.name ?? "",
         latitude: newLocation.latitude ?? 0,
         longitude: newLocation.longitude ?? 0,
@@ -680,7 +721,8 @@ export default function Home() {
       };
     } else if (isAttractionData(newLocation)) {
       updatedLocation = {
-        _id: newLocation.id,
+        _id: newLocation._id,
+        uuid: newLocation.uuid,
         name: newLocation.name ?? "",
         latitude: newLocation.latitude ?? 0,
         longitude: newLocation.longitude ?? 0,
@@ -712,7 +754,7 @@ export default function Home() {
       const currentPlacesStayDuration = [...prev];
       currentPlacesStayDuration[currentIndexDate] = [
         ...currentPlacesStayDuration[currentIndexDate],
-        { uuid: newLocation.id, time: 0 },
+        { uuid: newLocation.uuid, time: 0 },
       ];
       return currentPlacesStayDuration;
     });
@@ -1031,13 +1073,13 @@ export default function Home() {
                                     placesStayDurationList[
                                       currentIndexDate
                                     ].find(
-                                      (place) => place.uuid === location._id
+                                      (place) => place.uuid === location.uuid
                                     );
 
                                   return (
                                     <Draggable
-                                      key={location._id}
-                                      draggableId={location._id}
+                                      key={location.uuid}
+                                      draggableId={location.uuid}
                                       index={index}
                                     >
                                       {(provided) => (
@@ -1064,6 +1106,7 @@ export default function Home() {
                                             stayDuration={
                                               filteredStayDuration?.time ?? 0
                                             }
+                                            uuid={location.uuid}
                                             _id={location._id}
                                             index={index}
                                             name={location.name}
@@ -1265,7 +1308,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {<MapContainer
+            {/*<MapContainer
               center={[7.7587, 98.2954147]}
               zoom={14}
               className="h-[calc(100vh-84px)]"
@@ -1303,7 +1346,7 @@ export default function Home() {
               })}
               <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
             </MapContainer>
-            }
+            */}
           </div>
         </div>
       </div>
