@@ -4,10 +4,11 @@ import PlanTrips from "../../../../../models/plans";
 
 export async function POST(req: NextRequest) {
     try {
-        const { travelers, startDate,  dayDuration, accommodations, plans} = await req.json();
+        const { tripName, travelers, startDate, dayDuration, accommodations, plans} = await req.json();
         
         await connectMongoDB();
         await PlanTrips.create({
+            tripName,
             travelers,
             startDate,
             dayDuration,
