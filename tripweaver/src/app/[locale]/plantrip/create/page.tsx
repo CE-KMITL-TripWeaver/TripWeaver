@@ -75,7 +75,7 @@ export default function Home() {
     setErrorMessage("");
   };
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted");
     
@@ -85,6 +85,24 @@ export default function Home() {
     console.log("Start date:", dateRange[0].startDate);
     const timeDifference = (dateRange[0].endDate.getTime() - dateRange[0].startDate.getTime()) / (1000 * 3600 * 24);
     console.log("Duration:", timeDifference);
+
+    const planData = {
+      tripName: formData.tripName,
+      travelers: formData.travelers,
+      startDate: dateRange[0].startDate,
+      dayDuration: timeDifference,
+      accommodations: [],
+      plans: [],
+    };
+
+    console.log(JSON.stringify(planData));
+/*
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, planData);
+      console.log("Plan created:", response.data);
+    } catch (error) {
+      console.error("Error creating plan:", error);
+    }*/
     
   };
 
