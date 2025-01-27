@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react";
 import NavBar from "../../components/NavBar";
+import axios from "axios";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -82,9 +83,9 @@ export default function Home() {
     console.log("Travelers:", formData.travelers);
     console.log("Start Location:", formData.startLocation);
     console.log("Start date:", dateRange[0].startDate);
-
     const timeDifference = (dateRange[0].endDate.getTime() - dateRange[0].startDate.getTime()) / (1000 * 3600 * 24);
     console.log("Duration:", timeDifference);
+    
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
