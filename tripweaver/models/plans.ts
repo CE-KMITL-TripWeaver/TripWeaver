@@ -1,47 +1,60 @@
 import mongoose, { Schema } from "mongoose";
 
-const plansSchema  = new Schema({
-    
+const plansSchema = new Schema(
+  {
+    tripName: {
+      type: String,
+      required: true,
+    },
     travelers: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     startDate: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
     dayDuration: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     accommodations: [
       {
-        acommodationID: {
+        accommodationID: {
           type: String,
-          required: true
-        }
-      }
+          required: true,
+        },
+      },
     ],
     plans: [
       {
-        placeID: {
-          type: String,
-          required: true
-        },
-        type: {
+        planName: {
           type: String,
           required: true,
-          enum: ['ATTRACTION', 'RESTAURANT']
         },
-        duration: {
-          type: Number,
-          required: true
-        }
-      }
-    ]
+        places: [
+          {
+            placeID: {
+              type: String,
+              required: true,
+            },
+            type: {
+              type: String,
+              required: true,
+              enum: ["ATTRACTION", "RESTAURANT"],
+            },
+            duration: {
+              type: Number,
+              required: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-},{timestamps: true})
+const PlanTrips = mongoose.models.PlanTrips || mongoose.model("PlanTrips", plansSchema);
 
-const PlanTrips = mongoose.models.PlanTrips || mongoose.model("PlanTrips",plansSchema);
-
-export default PlanTrips
+export default PlanTrips;
