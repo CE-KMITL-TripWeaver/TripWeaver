@@ -3,11 +3,13 @@ import React, { useState, useEffect, useRef } from "react";
 import NavBar from "../../components/NavBar";
 import axios from "axios";
 import { DateRange } from "react-date-range";
+import { useRouter } from 'next/navigation';
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./calendar.css";
 
 export default function Home() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   
@@ -77,14 +79,7 @@ export default function Home() {
 
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted");
-    
-    console.log("Trip Name:", formData.tripName);
-    console.log("Travelers:", formData.travelers);
-    console.log("Start Location:", formData.startLocation);
-    console.log("Start date:", dateRange[0].startDate);
     const timeDifference = (dateRange[0].endDate.getTime() - dateRange[0].startDate.getTime()) / (1000 * 3600 * 24);
-    console.log("Duration:", timeDifference);
 
     const planData = {
       tripName: formData.tripName,
@@ -96,13 +91,16 @@ export default function Home() {
     };
 
     console.log(JSON.stringify(planData));
-/*
+
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, planData);
-      console.log("Plan created:", response.data);
+
+      if (response.status === 201) {
+        router.push('/th/plantrip');
+      }
     } catch (error) {
       console.error("Error creating plan:", error);
-    }*/
+    }
     
   };
 
