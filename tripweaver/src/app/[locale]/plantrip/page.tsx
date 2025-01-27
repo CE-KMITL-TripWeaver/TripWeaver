@@ -185,10 +185,6 @@ export default function Home() {
     (AttractionData | RestaurantData)[]
   >([]);
 
-  const accommodationRef = useRef<(AccommodationData | null)[]>(accommodationData);
-  const planLocationRef = useRef<(AttractionData | RestaurantData | null)[][]>(locationPlanning);
-  const planDurationRef = useRef<planningPlacesDuration[][]>(placesStayDurationList);
-
   const [duration, setDuration] = useState<number>(120);
   const [isModalOpen, setIsModalOpen] = useState<modalEditorProps>({
     placeID: "",
@@ -196,6 +192,11 @@ export default function Home() {
   });
 
   const [isDataSaved, setIsDataSaved] = useState<boolean>(true);
+
+  const accommodationRef = useRef<(AccommodationData | null)[]>(accommodationData);
+  const planLocationRef = useRef<(AttractionData | RestaurantData | null)[][]>(locationPlanning);
+  const planDurationRef = useRef<planningPlacesDuration[][]>(placesStayDurationList);
+  const dataSaveRef = useRef<boolean>(isDataSaved);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -226,7 +227,10 @@ export default function Home() {
     fetchData();
 
     const autoUpdate = setInterval(() => {
-      const accommodations = accommodationRef.current
+
+
+      if(!dataSaveRef.current.valueOf()) { //if not save
+        const accommodations = accommodationRef.current
         ? accommodationRef.current.map((accommodation) => ({
             accommodationID: accommodation?._id,
           }))
@@ -235,20 +239,34 @@ export default function Home() {
         const plans = planLocationRef.current.map((dayPlans,dayIndex) =>
           dayPlans.map((place,placeIndex) => ({
             placeID: place?._id, 
-            type: isRestaurantData(place!) ? "restaurant" : "attraction",
+            type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
             duration: planDurationRef.current[dayIndex][placeIndex].time
           }))
         );
 
-      const customJson = {
-        travelers,
-        startDate,
-        dayDuration: durationInDay,
-        accommodations,
-        plans,
-      };
-      setIsDataSaved(true);
-      console.log(JSON.stringify(customJson, null, 2));
+        const plantripPayload = {
+          travelers,
+          startDate,
+          dayDuration: durationInDay,
+          accommodations,
+          plans,
+        };
+        setIsDataSaved(true);
+        //console.log(JSON.stringify(plantripPayload, null, 2));
+
+        /*const createPlanData = async () => {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, plantripPayload, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+      
+          console.log("Response:", response.data);
+        }
+
+        createPlanData();*/
+      }
+
     }, 1 * 5 * 1000);
   
     return () => clearInterval(autoUpdate);
@@ -272,8 +290,9 @@ export default function Home() {
     accommodationRef.current = accommodationData;
     planLocationRef.current = locationPlanning;
     planDurationRef.current = placesStayDurationList;
+    dataSaveRef.current = isDataSaved;
     setIsDataSaved(false);
-  }, [accommodationData,locationPlanning,placesStayDurationList]);
+  }, [accommodationData,locationPlanning,placesStayDurationList,dataSaveRef]);
 
   useEffect(() => {
     const filtered = placesData.filter((item) =>
