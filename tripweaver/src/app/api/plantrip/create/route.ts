@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
         const { tripName, travelers, startDate, dayDuration, accommodations, plans} = await req.json();
         
         await connectMongoDB();
-        await PlanTrips.create({
+        const createdPlan = await PlanTrips.create({
             tripName,
             travelers,
             startDate,
@@ -16,7 +16,13 @@ export async function POST(req: NextRequest) {
             plans
         });
 
-        return NextResponse.json({ message: "Create Data Plantrip"}, {status: 201})
+        return NextResponse.json(
+            {
+                message: "Create Data Plantrip",
+                planID: createdPlan._id.toString(),
+            },
+            { status: 201 }
+        );
     } catch(error) {
         return NextResponse.json({ message: `An error occured while insert data plantrip ${error}`}, {status: 500})
     }
