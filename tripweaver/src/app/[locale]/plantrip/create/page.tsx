@@ -94,10 +94,12 @@ export default function Home() {
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, planData);
+      const responseData = response.data; 
 
       if (response.status === 201) {
-        router.push('/th/plantrip');
+        router.push(`/th/plantrip?planID=${responseData.planID}`);
       }
+      
     } catch (error) {
       console.error("Error creating plan:", error);
     }

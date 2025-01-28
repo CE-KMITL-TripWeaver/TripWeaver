@@ -14,6 +14,7 @@ import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from 'next/navigation';
 
 import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
@@ -112,7 +113,13 @@ const mockItems = [
 ];
 
 export default function Home() {
-  const t = useTranslations();
+
+  const searchParams = useSearchParams();
+  const planID = searchParams.get('planID');
+
+  const [error, setError] = useState<string | null>(null);
+
+  //const t = useTranslations();
   const travelers = 3;
   const startDate = new Date(2567 - 543, 0, 29);
   const durationInDay = 5;
@@ -198,79 +205,71 @@ export default function Home() {
   const planDurationRef = useRef<planningPlacesDuration[][]>(placesStayDurationList);
   const dataSaveRef = useRef<boolean>(isDataSaved);
 
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const attractionResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
-        );
-        const restaurantResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
-        );
 
-        const accommodationResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`
-        );
+    if (planID) {
+      const fetchData = async () => {
+        try {
+          const planDataResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`);
 
-        const attractions = attractionResponse.data.attractions || [];
-        const restaurants = restaurantResponse.data.restaurants || [];
-
-        setAccommodationsData(accommodationResponse.data.accommodations);
-        setFilteredAccommodations(accommodationResponse.data.accommodations);
-        setPlacesData([...attractions, ...restaurants]);
-        setFilteredLocations([...attractions, ...restaurants]);
-      } catch (error) {
-        console.error("Error fetching places data:", error);
-      }
-    };
-
-    fetchData();
-
-    const autoUpdate = setInterval(() => {
-
-
-      if(!dataSaveRef.current.valueOf()) { //if not save
-        const accommodations = accommodationRef.current
-        ? accommodationRef.current.map((accommodation) => ({
-            accommodationID: accommodation?._id,
-          }))
-        : [];
-
-        const plans = planLocationRef.current.map((dayPlans,dayIndex) =>
-          dayPlans.map((place,placeIndex) => ({
-            placeID: place?._id, 
-            type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
-            duration: planDurationRef.current[dayIndex][placeIndex].time
-          }))
-        );
-
-        const plantripPayload = {
-          travelers,
-          startDate,
-          dayDuration: durationInDay,
-          accommodations,
-          plans,
-        };
-        setIsDataSaved(true);
-        //console.log(JSON.stringify(plantripPayload, null, 2));
-
-        /*const createPlanData = async () => {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, plantripPayload, {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-      
-          console.log("Response:", response.data);
-        }
-
-        createPlanData();*/
-      }
-
-    }, 1 * 5 * 1000);
+          if(planDataResponse.status == 200) {
+            const attractionResponse = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
+            );
+            const restaurantResponse = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
+            );
+    
+            const accommodationResponse = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`
+            );
+    
+            const attractions = attractionResponse.data.attractions || [];
+            const restaurants = restaurantResponse.data.restaurants || [];
+    
+            setAccommodationsData(accommodationResponse.data.accommodations);
+            setFilteredAccommodations(accommodationResponse.data.accommodations);
+            setPlacesData([...attractions, ...restaurants]);
+            setFilteredLocations([...attractions, ...restaurants]);
   
-    return () => clearInterval(autoUpdate);
-  }, []);
+            const autoUpdate = setInterval(() => {
+              if(!dataSaveRef.current.valueOf()) { //if not save
+                const accommodations = accommodationRef.current
+                ? accommodationRef.current.map((accommodation) => ({
+                    accommodationID: accommodation?._id,
+                  }))
+                : [];
+        
+                const plans = planLocationRef.current.map((dayPlans,dayIndex) =>
+                  dayPlans.map((place,placeIndex) => ({
+                    placeID: place?._id, 
+                    type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
+                    duration: planDurationRef.current[dayIndex][placeIndex].time
+                  }))
+                );
+        
+                const plantripPayload = {
+                  travelers,
+                  startDate,
+                  dayDuration: durationInDay,
+                  accommodations,
+                  plans,
+                };
+                setIsDataSaved(true);
+              }
+            }, 1 * 5 * 1000);
+            return () => clearInterval(autoUpdate);
+          }
+
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          setError("Error");
+        }
+      };
+      fetchData();
+    }
+  }, [planID]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -831,6 +830,13 @@ export default function Home() {
     setCurrentIndexDate(index);
     setSelectedLocationInfo(null);
   };
+
+  if (!planID) {
+    return <div>Page not found</div>;
+  }
+  if (error) {
+    return <div>Error: {error} </div>;
+  }
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
