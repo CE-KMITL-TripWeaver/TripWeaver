@@ -13,6 +13,7 @@
     "axios": "^1.7.7",
     "haversine-distance": "^1.2.3",
     "i18next": "^23.15.1",
+    "leaflet": "^1.9.4",
     "mongoose": "^8.6.0",
     "next": "14.2.5",
     "next-i18next": "^15.3.1",

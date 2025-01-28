@@ -27,6 +27,7 @@ import AttractionData from "../interface/attraction";
 import RestaurantData from "../interface/restaurant";
 
 import haversine from "haversine-distance";
+import L from 'leaflet';
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
