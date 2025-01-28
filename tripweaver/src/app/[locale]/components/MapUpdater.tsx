@@ -15,6 +15,9 @@ export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlanning }) => {
   const map = useMap();
 
   useEffect(() => {
+    if(!locationPlanning) {
+      return;
+    }
     if (locationPlanning.length === 1) {
       map.flyTo([locationPlanning[0].latitude, locationPlanning[0].longitude], 14);
     }

@@ -30,7 +30,6 @@ const plansSchema = new Schema(
       {
         planName: {
           type: String,
-          required: true,
         },
         places: [
           {

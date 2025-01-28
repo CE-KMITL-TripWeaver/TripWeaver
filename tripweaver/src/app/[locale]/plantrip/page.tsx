@@ -14,6 +14,8 @@ import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
+import { useQuery } from "react-query";
+import { fetchPlanData, fetchUserPlans, fetchAllData } from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
 
 import { v4 as uuidv4 } from "uuid";
@@ -59,6 +61,15 @@ interface planningInformationData {
 interface planningPlacesDuration {
   uuid: string;
   time: number;
+}
+
+interface planInterface {
+  planName: string;
+  places: [{
+    placeID: string,
+    type: string,
+    duration: number
+  }]
 }
 
 interface modalEditorProps {
@@ -119,15 +130,6 @@ export default function Home() {
   const searchParams = useSearchParams();
   const planID = searchParams.get("planID");
 
-  const [error, setError] = useState<string | null>(null);
-
-  //const t = useTranslations();
-  const travelers = 3;
-  const startDate = new Date(2567 - 543, 0, 29);
-  const durationInDay = 5;
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + durationInDay - 1);
-
   const formatDate = (date: Date) =>
     date.toLocaleDateString("th-TH", {
       day: "numeric",
@@ -135,26 +137,13 @@ export default function Home() {
       year: "2-digit",
     });
 
-  const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
-
-  const items = Array.from({ length: durationInDay }, (_, index) => {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + index);
-    return date.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-    });
-  });
-
-  const [accommodationData, setAccommodationData] = useState<
-    (AccommodationData | null)[]
-  >(Array(durationInDay).fill(null));
-  const [locationPlanning, setLocationPlanning] = useState<
-    (AttractionData | RestaurantData)[][]
-  >(Array(durationInDay).fill([]));
 
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [travelers, setTravelers] = useState<number>(0);
+  const [dateRangeFormatted, setDateRangeFormatted] = useState<string>('');
+  const [planDuration, setPlanDuration] = useState<number>(0);
+  const [planDateObject, setPlanDateObject] = useState<string[]>([]);
+
   const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
   const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
     useState(false);
@@ -166,9 +155,15 @@ export default function Home() {
   const [waypoints, setWaypoints] = useState<number[][]>([]);
   const [planningInformationDataList, setPlanningInformationDataList] =
     useState<planningInformationData[]>([]);
+    const [accommodationData, setAccommodationData] = useState<
+    (AccommodationData | null)[]
+  >([]);
+  const [locationPlanning, setLocationPlanning] = useState<
+    (AttractionData | RestaurantData)[][]
+  >([]);
   const [placesStayDurationList, setPlacesStayDurationList] = useState<
     planningPlacesDuration[][]
-  >(Array(durationInDay).fill([]));
+  >([]);
 
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
@@ -212,90 +207,162 @@ export default function Home() {
   );
   const dataSaveRef = useRef<boolean>(isDataSaved);
 
+  const {
+    data: planData,
+    isLoading: isPlanLoading,
+    isError: isPlanError,
+  } = useQuery(["planData", planID], () => fetchPlanData(planID!), {
+    enabled: !!planID,
+    retry: 0
+  });
+
+  const {
+    data: userPlans,
+    isLoading: isUserPlansLoading,
+    isError: isUserPlansError,
+  } = useQuery(
+    ["userPlans", session?.user?.id],
+    () => fetchUserPlans(session?.user?.id!),
+    {
+      enabled: !!session?.user?.id,
+    }
+  );
+
+  const {
+    data: allData,
+    isLoading: isAllDataLoading,
+    isError: isAllDataError,
+  } = useQuery("allData", fetchAllData);
+
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
+
+  useEffect(() => {
+    if (allData) {
+      const { attractions, restaurants, accommodations } = allData;
+
+      const attractionsData = attractions || [];
+      const restaurantsData = restaurants || [];
+      const accommodationsData = accommodations || [];
+
+      setAccommodationsData(accommodationsData);
+      setFilteredAccommodations(accommodationsData);
+      setPlacesData([...attractionsData, ...restaurantsData]);
+      setFilteredLocations([...attractionsData, ...restaurantsData]);
+    }
+  }, [allData]);
+
+  useEffect(() => {
+    if (planData && userPlans) {
+      setTravelers(planData.plan.travelers);
+
+      const startDate = new Date(planData.plan.startDate);
+      const durationInDay = planData.plan.dayDuration + 1;
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + durationInDay - 1);
+
+      const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+      setPlanDuration(durationInDay);
+      setDateRangeFormatted(dateRange);
+
+      const dateItems = Array.from({ length: durationInDay }, (_, index) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + index);
+        return date.toLocaleDateString("th-TH", {
+          day: "numeric",
+          month: "short",
+          year: "2-digit",
+        });
+      });
+
+      setPlanDateObject(dateItems);
+
+      const allLocationPlanningData: (AttractionData | RestaurantData)[][] = [];
+      const planPlacesDurationData: planningPlacesDuration[][] = [];
+
+      planData.plan.plans.map((plan: planInterface) => {
+        const planName = plan.planName;
+        console.log(planName);
+
+        const updatedPlacesData: (AttractionData | RestaurantData)[] = [];
+        const placesDuration: (planningPlacesDuration)[] = [];
+        plan.places.map((place) => {
+          const placeID = place.placeID;
+          const type = place.type;
+          const duration = place.duration;
+          const placeData = placesData.find((place) => place._id === placeID);
+          
+          if(placeData) {
+            const uuid = uuidv4();
+            const placeWithUUID = { ...placeData, uuid: uuid };
+            const placeDurationWithUUID = { uuid: uuid, time: duration};
+            updatedPlacesData.push(placeWithUUID);
+            placesDuration.push(placeDurationWithUUID);
+          }
+        })
+
+        allLocationPlanningData.push(updatedPlacesData);
+        planPlacesDurationData.push(placesDuration);
+      });
+
+      setAccommodationData(Array(durationInDay).fill(null));
+
+      const lengthToFill = durationInDay - allLocationPlanningData.length;
+      if (lengthToFill > 0) {
+        allLocationPlanningData.push(...Array(lengthToFill).fill([]));
+        planPlacesDurationData.push(...Array(lengthToFill).fill([]));
+      }
+      console.log(allLocationPlanningData);
+      console.log("-----------------");
+      console.log(planPlacesDurationData);
+      setLocationPlanning(allLocationPlanningData);
+      setPlacesStayDurationList(planPlacesDurationData);
+
+    }
+  }, [planData, userPlans]);
+/*
   useEffect(() => {
     if (status === "authenticated" && planID) {
-      const fetchData = async () => {
-        try {
-          const planDataResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
+      const autoUpdate = setInterval(() => {
+        if (!dataSaveRef.current.valueOf()) {
+          // if not saved
+          const accommodations = accommodationRef.current
+            ? accommodationRef.current.map((accommodation) => ({
+                accommodationID: accommodation?._id,
+              }))
+            : [];
+
+          const plans = planLocationRef.current.map(
+            (dayPlans, dayIndex) =>
+              dayPlans.map((place, placeIndex) => ({
+                placeID: place?._id,
+                type: isRestaurantData(place!)
+                  ? "RESTAURANT"
+                  : "ATTRACTION",
+                duration:
+                  planDurationRef.current[dayIndex][placeIndex].time,
+              }))
           );
 
-          if (planDataResponse.status === 200) {
-            //console.log(session?.user?.id);
-
-            const checkplanUser = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${session?.user?.id}`
-            );
-
-            const userPlans = checkplanUser.data.planList;
-            console.log(userPlans.includes(planID));
-
-            const attractionResponse = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
-            );
-            const restaurantResponse = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
-            );
-
-            const accommodationResponse = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`
-            );
-
-            const attractions = attractionResponse.data.attractions || [];
-            const restaurants = restaurantResponse.data.restaurants || [];
-
-            setAccommodationsData(accommodationResponse.data.accommodations);
-            setFilteredAccommodations(
-              accommodationResponse.data.accommodations
-            );
-            setPlacesData([...attractions, ...restaurants]);
-            setFilteredLocations([...attractions, ...restaurants]);
-
-            const autoUpdate = setInterval(() => {
-              if (!dataSaveRef.current.valueOf()) {
-                // if not saved
-                const accommodations = accommodationRef.current
-                  ? accommodationRef.current.map((accommodation) => ({
-                      accommodationID: accommodation?._id,
-                    }))
-                  : [];
-
-                const plans = planLocationRef.current.map(
-                  (dayPlans, dayIndex) =>
-                    dayPlans.map((place, placeIndex) => ({
-                      placeID: place?._id,
-                      type: isRestaurantData(place!)
-                        ? "RESTAURANT"
-                        : "ATTRACTION",
-                      duration:
-                        planDurationRef.current[dayIndex][placeIndex].time,
-                    }))
-                );
-
-                const plantripPayload = {
-                  travelers,
-                  startDate,
-                  dayDuration: durationInDay,
-                  accommodations,
-                  plans,
-                };
-                setIsDataSaved(true);
-              }
-            }, 1 * 5 * 1000);
-            return () => clearInterval(autoUpdate);
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setError("Error");
+          const plantripPayload = {
+            travelers,
+            startDate,
+            dayDuration: durationInDay,
+            accommodations,
+            plans,
+          };
+          setIsDataSaved(true);
         }
-      };
-      fetchData();
+      }, 1 * 5 * 1000);
+      return () => clearInterval(autoUpdate);
     } else if (status === "loading") {
       console.log("Session is loading...");
     } else {
       console.log("Session is not authenticated");
     }
-  }, [planID, session, status]);
+  }, []);*/
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -420,6 +487,11 @@ export default function Home() {
   };
 
   useEffect(() => {
+
+    if(locationPlanning.length == 0 && accommodationData.length == 0) {
+      return;
+    }
+
     const coordinates = [
       ...locationPlanning[currentIndexDate].map(
         (loc) => `${loc.longitude},${loc.latitude}`
@@ -862,16 +934,22 @@ export default function Home() {
     setSelectedLocationInfo(null);
   };
 
-  if (!planID) {
-    return <div>Page not found</div>;
-  }
-  if (error) {
-    return <div>Error: {error} </div>;
+
+  if (userPlans && Array.isArray(userPlans) && planData?.plan?._id) {
+    if (!userPlans.includes(planData.plan._id)) {
+      redirect("/plantrip/create");
+    }
   }
 
-  if (status === "unauthenticated") {
-    redirect("/login");
+  if (isPlanLoading || isUserPlansLoading || isAllDataLoading) {
+    return <div>Loading...</div>;
   }
+
+  if (isPlanError || isUserPlansError || isAllDataError || !planID) {
+    return <div>Error occurred!</div>;
+  }
+
+  console.log(planData)
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -903,7 +981,7 @@ export default function Home() {
                   overflow: "auto",
                 }}
               >
-                {items.map((item, index) => (
+                {planDateObject.map((item, index) => (
                   <div
                     key={index}
                     className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${
@@ -938,7 +1016,7 @@ export default function Home() {
                 <div className="flex w-full h-full rounded-2xl bg-white">
                   <div className="flex flex-col w-full h-full p-6">
                     <div className="flex font-bold text-2xl kanit">
-                      ทะเลก็ มีชีวิต
+                      {planData.plan.tripName}
                     </div>
                     <div className="flex flex-row mt-3 kanit">
                       <div className="flex justify-center items-center mr-1">
@@ -950,7 +1028,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="flex justify-center items-center text-[#828282] kanit mr-4">
-                        {dateRange}
+                        {dateRangeFormatted}
                       </div>
                       <div className="flex justify-center items-center mr-1">
                         <Icon
@@ -961,7 +1039,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="flex justify-center items-center text-[#828282] kanit">
-                        3
+                        {travelers}
                       </div>
                     </div>
                   </div>
@@ -1132,7 +1210,7 @@ export default function Home() {
                     showPlanning ? "max-h-[1000px]" : "max-h-0"
                   }`}
                 >
-                  {planningInformationDataList.length >= 0 && (
+                  {planningInformationDataList.length >= 0 && locationPlanning.length > 0 && (
                     <div className="flex flex-col h-full">
                       <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="locations">
