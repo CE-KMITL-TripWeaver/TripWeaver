@@ -7,12 +7,15 @@ import { useRouter } from 'next/navigation';
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./calendar.css";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  
+  const { data: session, status } = useSession();
+
   const [formData, setFormData] = useState({
     tripName: "",
     travelers: 1,
@@ -88,9 +91,12 @@ export default function Home() {
       dayDuration: timeDifference,
       accommodations: [],
       plans: [],
+      userID: session?.user?.id
     };
 
-    console.log(JSON.stringify(planData));
+    //console.log(JSON.stringify(planData));
+    //console.log(session);
+    //console.log(session?.user?.id);
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/create`, planData);
@@ -113,6 +119,10 @@ export default function Home() {
       [name]: value,
     }));
   };
+
+  if(status === "unauthenticated") {
+    redirect('/login');
+  }
 
   return (
     <>

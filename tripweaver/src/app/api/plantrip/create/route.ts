@@ -1,10 +1,11 @@
 import { NextResponse, NextRequest } from "next/server"
 import { connectMongoDB } from '../../../../../lib/mongodb'
 import PlanTrips from "../../../../../models/plans";
+import User from "../../../../../models/user";
 
 export async function POST(req: NextRequest) {
     try {
-        const { tripName, travelers, startDate, dayDuration, accommodations, plans} = await req.json();
+        const { tripName, travelers, startDate, dayDuration, accommodations, plans, userID} = await req.json();
         
         await connectMongoDB();
         const createdPlan = await PlanTrips.create({
@@ -15,6 +16,11 @@ export async function POST(req: NextRequest) {
             accommodations,
             plans
         });
+
+        await User.findOneAndUpdate(
+            { _id: userID },
+            { $push: { planList: createdPlan._id.toString() } }
+        );
 
         return NextResponse.json(
             {

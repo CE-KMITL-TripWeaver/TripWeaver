@@ -14,7 +14,7 @@ import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from "next/navigation";
 
 import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
@@ -23,11 +23,13 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import AttractionData from "../interface/attraction";
 import RestaurantData from "../interface/restaurant";
 
 import haversine from "haversine-distance";
-import L from 'leaflet';
+import L from "leaflet";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -114,9 +116,8 @@ const mockItems = [
 ];
 
 export default function Home() {
-
   const searchParams = useSearchParams();
-  const planID = searchParams.get('planID');
+  const planID = searchParams.get("planID");
 
   const [error, setError] = useState<string | null>(null);
 
@@ -160,6 +161,7 @@ export default function Home() {
   const searchPlacesRef = useRef<HTMLDivElement>(null);
   const searchAccommodationRef = useRef<HTMLDivElement>(null);
 
+  const { data: session, status } = useSession();
   const [polyline, setPolyline] = useState<any[]>([]);
   const [waypoints, setWaypoints] = useState<number[][]>([]);
   const [planningInformationDataList, setPlanningInformationDataList] =
@@ -201,55 +203,75 @@ export default function Home() {
 
   const [isDataSaved, setIsDataSaved] = useState<boolean>(true);
 
-  const accommodationRef = useRef<(AccommodationData | null)[]>(accommodationData);
-  const planLocationRef = useRef<(AttractionData | RestaurantData | null)[][]>(locationPlanning);
-  const planDurationRef = useRef<planningPlacesDuration[][]>(placesStayDurationList);
+  const accommodationRef =
+    useRef<(AccommodationData | null)[]>(accommodationData);
+  const planLocationRef =
+    useRef<(AttractionData | RestaurantData | null)[][]>(locationPlanning);
+  const planDurationRef = useRef<planningPlacesDuration[][]>(
+    placesStayDurationList
+  );
   const dataSaveRef = useRef<boolean>(isDataSaved);
 
-
   useEffect(() => {
-
-    if (planID) {
+    if (status === "authenticated" && planID) {
       const fetchData = async () => {
         try {
-          const planDataResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`);
+          const planDataResponse = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
+          );
 
-          if(planDataResponse.status == 200) {
+          if (planDataResponse.status === 200) {
+            //console.log(session?.user?.id);
+
+            const checkplanUser = await axios.get(
+              `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${session?.user?.id}`
+            );
+
+            const userPlans = checkplanUser.data.planList;
+            console.log(userPlans.includes(planID));
+
             const attractionResponse = await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`
             );
             const restaurantResponse = await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL}/restaurant/getAllData`
             );
-    
+
             const accommodationResponse = await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAllData`
             );
-    
+
             const attractions = attractionResponse.data.attractions || [];
             const restaurants = restaurantResponse.data.restaurants || [];
-    
+
             setAccommodationsData(accommodationResponse.data.accommodations);
-            setFilteredAccommodations(accommodationResponse.data.accommodations);
+            setFilteredAccommodations(
+              accommodationResponse.data.accommodations
+            );
             setPlacesData([...attractions, ...restaurants]);
             setFilteredLocations([...attractions, ...restaurants]);
-  
+
             const autoUpdate = setInterval(() => {
-              if(!dataSaveRef.current.valueOf()) { //if not save
+              if (!dataSaveRef.current.valueOf()) {
+                // if not saved
                 const accommodations = accommodationRef.current
-                ? accommodationRef.current.map((accommodation) => ({
-                    accommodationID: accommodation?._id,
-                  }))
-                : [];
-        
-                const plans = planLocationRef.current.map((dayPlans,dayIndex) =>
-                  dayPlans.map((place,placeIndex) => ({
-                    placeID: place?._id, 
-                    type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
-                    duration: planDurationRef.current[dayIndex][placeIndex].time
-                  }))
+                  ? accommodationRef.current.map((accommodation) => ({
+                      accommodationID: accommodation?._id,
+                    }))
+                  : [];
+
+                const plans = planLocationRef.current.map(
+                  (dayPlans, dayIndex) =>
+                    dayPlans.map((place, placeIndex) => ({
+                      placeID: place?._id,
+                      type: isRestaurantData(place!)
+                        ? "RESTAURANT"
+                        : "ATTRACTION",
+                      duration:
+                        planDurationRef.current[dayIndex][placeIndex].time,
+                    }))
                 );
-        
+
                 const plantripPayload = {
                   travelers,
                   startDate,
@@ -262,20 +284,24 @@ export default function Home() {
             }, 1 * 5 * 1000);
             return () => clearInterval(autoUpdate);
           }
-
         } catch (error) {
           console.error("Error fetching data:", error);
           setError("Error");
         }
       };
       fetchData();
+    } else if (status === "loading") {
+      console.log("Session is loading...");
+    } else {
+      console.log("Session is not authenticated");
     }
-  }, [planID]);
+  }, [planID, session, status]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDataSaved) {
-        const message = "You have unsaved changes. Do you want to save before leaving?";
+        const message =
+          "You have unsaved changes. Do you want to save before leaving?";
         event.returnValue = message;
         return message;
       }
@@ -284,7 +310,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [isDataSaved]); 
+  }, [isDataSaved]);
 
   useEffect(() => {
     accommodationRef.current = accommodationData;
@@ -292,7 +318,12 @@ export default function Home() {
     planDurationRef.current = placesStayDurationList;
     dataSaveRef.current = isDataSaved;
     setIsDataSaved(false);
-  }, [accommodationData,locationPlanning,placesStayDurationList,dataSaveRef]);
+  }, [
+    accommodationData,
+    locationPlanning,
+    placesStayDurationList,
+    dataSaveRef,
+  ]);
 
   useEffect(() => {
     const filtered = placesData.filter((item) =>
@@ -350,7 +381,6 @@ export default function Home() {
   };
 
   const handleSaveDuration = (newDuration: number): void => {
-
     setPlacesStayDurationList((prev) => {
       const currentData = [...prev];
       const placeIndex = currentData[currentIndexDate].findIndex(
@@ -640,7 +670,7 @@ export default function Home() {
       }))
     );
 
-   // console.log("All Locations:", allLocations);
+    // console.log("All Locations:", allLocations);
 
     // คำนวณระยะทางระหว่างสถานที่ทั้งหมด
     const distances = allLocations.map((loc1) =>
@@ -837,6 +867,10 @@ export default function Home() {
   }
   if (error) {
     return <div>Error: {error} </div>;
+  }
+
+  if (status === "unauthenticated") {
+    redirect("/login");
   }
 
   return (
@@ -1072,7 +1106,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col mt-2">
+              <div className="flex flex-col mt-2 h-full">
                 <div className="flex flex-row">
                   <div
                     className="flex cursor-pointer justify-center items-center mr-2"
@@ -1094,11 +1128,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div
-                  className={`flex flex-col w-full ${
-                    showPlanning
-                      ? "h-full transition-all duration-500"
-                      : "h-0 transition-all duration-500"
-                  } overflow-hidden`}
+                  className={`flex flex-col w-full overflow-hidden transition-all duration-500 ${
+                    showPlanning ? "max-h-[1000px]" : "max-h-0"
+                  }`}
                 >
                   {planningInformationDataList.length >= 0 && (
                     <div className="flex flex-col h-full">
@@ -1185,8 +1217,8 @@ export default function Home() {
                   )}
                 </div>
                 <div
-                  className={`flex flex-col w-full kanit pr-10 pl-5 ${
-                    showPlanning ? "max-h-screen" : "max-h-0 overflow-hidden"
+                  className={`flex flex-col w-full kanit pr-10 pl-5 transition-all duration-500 ${
+                    showPlanning ? "max-h-[500px]" : "max-h-0 overflow-hidden"
                   }`}
                 >
                   <div className="relative w-full">
@@ -1351,44 +1383,47 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {<MapContainer
-              center={[7.7587, 98.2954147]}
-              zoom={14}
-              className="h-[calc(100vh-84px)]"
-              style={{ width: "100%" }}
-            >
-              <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png" />
-              {polyline.length > 0 && (
-                <Polyline
-                  positions={polyline}
-                  pathOptions={{ color: "green" }}
-                />
-              )}
-              {waypoints.map((position, idx) => {
-                const isLastWaypointWithAccommodation =
-                  idx === waypoints.length - 1 && accommodationData[currentIndexDate] !== null;
+            {
+              <MapContainer
+                center={[7.7587, 98.2954147]}
+                zoom={14}
+                className="h-[calc(100vh-84px)]"
+                style={{ width: "100%" }}
+              >
+                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png" />
+                {polyline.length > 0 && (
+                  <Polyline
+                    positions={polyline}
+                    pathOptions={{ color: "green" }}
+                  />
+                )}
+                {waypoints.map((position, idx) => {
+                  const isLastWaypointWithAccommodation =
+                    idx === waypoints.length - 1 &&
+                    accommodationData[currentIndexDate] !== null;
 
-                return (
-                  <Marker
-                    key={idx}
-                    position={position as L.LatLngTuple}
-                    icon={
-                      isLastWaypointWithAccommodation
-                        ? createCustomIcon(idx + 99, true)
-                        : createCustomIcon(idx + 1, false)
-                    }
-                  >
-                    
-                    <Popup>
-                      {isLastWaypointWithAccommodation
-                        ? `${accommodationData[currentIndexDate]?.name}`
-                        : `${locationPlanning[currentIndexDate][idx]?.name}`}
-                    </Popup>
-                  </Marker>
-                );
-              })}
-              <MapUpdater locationPlanning={locationPlanning[currentIndexDate]} />
-            </MapContainer>
+                  return (
+                    <Marker
+                      key={idx}
+                      position={position as L.LatLngTuple}
+                      icon={
+                        isLastWaypointWithAccommodation
+                          ? createCustomIcon(idx + 99, true)
+                          : createCustomIcon(idx + 1, false)
+                      }
+                    >
+                      <Popup>
+                        {isLastWaypointWithAccommodation
+                          ? `${accommodationData[currentIndexDate]?.name}`
+                          : `${locationPlanning[currentIndexDate][idx]?.name}`}
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+                <MapUpdater
+                  locationPlanning={locationPlanning[currentIndexDate]}
+                />
+              </MapContainer>
             }
           </div>
         </div>
