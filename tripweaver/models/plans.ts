@@ -22,7 +22,6 @@ const plansSchema = new Schema(
       {
         accommodationID: {
           type: String,
-          required: true,
         },
       },
     ],

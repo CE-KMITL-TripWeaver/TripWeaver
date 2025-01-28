@@ -15,7 +15,7 @@ import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
 import { useQuery } from "react-query";
-import { fetchPlanData, fetchUserPlans, fetchAllData } from "@/utils/apiService";
+import { fetchPlanData, fetchUserPlans, fetchAllData, updateUserPlans } from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
 
 import { v4 as uuidv4 } from "uuid";
@@ -61,6 +61,9 @@ interface planningInformationData {
 interface planningPlacesDuration {
   uuid: string;
   time: number;
+}
+interface accommodationPlanInterface {
+  accommodationID: string;
 }
 
 interface planInterface {
@@ -174,6 +177,7 @@ export default function Home() {
     AttractionData | RestaurantData | null
   >(null);
 
+  const [planName, setPlanName] = useState<(string | undefined)[]>([]);
   const [searchPlace, setSearchPlace] = useState<string>("");
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
 
@@ -206,6 +210,7 @@ export default function Home() {
     placesStayDurationList
   );
   const dataSaveRef = useRef<boolean>(isDataSaved);
+  const planNameRef = useRef<(string | undefined)[]>(planName);
 
   const {
     data: planData,
@@ -280,17 +285,23 @@ export default function Home() {
       setPlanDateObject(dateItems);
 
       const allLocationPlanningData: (AttractionData | RestaurantData)[][] = [];
+      const allAccommodationPlanningData: (AccommodationData|null)[] = [];
       const planPlacesDurationData: planningPlacesDuration[][] = [];
+      const planNameListData: (string|undefined)[] = [];
+
+      console.log(planData);
 
       planData.plan.plans.map((plan: planInterface) => {
         const planName = plan.planName;
-        console.log(planName);
+        //console.log(planName);
+
+        planNameListData.push(planName);
 
         const updatedPlacesData: (AttractionData | RestaurantData)[] = [];
         const placesDuration: (planningPlacesDuration)[] = [];
         plan.places.map((place) => {
           const placeID = place.placeID;
-          const type = place.type;
+          //const type = place.type;
           const duration = place.duration;
           const placeData = placesData.find((place) => place._id === placeID);
           
@@ -307,64 +318,86 @@ export default function Home() {
         planPlacesDurationData.push(placesDuration);
       });
 
-      setAccommodationData(Array(durationInDay).fill(null));
+      planData.plan.accommodations.map((accommodation: accommodationPlanInterface) => {
+        const accommodationData = accommodationsData.find((data) => data._id === accommodation.accommodationID);
+        if(accommodationData) {
+          allAccommodationPlanningData.push(accommodationData);
+        } else {
+          allAccommodationPlanningData.push(null);
+        }
+      }) 
 
       const lengthToFill = durationInDay - allLocationPlanningData.length;
       if (lengthToFill > 0) {
         allLocationPlanningData.push(...Array(lengthToFill).fill([]));
         planPlacesDurationData.push(...Array(lengthToFill).fill([]));
+        planNameListData.push(...Array(lengthToFill).fill(undefined));
       }
-      console.log(allLocationPlanningData);
+
+      const lengthToFillAccommodation = durationInDay - allAccommodationPlanningData.length;
+      if (lengthToFillAccommodation > 0) {
+        allAccommodationPlanningData.push(...Array(lengthToFillAccommodation).fill(null));
+      }
+
+      /*console.log(allLocationPlanningData);
       console.log("-----------------");
       console.log(planPlacesDurationData);
+      console.log(allAccommodationPlanningData);
+      console.log(planNameListData);*/
+
       setLocationPlanning(allLocationPlanningData);
       setPlacesStayDurationList(planPlacesDurationData);
+      setAccommodationData(allAccommodationPlanningData);
+      setPlanName(planNameListData);
 
     }
   }, [planData, userPlans]);
-/*
+
   useEffect(() => {
+    console.log("Come...")
     if (status === "authenticated" && planID) {
       const autoUpdate = setInterval(() => {
-        if (!dataSaveRef.current.valueOf()) {
-          // if not saved
+
+        console.log(dataSaveRef.current);
+        if (!dataSaveRef.current.valueOf()) { // if not saved
+
           const accommodations = accommodationRef.current
-            ? accommodationRef.current.map((accommodation) => ({
-                accommodationID: accommodation?._id,
-              }))
-            : [];
+          ? accommodationRef.current.map((accommodation) =>
+              accommodation ? { accommodationID: accommodation._id } : { accommodationID: '' }
+            )
+          : [];
+        
+        const plans = planLocationRef.current.map((dayPlans, dayIndex) => ({
+          planName: planNameRef.current[dayIndex] ?? "",
+          places: dayPlans.map((place, placeIndex) => ({
+            placeID: place?._id ?? '',
+            type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
+            duration: planDurationRef.current[dayIndex][placeIndex].time,
+          })),
+        }));
 
-          const plans = planLocationRef.current.map(
-            (dayPlans, dayIndex) =>
-              dayPlans.map((place, placeIndex) => ({
-                placeID: place?._id,
-                type: isRestaurantData(place!)
-                  ? "RESTAURANT"
-                  : "ATTRACTION",
-                duration:
-                  planDurationRef.current[dayIndex][placeIndex].time,
-              }))
-          );
-
-          const plantripPayload = {
-            travelers,
-            startDate,
-            dayDuration: durationInDay,
-            accommodations,
-            plans,
-          };
+        const plantripDataPayload = {
+          accommodations,
+          plans,
+        };
+        
+          updateUserPlans(planID, plantripDataPayload);
+      
           setIsDataSaved(true);
+          
+        } else {
+          console.log("HERE....");
         }
-      }, 1 * 5 * 1000);
+      }, 1 * 3 * 1000);
       return () => clearInterval(autoUpdate);
-    } else if (status === "loading") {
-      console.log("Session is loading...");
     } else {
-      console.log("Session is not authenticated");
+      console.log("ComeHE...",status,planID)
     }
-  }, []);*/
+  }, [status]);
 
   useEffect(() => {
+    dataSaveRef.current = isDataSaved;
+
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDataSaved) {
         const message =
@@ -383,13 +416,13 @@ export default function Home() {
     accommodationRef.current = accommodationData;
     planLocationRef.current = locationPlanning;
     planDurationRef.current = placesStayDurationList;
-    dataSaveRef.current = isDataSaved;
+    planNameRef.current = planName;
     setIsDataSaved(false);
   }, [
     accommodationData,
     locationPlanning,
     placesStayDurationList,
-    dataSaveRef,
+    planName
   ]);
 
   useEffect(() => {
@@ -422,8 +455,11 @@ export default function Home() {
 
   const handleInput = () => {
     if (inputTitle.current) {
-      const textLength =
-        inputTitle.current.value.replace(/\s+/g, "").length || 0;
+      const textLength = inputTitle.current.value.replace(/\s+/g, "").length || 0;
+
+      const updatedPlanName = [...planName];
+      updatedPlanName[currentIndexDate] = inputTitle.current.value || undefined;
+      setPlanName(updatedPlanName);
 
       setInputTitleWidth(textLength);
     }
@@ -491,6 +527,9 @@ export default function Home() {
     if(locationPlanning.length == 0 && accommodationData.length == 0) {
       return;
     }
+
+    const textLength = planName[currentIndexDate]?.replace(/\s+/g, "").length || 0;
+    setInputTitleWidth(textLength);
 
     const coordinates = [
       ...locationPlanning[currentIndexDate].map(
@@ -949,8 +988,6 @@ export default function Home() {
     return <div>Error occurred!</div>;
   }
 
-  console.log(planData)
-
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
       <NavBar />
@@ -1165,6 +1202,7 @@ export default function Home() {
                       inputTitleWidth === 0 ? "min-w-96" : "max-w-[450px]"
                     }`}
                     placeholder="เพื่มชื่อทริปของคุณ (เช่น ทริปเดินทางสู่...)"
+                    value={planName[currentIndexDate] ?? ""}
                     size={inputTitleWidth}
                     onInput={handleInput}
                   />

@@ -1,5 +1,19 @@
 import axios from "axios";
 
+interface PlanUpdateInterface {
+  accommodations: {
+    accommodationID: string;
+  }[];
+  plans: {
+    planName: string;
+    places: {
+      placeID: string;
+      type: string;
+      duration: number;
+    }[];
+  }[];
+}
+
 export const fetchPlanData = async (planID: string) => {
   const { data } = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
@@ -12,6 +26,14 @@ export const fetchUserPlans = async (userID: string) => {
     `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${userID}`
   );
   return data.planList;
+};
+
+export const updateUserPlans = async (planID: string,planData: PlanUpdateInterface) => {
+  const { data } = await axios.put(
+    `${process.env.NEXT_PUBLIC_API_URL}/plantrip/update/${planID}`,
+    planData
+  );
+  return data;
 };
 
 export const fetchAllData = async () => {

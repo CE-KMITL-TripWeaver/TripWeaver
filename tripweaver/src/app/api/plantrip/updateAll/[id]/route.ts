@@ -7,13 +7,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const { id } = params;
         const data = await req.json();
 
-        //console.log(data.accommodations);
-        //console.log(data.plans);
-
         await connectMongoDB();
+        
         const updatedPlans = await PlanTrips.findByIdAndUpdate(id, data, {
-            new: true,   
-            runValidators: true, 
+            new: true,
+            runValidators: true,
         });
 
         if (!updatedPlans) {
@@ -26,7 +24,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         );
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.log(error);
         return NextResponse.json(
             { message: `An error occurred while updating attraction: ${errorMessage}` },
             { status: 500 }
