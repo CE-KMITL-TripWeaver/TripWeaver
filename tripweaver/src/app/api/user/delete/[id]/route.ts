@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { connectMongoDB } from "../../../../../../lib/mongodb";
 import User from "../../../../../../models/user";
+import UserRating from "../../../../../../models/userRating";
 import { authOptions } from "../../../auth/[...nextauth]/route";
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
@@ -11,12 +12,18 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     if (isApiKeyValid) {
         try {
             await connectMongoDB();
-            const result = await User.findByIdAndDelete(params.id);
-            if (!result) {
+
+            const userResult = await User.findByIdAndDelete(params.id);
+            if (!userResult) {
                 return NextResponse.json({ message: "User not found" }, { status: 404 });
             }
 
-            return NextResponse.json({ message: "User deleted successfully" });
+            const ratingResult = await UserRating.findOneAndDelete({ userId: params.id });
+
+            return NextResponse.json({
+                message: "User and associated user rating deleted successfully",
+                deletedUserRating: !!ratingResult,
+            });
         } catch (error) {
             console.error(error);
             return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -36,12 +43,18 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     try {
         await connectMongoDB();
-        const result = await User.findByIdAndDelete(params.id);
-        if (!result) {
+
+        const userResult = await User.findByIdAndDelete(params.id);
+        if (!userResult) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: "User deleted successfully" });
+        const ratingResult = await UserRating.findOneAndDelete({ userId: params.id });
+
+        return NextResponse.json({
+            message: "User and associated user rating deleted successfully",
+            deletedUserRating: !!ratingResult,
+        });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
