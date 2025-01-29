@@ -69,7 +69,7 @@ export default function Home() {
     const timeDifference = (newEndDate.getTime() - newStartDate.getTime()) / (1000 * 3600 * 24);
 
     if (timeDifference > maxDuration) {
-      setErrorMessage("ไม่สามารถวันในการวางแผนเกิน 90 วันได้");
+      setErrorMessage("ไม่สามารถมีวันในการวางแผนเกิน 90 วันได้");
     } else {
       setDateRange([ranges.selection]);
     }

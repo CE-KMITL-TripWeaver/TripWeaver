@@ -143,14 +143,14 @@ export default function PlanningCard({
                 {index === 0 ? "จุดเริ่มต้น" : `${formattedDistance}`}
               </div>
             </div>
-            <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]  w-[33%]">
+            <div className="flex flex-row cursor-pointer hover:text-[#595959] text-[#9B9B9B]  w-[33%]" onClick={
+                (e) => {
+                  e.stopPropagation();
+                  handleClickEditDuration(uuid)}}>
               <div className="flex items-center justify-center mr-1">
                 <Icon icon="mdi:clock-outline" className="text-lg" />
               </div>
-              <div className="flex items-center justify-center kanit" onClick={
-                (e) => {
-                  e.stopPropagation();
-                  handleClickEditDuration(uuid)}}
+              <div className="flex items-center justify-center kanit"
                 >
                 {formattedDurationPlace}
               </div>
