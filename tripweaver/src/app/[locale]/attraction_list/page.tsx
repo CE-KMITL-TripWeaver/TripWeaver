@@ -12,7 +12,8 @@ import Rating from "../interface/rating";
 import Tags from "../interface/tags";
 import AttractionInfo from "../interface/attractionInfo";
 import axios from "axios";
-
+import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList} from '@/utils/apiService';
+import { useQuery } from "react-query";
 
 export default function Home() {
     const t = useTranslations();
@@ -25,6 +26,55 @@ export default function Home() {
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
     const [tagsList, setTagList] = useState<Tags[]>([]);
     const [searchRadiusMarker,setSearchRadiusMarker] = useState<AttractionInfo[]>([])
+
+    const {
+        data: ratingData,
+        isLoading: isRatingDataLoading,
+        isError: isRatingError,
+    } = useQuery(
+        ["ratingData", selectedProvince, selectedDistrict],
+        () => fetchAttractionRating(
+            selectedProvince,
+            selectedDistrict
+                .filter((district) => district.selected)
+                .map((district) => district.name)
+        ),
+        {
+            enabled: !!selectedProvince && selectedDistrict.length > 0,
+            retry: 0
+        }
+    );
+
+    const {
+        data: attractionList,
+        isLoading: isAttractionListLoading,
+        isError: isAttractionListError,
+    } = useQuery(
+        ["attractionData", selectedProvince, selectedDistrict],
+        () => fetchAttractionKeyList(
+            selectedProvince,
+            selectedDistrict
+                .filter((district) => district.selected)
+                .map((district) => district.name)
+        ),
+        {
+            enabled: !!selectedProvince && selectedDistrict.length > 0,
+            retry: 0
+        }
+    );
+
+    const {
+        data: attractionTags,
+        isLoading: isAttractionTagsLoading,
+        isError: isAttractionTagsError,
+    } = useQuery(
+        ["attractionTags"],
+        () => fetchAttractionTags(),
+        {
+            retry: 0
+        }
+    );
+    
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
@@ -50,71 +100,33 @@ export default function Home() {
         setTagList(tags); 
     };
 
-    
     useEffect(() => {
-
-        console.log(selectedMarkRadiusAttraction)
-        console.log(selectedMarkRadiusValue)
-
-    }, [selectedMarkRadiusValue,selectedMarkRadiusAttraction]);
-
-    useEffect(() => {
-
-        if(selectedProvince && selectedDistrict) {
-            const fetchData = async () => {
-                try {
-                    const response = await axios.post('http://localhost:3000/api/attraction/rating', {
-                        provinceName: selectedProvince,
-                        districtList: selectedDistrict
-                                    .filter((district) => district.selected)
-                                    .map((district) => district.name)
-                    });
-
-                    const attractionKeyListResponse = await axios.post('http://localhost:3000/api/attraction/getAttraction', {
-                        provinceName: selectedProvince,
-                        districtList: selectedDistrict
-                                    .filter((district) => district.selected)
-                                    .map((district) => district.name)
-                    });
-
-                    setSearchRadiusMarker(attractionKeyListResponse.data.attractions)
-
-                    setRatingObject(response.data.attractionRatings.map((rating: any) => ({
-                        star: rating._id,
-                        count: rating.count,
-                        selected: false
-                    })))
-                    
-
-                } catch(error) {
-                    console.error('Error fetching data:', error);
-                }
-            };
-            fetchData();
+        if (attractionList) {
+            setSearchRadiusMarker(attractionList.attractions)
         }
-
-    }, [selectedProvince,selectedDistrict]);
+    }, [attractionList]);
 
     useEffect(() => {
-
-        const fetchData = async () => {
-            try {
-                const response = await axios.post('http://localhost:3000/api/attraction/tags');
-
-                const tagWithDefaultSelected = response.data.attractionTagKeys.map((tag: Tags) => ({
-                    name: tag,
+        if (ratingData) {
+            setRatingObject(
+                ratingData.attractionRatings.map((rating: any) => ({
+                    star: rating._id,
+                    count: rating.count,
                     selected: false,
-                }));
-                
-                setTagList(tagWithDefaultSelected)
+                }))
+            );
+        }
+    }, [ratingData]);
 
-            } catch(error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-
-    }, []);
+    useEffect(() => {
+        if (attractionTags) {
+            const tagWithDefaultSelected = attractionTags.attractionTagKeys.map((tag: Tags) => ({
+                name: tag,
+                selected: false,
+            }));
+            setTagList(tagWithDefaultSelected)
+        }
+    }, [attractionTags]);
 
     return (
         <>
@@ -156,7 +168,7 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="flex w-[85%]">
-                            444
+                            45454544
                         </div>
                     </div>
                     

@@ -386,12 +386,12 @@ export default function Home() {
           setIsDataSaved(true);
           
         } else {
-          console.log("HERE....");
+          //console.log("HERE....");
         }
       }, 1 * 3 * 1000);
       return () => clearInterval(autoUpdate);
     } else {
-      console.log("ComeHE...",status,planID)
+      //console.log("ComeHE...",status,planID)
     }
   }, [status]);
 

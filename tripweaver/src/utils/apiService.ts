@@ -48,3 +48,31 @@ export const fetchAllData = async () => {
     accommodations: accommodations.data.accommodations || [],
   };
 };
+
+export const fetchAttractionRating = async (provinceName: string,districtList: string[]) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/rating`, {
+    provinceName: provinceName,
+    districtList: districtList
+  });
+  return data;
+
+}
+
+export const fetchAttractionTags = async () => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/tags`);
+  return data;
+
+}
+
+
+export const fetchAttractionKeyList = async (provinceName: string,districtList: string[]) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAttraction`, {
+    provinceName: provinceName,
+    districtList: districtList
+  });
+  return data;
+
+}
