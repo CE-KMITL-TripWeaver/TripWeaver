@@ -11,7 +11,7 @@ import District from '../interface/district'
 import Rating from "../interface/rating";
 import Tags from "../interface/tags";
 import AttractionInfo from "../interface/attractionInfo";
-import axios from "axios";
+import LocationCard from "../components/LocationCard";
 import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList} from '@/utils/apiService';
 import { useQuery } from "react-query";
 
@@ -167,8 +167,8 @@ export default function Home() {
                                 <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
                             </div>
                         </div>
-                        <div className="flex w-[85%]">
-                            45454544
+                        <div className="flex w-[85%] pl-16">
+                            <LocationCard placeImage="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/db/c9/08/beautiful-dive.jpg?w=1200&h=900&s=1" placeID="675c202f9f570448ebeb4831" placeName="ซันไรซ์ ไดเวอส์"/>
                         </div>
                     </div>
                     

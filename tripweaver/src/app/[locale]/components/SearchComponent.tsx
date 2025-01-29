@@ -3,8 +3,8 @@ import React, { useState, useEffect  } from "react";
 import { Icon } from "@iconify/react";
 import {useTranslations} from 'next-intl';
 import SearchComponentElement from "./SearchComponentElement";
-import axios from "axios";
-
+import { fetchProvince } from "@/utils/apiService";
+import { useQuery } from "react-query";
 
 interface SearchComponentProps {
   defaultValue: string;
@@ -28,6 +28,18 @@ export default function SearchComponent({
   const [provinceFromQuery, setProvinceFromQuery] = useState<Province[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<string>(defaultValue);
 
+  const {
+    data: provinceDataList,
+    isLoading: isProvinceDataLoading,
+    isError: isProvinceError,
+  } = useQuery(
+    ["provinceList"],
+    () => fetchProvince(),
+    {
+      retry: 0,
+    }
+  );
+
   const handleClickOpen = () => {
     setIsOpen(!isOpen);
   };
@@ -46,17 +58,11 @@ export default function SearchComponent({
   }, [searchQuery]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-       const response = await axios.post('http://localhost:3000/api/province/listProvince');
-       setProvinceList(response.data.provinces);
-       setProvinceFromQuery(response.data.provinces);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, []);
+    if(provinceDataList) {
+      setProvinceList(provinceDataList.provinces);
+      setProvinceFromQuery(provinceDataList.provinces);
+    }
+  }, [provinceDataList]);
 
   const handleSelectProvince = (name: string) => {
     setSelectedProvince(name);
@@ -95,8 +101,8 @@ export default function SearchComponent({
           }`}
         >
           <div className="relative w-full">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <Icon icon="materiasymbols:search" classNal-me='text-2xl text-[#828282]' />
+            <div className="absolute inset-y-0  flex items-center ps-2 pointer-events-none">
+                <Icon icon="material-symbols:search" classNal-me='text-2xl text-[#828282]' width={24} height={24} />
             </div>
             <input
               type="text"

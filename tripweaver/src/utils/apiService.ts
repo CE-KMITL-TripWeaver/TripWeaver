@@ -76,3 +76,20 @@ export const fetchAttractionKeyList = async (provinceName: string,districtList: 
   return data;
 
 }
+
+export const fetchDistrict = async (provinceName: string) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/province/listDistrict`, {
+    provinceName: provinceName
+  });
+  return data;
+
+}
+
+export const fetchProvince = async () => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/province/listProvince`);
+
+  return data;
+
+}
