@@ -12,38 +12,30 @@ import Rating from "../interface/rating";
 import Tags from "../interface/tags";
 import AttractionInfo from "../interface/attractionInfo";
 import LocationCard from "../components/LocationCard";
-import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList} from '@/utils/apiService';
+import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList, fetchAttraction} from '@/utils/apiService';
 import { useQuery } from "react-query";
+
+interface LocationCardInterface {
+    _id: string;
+    name: string;
+    imgPath: string[];
+}
 
 export default function Home() {
     const t = useTranslations();
 
-    const [selectedProvince, setSelectedProvince] = useState("กรุงเทพมหานคร");
+    const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
+    const [locationCardList, setLocationCardList] = useState<LocationCardInterface[]>([]);
+
     const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
-    const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<string>("");
+    const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<AttractionInfo|null>(null);
 
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
+    const [ratingCheckData, setRatingCheckData] = useState<boolean[]>(Array(6).fill(false));
+    
     const [tagsList, setTagList] = useState<Tags[]>([]);
     const [searchRadiusMarker,setSearchRadiusMarker] = useState<AttractionInfo[]>([])
-
-    const {
-        data: ratingData,
-        isLoading: isRatingDataLoading,
-        isError: isRatingError,
-    } = useQuery(
-        ["ratingData", selectedProvince, selectedDistrict],
-        () => fetchAttractionRating(
-            selectedProvince,
-            selectedDistrict
-                .filter((district) => district.selected)
-                .map((district) => district.name)
-        ),
-        {
-            enabled: !!selectedProvince && selectedDistrict.length > 0,
-            retry: 0
-        }
-    );
 
     const {
         data: attractionList,
@@ -74,13 +66,78 @@ export default function Home() {
             retry: 0
         }
     );
+
+    const {
+        data: attractionDataFromFilter,
+        isLoading: isAttractionDataFromFilterLoading,
+        isError: isAttractionDataFromFilterError,
+    } = useQuery(
+        ["attractionDataFromFilter", selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue],
+        () => fetchAttraction(
+            selectedProvince,
+            selectedDistrict
+                .filter((district) => district.selected)
+                .map((district) => district.name),
+            tagsList.filter((tag) => tag.selected).map((tag) => tag.name),
+            ratingObject.filter((rating) => rating.selected).map((rating) => rating.star),
+            1,
+            selectedMarkRadiusValue*1000,
+            selectedMarkRadiusAttraction?.latitude,
+            selectedMarkRadiusAttraction?.longitude
+        ),
+        {
+            retry: 0
+        }
+    );
+
+    useEffect(() => {
+        if (attractionDataFromFilter) {
+            setRatingObject(
+                attractionDataFromFilter.completeAttractionRatings.map((rating: any,index: number) => ({
+                    star: rating._id,
+                    count: rating.count,
+                    selected: ratingCheckData[index],
+                }))
+            );
+
+            setLocationCardList(attractionDataFromFilter.attractions.map((data: LocationCardInterface)=>({
+                _id: data._id,
+                name: data.name,
+                imgPath: data.imgPath
+            }))
+
+            );
+        }
+    }, [attractionDataFromFilter]);
+
+    useEffect(() => {
+        if (attractionList) {
+            setSearchRadiusMarker(attractionList.attractions);
+        }
+
+        if (attractionTags) {
+            setTagList(
+                attractionTags.attractionTagKeys.map((tag: string) => ({
+                    name: tag,
+                    selected: false,
+                }))
+            );
+        }
+    }, [attractionList, attractionTags]);
+
+    useEffect(() => {
+        if (attractionDataFromFilter) {
+            console.log(attractionDataFromFilter);
+        }
+
+    }, [attractionDataFromFilter]);
     
 
     const handleProvinceSelect = (province: string) => {
         setSelectedProvince(province); 
     };
 
-    const handleMarkRadiusAttractionSelect = (markAttaction: string) => {
+    const handleMarkRadiusAttractionSelect = (markAttaction: AttractionInfo|null) => {
         setSelectedMarkRadiusAttraction(markAttaction); 
     };
 
@@ -94,39 +151,14 @@ export default function Home() {
 
     const handleRating = (ratings: Rating[]) => {
         setRatingObject(ratings); 
+        setRatingCheckData(ratings.map((rating) => {
+            return rating.selected;
+        }))
     };
 
     const handleTag = (tags: Tags[]) => {
         setTagList(tags); 
     };
-
-    useEffect(() => {
-        if (attractionList) {
-            setSearchRadiusMarker(attractionList.attractions)
-        }
-    }, [attractionList]);
-
-    useEffect(() => {
-        if (ratingData) {
-            setRatingObject(
-                ratingData.attractionRatings.map((rating: any) => ({
-                    star: rating._id,
-                    count: rating.count,
-                    selected: false,
-                }))
-            );
-        }
-    }, [ratingData]);
-
-    useEffect(() => {
-        if (attractionTags) {
-            const tagWithDefaultSelected = attractionTags.attractionTagKeys.map((tag: Tags) => ({
-                name: tag,
-                selected: false,
-            }));
-            setTagList(tagWithDefaultSelected)
-        }
-    }, [attractionTags]);
 
     return (
         <>
@@ -167,9 +199,19 @@ export default function Home() {
                                 <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
                             </div>
                         </div>
-                        <div className="flex w-[85%] pl-16">
-                            <LocationCard placeImage="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/db/c9/08/beautiful-dive.jpg?w=1200&h=900&s=1" placeID="675c202f9f570448ebeb4831" placeName="ซันไรซ์ ไดเวอส์"/>
-                        </div>
+                        <div className="flex flex-wrap w-[85%] pl-16 h-full">
+                        {
+                            locationCardList.map((location, index) => (
+                                <div className="w-1/4 p-2 max-h-56" key={index}>
+                                    <LocationCard 
+                                        placeImage={location.imgPath[0]} 
+                                        placeID={location._id}
+                                        placeName={location.name}
+                                    />
+                                </div>
+                            ))
+                        }
+                    </div>
                     </div>
                     
                 </div>

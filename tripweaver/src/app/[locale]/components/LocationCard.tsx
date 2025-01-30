@@ -22,7 +22,6 @@ export default function LocationCard({
     const handleAddToTrip = (placeID: string) => {
         console.log("Add trip ",placeID);
     }
-
     
     return (
         <>

@@ -93,3 +93,29 @@ export const fetchProvince = async () => {
   return data;
 
 }
+
+export const fetchAttraction = async (provinceName: string, districtList: string[],
+  tagLists: string[], rating: number[], page: number,
+  radius?: number, centerLatitude?: number, centerLongitude?: number
+) => {
+
+
+
+  const requestBody: Record<string, any> = {
+    provinceName,
+    districtList,
+    tagLists,
+    rating: rating.length > 0 ? rating : [1, 2, 3, 4, 5],
+    page,
+    ...(radius !== null && radius !== undefined && { radius }),
+    ...(centerLatitude !== null && centerLatitude !== undefined && { centerLatitude }),
+    ...(centerLongitude !== null && centerLongitude !== undefined && { centerLongitude }),
+  };
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getDataWithCondition`
+    , requestBody
+  );
+
+  return data;
+
+}

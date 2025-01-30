@@ -8,7 +8,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 
 interface SearchRadiusComponentProps {
   attractionList: AttractionInfo[];
-  onSelectAttractionMark: (attraction: string) => void;
+  onSelectAttractionMark: (attraction: AttractionInfo|null) => void;
   onSelectAttractionValue: (radius: number) => void;
 }
 
@@ -34,7 +34,7 @@ export default function SearchRadiusComponent({
     setAttractionQuery(attractionList);
     setAttractionFilter(attractionList);
     setQuerySearchMark("");
-    onSelectAttractionMark("");
+    onSelectAttractionMark(null);
   }, [attractionList]);
 
   const handleFocus = () => {
@@ -73,12 +73,16 @@ export default function SearchRadiusComponent({
       attraction.name.startsWith(querySearchMark)
     );
 
+    if(querySearchMark.length == 0) {
+      onSelectAttractionMark(null);
+    }
+
     setAttractionFilter(filteredAttraction);
   }, [querySearchMark]);
 
-  const handleSelectMarkRadius = (name: string) => {
-    onSelectAttractionMark(name);
-    setQuerySearchMark(name);
+  const handleSelectMarkRadius = (element: AttractionInfo) => {
+    onSelectAttractionMark(element);
+    setQuerySearchMark(element.name);
     setIsOpen(false);
   };
 
@@ -88,6 +92,9 @@ export default function SearchRadiusComponent({
     setIsOpenRange(false);
   };
 
+  const handleChangeType = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuerySearchMark(e.target.value);
+  };
   return (
     <>
       <div className="flex relative flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit w-full rounded-xl">
@@ -101,7 +108,7 @@ export default function SearchRadiusComponent({
                 type="text"
                 id="default-search"
                 value={querySearchMark}
-                onChange={(e) => setQuerySearchMark(e.target.value)}
+                onChange={handleChangeType}
                 className="block w-full p-2 text-sm text-black border border-[#B9B9B9] rounded-xl bg-[#F0F0F0] focus:outline-none"
                 placeholder={t("AttractionPages.placeholder_search_radius")}
                 onFocus={handleFocus}
@@ -141,7 +148,7 @@ export default function SearchRadiusComponent({
                     {attractionFilter.map((attraction, index) => (
                       <li key={index}>
                         <SearchRadiusComponentElement
-                          elementName={attraction.name}
+                          element={attraction}
                           onClick={handleSelectMarkRadius}
                         />
                       </li>
