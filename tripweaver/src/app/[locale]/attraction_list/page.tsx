@@ -14,6 +14,7 @@ import AttractionInfo from "../interface/attractionInfo";
 import LocationCard from "../components/LocationCard";
 import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList, fetchAttraction} from '@/utils/apiService';
 import { useQuery } from "react-query";
+import PaginationComponent from "../components/PaginationComponent";
 
 interface LocationCardInterface {
     _id: string;
@@ -29,6 +30,8 @@ export default function Home() {
     const [locationCardList, setLocationCardList] = useState<LocationCardInterface[]>([]);
 
     const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [maxPage, setMaxPage] = useState<number>(1);
     const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<AttractionInfo|null>(null);
 
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
@@ -72,7 +75,9 @@ export default function Home() {
         isLoading: isAttractionDataFromFilterLoading,
         isError: isAttractionDataFromFilterError,
     } = useQuery(
-        ["attractionDataFromFilter", selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue],
+        ["attractionDataFromFilter", selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue
+            ,currentPage
+        ],
         () => fetchAttraction(
             selectedProvince,
             selectedDistrict
@@ -80,7 +85,7 @@ export default function Home() {
                 .map((district) => district.name),
             tagsList.filter((tag) => tag.selected).map((tag) => tag.name),
             ratingObject.filter((rating) => rating.selected).map((rating) => rating.star),
-            1,
+            currentPage,
             selectedMarkRadiusValue*1000,
             selectedMarkRadiusAttraction?.latitude,
             selectedMarkRadiusAttraction?.longitude
@@ -89,6 +94,10 @@ export default function Home() {
             retry: 0
         }
     );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue]);
 
     useEffect(() => {
         if (attractionDataFromFilter) {
@@ -107,6 +116,7 @@ export default function Home() {
             }))
 
             );
+            setMaxPage(attractionDataFromFilter.totalPages);
         }
     }, [attractionDataFromFilter]);
 
@@ -124,13 +134,6 @@ export default function Home() {
             );
         }
     }, [attractionList, attractionTags]);
-
-    useEffect(() => {
-        if (attractionDataFromFilter) {
-            console.log(attractionDataFromFilter);
-        }
-
-    }, [attractionDataFromFilter]);
     
 
     const handleProvinceSelect = (province: string) => {
@@ -160,6 +163,16 @@ export default function Home() {
         setTagList(tags); 
     };
 
+    const handleSelectPage = (page: number) => {
+        if(page==currentPage) {
+            return;
+        }
+        if(page > maxPage) {
+            return;
+        }
+        setCurrentPage(page);
+    }
+
     return (
         <>
             <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -187,22 +200,22 @@ export default function Home() {
                     <div className="flex kanit text-center text-xl font-bold mb-2">
                         {t('AttractionPages.filter')}
                     </div>
-                    <div className="flex flex-row mb-64">
+                    <div className="flex flex-row">
                         <div className="flex flex-col w-[15%]">
+                            <div className="flex mb-5">
+                                <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
+                            </div>
                             <div className="flex mb-5">
                                 <RatingComponent ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                             </div>
-                            <div className="flex mb-5">
-                                <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
-                            </div>
                             <div className="flex">
-                                <SearchRadiusComponent attractionList={searchRadiusMarker} onSelectAttractionMark={handleMarkRadiusAttractionSelect} onSelectAttractionValue={handleMarkRadiusValueSelect}/>
+                                <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
                             </div>
                         </div>
                         <div className="flex flex-wrap w-[85%] pl-16 h-full">
                         {
                             locationCardList.map((location, index) => (
-                                <div className="w-1/4 p-2 max-h-56" key={index}>
+                                <div className="w-1/4 p-2 max-h-56 justify-end items-end" key={index}>
                                     <LocationCard 
                                         placeImage={location.imgPath[0]} 
                                         placeID={location._id}
@@ -214,6 +227,9 @@ export default function Home() {
                     </div>
                     </div>
                     
+                </div>
+                <div className="flex px-20 justify-end w-full h-full mb-5">
+                    <PaginationComponent currentPage={currentPage} maxPage={maxPage} onSelectPage={handleSelectPage} />
                 </div>
             </div>
             
