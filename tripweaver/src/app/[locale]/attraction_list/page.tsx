@@ -223,6 +223,11 @@ export default function Home() {
         if(page > maxPage) {
             return;
         }
+
+        if(page <= 0) {
+            return;
+        }
+
         setCurrentPage(page);
     }
 
