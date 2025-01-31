@@ -17,7 +17,7 @@ import { useQuery } from "react-query";
 import PaginationComponent from "../components/PaginationComponent";
 import AddToTripModal from "../components/modals/AddToTripModals";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { PlanObject } from "../interface/plantripObject";
 import Swal from "sweetalert2";
 
@@ -29,6 +29,7 @@ interface LocationCardInterface {
 
 export default function Home() {
     const t = useTranslations();
+    const router = useRouter();
 
     const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
@@ -232,7 +233,19 @@ export default function Home() {
     }
 
     const handleAddTrip = (locationID: string) => {
-        console.log("Add to trip ", locationID);
+        if(planListData.length == 0) { 
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "You dont have any trip create first"
+              }).then((result) => {
+                if (result.isConfirmed) {
+                    router.push("/plantrip/create");
+                }
+              });
+            
+            return;
+        }
 
         setSearchPlan("");
         setSelectedPlan(null);
@@ -243,8 +256,6 @@ export default function Home() {
     }
 
     const handleAddTripToPlan = (planID: string,locationID: string) => {
-        console.log("Add to ",planID, indexDate , locationID);
-
         setIsModalOpen(false);
         setSelectedLocation("");
         Swal.fire({
