@@ -1,22 +1,33 @@
 import axios from "axios";
+import { PlanUpdateInterface } from "@/app/[locale]/interface/plantripObject";
 
-interface PlanUpdateInterface {
-  accommodations: {
-    accommodationID: string;
-  }[];
-  plans: {
-    planName: string;
-    places: {
-      placeID: string;
-      type: string;
-      duration: number;
-    }[];
-  }[];
+interface planBodyInterface {
+  planList: string[];
 }
 
 export const fetchPlanData = async (planID: string) => {
   const { data } = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
+  );
+  return data;
+};
+
+export const addLocationToTrip = async (planID: string,locationID: string, indexDate: number, locationType: string) => {
+  const { data } = await axios.put(
+    `${process.env.NEXT_PUBLIC_API_URL}/plantrip/addLocation/${planID}`,
+    {
+      locationID: locationID,
+      indexDate: indexDate,
+      locationType: locationType
+    }
+  );
+  return data;
+};
+
+export const fetchPlanAllData = async (planBody: planBodyInterface) => {
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan`,
+    planBody
   );
   return data;
 };
@@ -36,6 +47,7 @@ export const updateUserPlans = async (planID: string,planData: PlanUpdateInterfa
   return data;
 };
 
+
 export const fetchAllData = async () => {
   const [attractions, restaurants, accommodations] = await Promise.all([
     axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAllData`),
@@ -48,16 +60,6 @@ export const fetchAllData = async () => {
     accommodations: accommodations.data.accommodations || [],
   };
 };
-
-export const fetchAttractionRating = async (provinceName: string,districtList: string[]) => {
-
-  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/rating`, {
-    provinceName: provinceName,
-    districtList: districtList
-  });
-  return data;
-
-}
 
 export const fetchAttractionTags = async () => {
 
@@ -98,8 +100,6 @@ export const fetchAttraction = async (provinceName: string, districtList: string
   tagLists: string[], rating: number[], page: number,
   radius?: number, centerLatitude?: number, centerLongitude?: number
 ) => {
-
-
 
   const requestBody: Record<string, any> = {
     provinceName,

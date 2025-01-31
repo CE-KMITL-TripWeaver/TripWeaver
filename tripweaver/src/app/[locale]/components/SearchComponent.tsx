@@ -96,13 +96,13 @@ export default function SearchComponent({
             </div>
         </div>
         <div
-          className={`z-10 absolute bg-white p-3 top-14 rounded-xl ${
+          className={`z-40 absolute bg-white p-3 top-14 rounded-xl ${
             isOpen ? "flex w-full flex-col" : "hidden"
           }`}
         >
           <div className="relative w-full">
             <div className="absolute inset-y-0  flex items-center ps-2 pointer-events-none">
-                <Icon icon="material-symbols:search" classNal-me='text-2xl text-[#828282]' width={24} height={24} />
+                <Icon icon="material-symbols:search" className='text-2xl text-[#828282]' width={24} height={24} />
             </div>
             <input
               type="text"

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NavBar from "../components/NavBar";
 import {useTranslations} from 'next-intl';
 import SearchComponent from "../components/SearchComponent";
@@ -12,9 +12,14 @@ import Rating from "../interface/rating";
 import Tags from "../interface/tags";
 import AttractionInfo from "../interface/attractionInfo";
 import LocationCard from "../components/LocationCard";
-import { fetchAttractionRating, fetchAttractionTags, fetchAttractionKeyList, fetchAttraction} from '@/utils/apiService';
+import { fetchAttractionTags, fetchAttractionKeyList, fetchAttraction, fetchPlanAllData, fetchUserPlans, addLocationToTrip} from '@/utils/apiService';
 import { useQuery } from "react-query";
 import PaginationComponent from "../components/PaginationComponent";
+import AddToTripModal from "../components/modals/AddToTripModals";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { PlanObject } from "../interface/plantripObject";
+import Swal from "sweetalert2";
 
 interface LocationCardInterface {
     _id: string;
@@ -28,6 +33,13 @@ export default function Home() {
     const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
     const [selectedDistrict, setSelectedDistrict] = useState<District[]>([]);
     const [locationCardList, setLocationCardList] = useState<LocationCardInterface[]>([]);
+    const [plantripList, setPlantripList] = useState<PlanObject[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [selectedLocation, setSelectedLocation] = useState<string>("");
+    const [selectedPlan, setSelectedPlan] = useState<PlanObject|null>(null);
+    const [searchPlan, setSearchPlan] = useState<string>("");
+    const [indexDate, setIndexDate] = useState<number>(0);
+    const [isDropdownPlanOpen, setIsDropdownPlanOpen] = useState<boolean>(false);
 
     const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,6 +51,29 @@ export default function Home() {
     
     const [tagsList, setTagList] = useState<Tags[]>([]);
     const [searchRadiusMarker,setSearchRadiusMarker] = useState<AttractionInfo[]>([])
+
+  const { data: session, status } = useSession();
+
+    const {
+        data: userPlans,
+        isLoading: isUserPlansLoading,
+        isError: isUserPlansError,
+    } = useQuery(
+        ["userPlans", session?.user?.id],
+        () => fetchUserPlans(session?.user?.id!),
+        {
+        enabled: !!session?.user?.id,
+        }
+    );
+
+    const {
+        data: planListData,
+        isLoading: isPlanListLoading,
+        isError: isPlanListError,
+    } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
+        enabled: !!userPlans,
+        retry: 0
+    });
 
     const {
         data: attractionList,
@@ -94,6 +129,20 @@ export default function Home() {
             retry: 0
         }
     );
+
+    useEffect(() => {
+        if (planListData) {
+            const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
+                _id: plan._id,
+                startDate: plan.startDate,
+                dayDuration: plan.dayDuration,
+                accommodations: plan.accommodations,
+                tripName: plan.tripName
+            }));
+    
+            setPlantripList(mappedPlans);
+        }
+    }, [planListData]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -159,6 +208,10 @@ export default function Home() {
         }))
     };
 
+    const handleChangeDateIndex= (dateIndex: number) => {
+        setIndexDate(dateIndex);
+    }
+
     const handleTag = (tags: Tags[]) => {
         setTagList(tags); 
     };
@@ -172,6 +225,56 @@ export default function Home() {
         }
         setCurrentPage(page);
     }
+
+    const handleAddTrip = (locationID: string) => {
+        console.log("Add to trip ", locationID);
+
+        setSearchPlan("");
+        setSelectedPlan(null);
+        setIndexDate(0);
+
+        setIsModalOpen(true);
+        setSelectedLocation(locationID);
+    }
+
+    const handleAddTripToPlan = (planID: string,locationID: string) => {
+        console.log("Add to ",planID, indexDate , locationID);
+
+        setIsModalOpen(false);
+        setSelectedLocation("");
+        Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "This location has been added to your trip"
+          });
+        
+       addLocationToTrip(planID,locationID,indexDate,"ATTRACTION");
+    }
+
+    const handleSetPlanID = (planID: string) => {
+        const selectedTrip = plantripList.find((plan) => plan._id === planID);
+        if (selectedTrip) {
+            setSelectedPlan(selectedTrip);
+            setSearchPlan(selectedTrip.tripName);
+        } else {
+            setSelectedPlan(null);
+        }
+        setIndexDate(0);
+    }
+
+    
+    const handleSetSearchPlan = (planName: string) => {
+        setSearchPlan(planName);
+    }
+
+    const handleChangeDropdown = (isOpen: boolean) => {
+        setIsDropdownPlanOpen(isOpen);
+    }
+
+    if (status === "unauthenticated") {
+        redirect("/login");
+    }
+
 
     return (
         <>
@@ -220,6 +323,7 @@ export default function Home() {
                                         placeImage={location.imgPath[0]} 
                                         placeID={location._id}
                                         placeName={location.name}
+                                        onClickAddTrip={handleAddTrip}
                                     />
                                 </div>
                             ))
@@ -231,6 +335,20 @@ export default function Home() {
                 <div className="flex px-20 justify-end w-full h-full mb-5">
                     <PaginationComponent currentPage={currentPage} maxPage={maxPage} onSelectPage={handleSelectPage} />
                 </div>
+                <AddToTripModal
+                    isOpen={isModalOpen}
+                    searchPlan={searchPlan}
+                    selectedPlan={selectedPlan}
+                    onClose={() => setIsModalOpen(false)}
+                    onAddTrip={handleAddTripToPlan}
+                    onSelectPlan={handleSetPlanID}
+                    onInputPlanName={handleSetSearchPlan}
+                    selectedLocation={selectedLocation}
+                    planList={plantripList}
+                    isDropdownPlanOpen={isDropdownPlanOpen}
+                    onChangeDropdown={handleChangeDropdown}
+                    onChangeDate={handleChangeDateIndex}
+                />
             </div>
             
         </>

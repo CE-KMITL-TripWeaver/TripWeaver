@@ -6,21 +6,19 @@ interface LocationCard {
   placeID: string;
   placeName: string;
   placeImage: string;
+  onClickAddTrip: (tripID: string) => void;
 }
 
 export default function LocationCard({
     placeID,
     placeName,
-    placeImage
+    placeImage,
+    onClickAddTrip
   }: LocationCard) {
 
 
     const handleClickViewDetails = (placeID: string) => {
         console.log("Navigate to",placeID);
-    }
-
-    const handleAddToTrip = (placeID: string) => {
-        console.log("Add trip ",placeID);
     }
     
     return (
@@ -38,7 +36,7 @@ export default function LocationCard({
                 <div className="group-hover:flex hover:bg-[#555555] hidden flex-row absolute z-20 bg-[#484848] top-2 right-2 kanit text-white py-1 px-2 rounded-xl"onClick={
                 (e) => {
                   e.stopPropagation();
-                  handleAddToTrip(placeID)}}
+                  onClickAddTrip(placeID)}}
                 >
                     <div className="flex items-center justify-center">
                         <Icon
