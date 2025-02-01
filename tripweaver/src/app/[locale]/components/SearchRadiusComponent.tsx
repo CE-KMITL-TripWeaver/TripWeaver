@@ -2,27 +2,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import SearchRadiusComponentElement from "./SearchRadiusComponentElement";
-import AttractionInfo from "../interface/attractionInfo";
+import LocationInfo from "../interface/locationInfo";
 import SearchComponentElement from "./SearchComponentElement";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 interface SearchRadiusComponentProps {
-  attractionList: AttractionInfo[];
-  onSelectAttractionMark: (attraction: AttractionInfo|null) => void;
-  onSelectAttractionValue: (radius: number) => void;
+  locationList: LocationInfo[];
+  translationPrefix: string;
+  onSelectLocationMark: (location: LocationInfo|null) => void;
+  onSelectLocationValue: (radius: number) => void;
 }
 
 export default function SearchRadiusComponent({
-  attractionList,onSelectAttractionMark,onSelectAttractionValue
+  locationList,translationPrefix,onSelectLocationMark,onSelectLocationValue
 }: SearchRadiusComponentProps) {
   const t = useTranslations();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenRange, setIsOpenRange] = useState(false);
   const [querySearchMark, setQuerySearchMark] = useState<string>("");
-  const [attractionQuery, setAttractionQuery] = useState<AttractionInfo[]>([]);
+  const [locationQuery, setLocationQuery] = useState<LocationInfo[]>([]);
   const [markValue, setMarkValue] = useState<number>(5);
-  const [attractionFilter, setAttractionFilter] = useState<AttractionInfo[]>(
+  const [locationFilter, setLocationFilter] = useState<LocationInfo[]>(
     []
   );
   const searchRadiusMarkerRef = useRef<HTMLDivElement>(null);
@@ -31,11 +32,11 @@ export default function SearchRadiusComponent({
   const kmList = ["5", "10", "15", "20", "30", "50"];
 
   useEffect(() => {
-    setAttractionQuery(attractionList);
-    setAttractionFilter(attractionList);
+    setLocationQuery(locationList);
+    setLocationFilter(locationList);
     setQuerySearchMark("");
-    onSelectAttractionMark(null);
-  }, [attractionList]);
+    onSelectLocationMark(null);
+  }, [locationList]);
 
   const handleFocus = () => {
     setIsOpen(true);
@@ -69,25 +70,25 @@ export default function SearchRadiusComponent({
   }, [searchRadiusMarkerRef, rangeRadiusMarkerRef]);
 
   useEffect(() => {
-    const filteredAttraction = attractionQuery.filter((attraction) =>
-      attraction.name.startsWith(querySearchMark)
+    const filteredLocation = locationQuery.filter((location) =>
+      location.name.startsWith(querySearchMark)
     );
 
     if(querySearchMark.length == 0) {
-      onSelectAttractionMark(null);
+      onSelectLocationMark(null);
     }
 
-    setAttractionFilter(filteredAttraction);
+    setLocationFilter(filteredLocation);
   }, [querySearchMark]);
 
-  const handleSelectMarkRadius = (element: AttractionInfo) => {
-    onSelectAttractionMark(element);
+  const handleSelectMarkRadius = (element: LocationInfo) => {
+    onSelectLocationMark(element);
     setQuerySearchMark(element.name);
     setIsOpen(false);
   };
 
   const handleSelectRadius = (range: string) => {
-    onSelectAttractionValue(parseInt(range))
+    onSelectLocationValue(parseInt(range))
     setMarkValue(parseInt(range))
     setIsOpenRange(false);
   };
@@ -100,7 +101,7 @@ export default function SearchRadiusComponent({
       <div className="flex relative flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit w-full rounded-xl">
         <div className="flex-col p-5">
           <div className="flex text-sm mb-1">
-            {t("AttractionPages.title_search_radius")}
+            {t(`${translationPrefix}.title_search_radius`)}
           </div>
           <div className="flex flex-col">
             <div className="flex mb-3">
@@ -110,7 +111,7 @@ export default function SearchRadiusComponent({
                 value={querySearchMark}
                 onChange={handleChangeType}
                 className="block w-full p-2 text-sm text-black border border-[#B9B9B9] rounded-xl bg-[#F0F0F0] focus:outline-none"
-                placeholder={t("AttractionPages.placeholder_search_radius")}
+                placeholder={t(`${translationPrefix}.placeholder_search_radius`)}
                 onFocus={handleFocus}
               />
             </div>
@@ -118,7 +119,7 @@ export default function SearchRadiusComponent({
               <div className="flex p-2 justify-center text-center items-center w-full text-black bg-[#F0F0F0] border border-[#B9B9B9] rounded-xl cursor-pointer">
                 <div className="flex flex-row justify-between w-full">
                   <div className="flex kanit text-sm">
-                    {t(`AttractionPages.ranges.${markValue}km`)}
+                    {t(`${translationPrefix}.ranges.${markValue}km`)}
                   </div>
                   <div className=" flex items-center justify-center ml-2">
                     <Icon
@@ -139,16 +140,16 @@ export default function SearchRadiusComponent({
         >
           <div className="relative w-full kanit">
             <div className="flex flex-col">
-              {attractionFilter.length > 0 ? (
+              {locationFilter.length > 0 ? (
                 <div className="flex flex-col mt-2">
                   <div className="flex p-2 text-sm font-bold">
-                    {t("AttractionPages.subtitle_search_radius")}
+                    {t(`${translationPrefix}.subtitle_search_radius`)}
                   </div>
                   <ul className="overflow-y-auto max-h-48 w-full">
-                    {attractionFilter.map((attraction, index) => (
+                    {locationFilter.map((location, index) => (
                       <li key={index}>
                         <SearchRadiusComponentElement
-                          element={attraction}
+                          element={location}
                           onClick={handleSelectMarkRadius}
                         />
                       </li>
@@ -180,7 +181,7 @@ export default function SearchRadiusComponent({
                 {kmList.map((radiusKM, index) => (
                   <li key={index}>
                     <SearchComponentElement
-                      elementName={t(`AttractionPages.ranges.${radiusKM}km`)}
+                      elementName={t(`${translationPrefix}.ranges.${radiusKM}km`)}
                       onClick={handleSelectRadius}
                     />
                   </li>

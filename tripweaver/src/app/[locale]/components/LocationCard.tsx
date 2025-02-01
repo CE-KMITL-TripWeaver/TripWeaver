@@ -17,19 +17,24 @@ export default function LocationCard({
   }: LocationCard) {
 
 
+    console.log("Name",placeName,placeImage);
+
     const handleClickViewDetails = (placeID: string) => {
         console.log("Navigate to",placeID);
     }
-    
+
+
     return (
         <>
-            <div className="flex relative w-full h-48 flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
+            <div className="flex relative w-full h-44 flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
                 (e) => {
                   e.stopPropagation();
                   handleClickViewDetails(placeID)}}
             >
-                <div className={`flex absolute bg-cover bg-center w-full h-full rounded-xl group-hover:scale-110 transition-all duration-300`}
-                style={{ backgroundImage: `url('${placeImage}')` }} />
+                <div 
+                className={`flex absolute bg-cover bg-center w-full h-full rounded-xl group-hover:scale-110 transition-all duration-300`} 
+                style={{ backgroundImage: `url('${placeImage && placeImage.trim() !== "" ? placeImage : '/images/no-img.png'}')` }} 
+                />
                 <div className="flex p-2 flex-col w-full h-12 bg-opacity-70 justify-center font-bold bg-black text-white kanit rounded-b-xl items-start z-10">
                     {placeName}
                 </div>

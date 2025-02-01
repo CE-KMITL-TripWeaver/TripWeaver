@@ -68,10 +68,33 @@ export const fetchAttractionTags = async () => {
 
 }
 
+export const fetchRestaurantType = async () => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/type`);
+  return data;
+
+}
+
+export const fetchRestaurantFacility = async () => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/facility`);
+  return data;
+
+}
 
 export const fetchAttractionKeyList = async (provinceName: string,districtList: string[]) => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAttraction`, {
+    provinceName: provinceName,
+    districtList: districtList
+  });
+  return data;
+
+}
+
+export const fetchRestaurantKeyList = async (provinceName: string,districtList: string[]) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getRestaurant`, {
     provinceName: provinceName,
     districtList: districtList
   });
@@ -113,6 +136,31 @@ export const fetchAttraction = async (provinceName: string, districtList: string
   };
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getDataWithCondition`
+    , requestBody
+  );
+
+  return data;
+
+}
+
+export const fetchRestaurant = async (provinceName: string, districtList: string[],
+  typeLists: string[],facilityList: string[], rating: number[], page: number,
+  radius?: number, centerLatitude?: number, centerLongitude?: number
+) => {
+
+  const requestBody: Record<string, any> = {
+    provinceName,
+    districtList,
+    typeLists,
+    facilityList,
+    rating: rating.length > 0 ? rating : [1, 2, 3, 4, 5],
+    page,
+    ...(radius !== null && radius !== undefined && { radius }),
+    ...(centerLatitude !== null && centerLatitude !== undefined && { centerLatitude }),
+    ...(centerLongitude !== null && centerLongitude !== undefined && { centerLongitude }),
+  };
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getDataWithCondition`
     , requestBody
   );
 

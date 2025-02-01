@@ -1,6 +1,6 @@
 
 
-export default interface AttractionInfo {
+export default interface LocationInfo {
     name: string;
     latitude: number;
     longitude: number;

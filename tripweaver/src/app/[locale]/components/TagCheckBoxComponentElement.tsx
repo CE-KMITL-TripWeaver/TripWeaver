@@ -4,10 +4,11 @@ import {useTranslations} from 'next-intl';
 interface TagsCheckboxComponentElementProps {
     name: string;
     checked: boolean;
+    translationPrefix: string;
     onClick: (name: string) => void;
 }
 
-export default function TagCheckBoxComponentElement({ name, checked, onClick }: TagsCheckboxComponentElementProps) {
+export default function TagCheckBoxComponentElement({ name, checked, translationPrefix, onClick }: TagsCheckboxComponentElementProps) {
     const t = useTranslations();
 
     const handleCheckboxChange = () => {
@@ -26,7 +27,7 @@ export default function TagCheckBoxComponentElement({ name, checked, onClick }: 
             <div
                 className="kanit w-full ms-2 text-sm font-medium rounded text-black cursor-pointer"
             >
-                {t(`Tags.${name}`)}
+                {t(`${translationPrefix}${name}`)}
             </div>
         </div>
     );

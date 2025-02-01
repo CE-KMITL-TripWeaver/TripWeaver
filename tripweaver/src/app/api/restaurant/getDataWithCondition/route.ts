@@ -1,14 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from "../../../../../lib/mongodb";
-import Attraction from "../../../../../models/attraction";
+import Restaurant from "../../../../../models/restaurant";
 import Province from "../../../../../models/province";
 import axios from "axios";
 
-type AttractionRating = { _id: number, count: number };
+type RestaurantRating = { _id: number, count: number };
 
 export async function POST(req: NextRequest) {
     try {
-        const { provinceName, districtList, radius, centerLatitude, centerLongitude, rating, tagLists, page } = await req.json();
+        const { provinceName, districtList, radius, centerLatitude, centerLongitude, rating, typeLists, facilityList, page } = await req.json();
         await connectMongoDB();
 
         const pageSize = 20;
@@ -25,23 +25,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: `province not found in database` }, { status: 404 });
         }
 
-        let tagMatchConditions = [];
-
-        if (tagLists.length > 0) {
-            tagMatchConditions = tagLists.map((tag: string) => ({
-                [`attractionTag.attractionTagFields.${tag}`]: { $gte: 0.7 }
-            }));
-        } else {
-            tagMatchConditions = [{}];
-        }
-        
-
         let aggregationPipeline: any[] = [
             {
                 $match: {
                     "location.province": province.name,
                     "location.district": { $in: districtList },
-                    $or: tagMatchConditions,
+                    $or: [
+                        { "type": { $in: typeLists } },
+                        { "facility": { $in: facilityList } },
+                        { $expr: { $and: [{ $eq: [typeLists.length, 0] }, { $eq: [facilityList.length, 0] }] } }
+                    ],
                     $expr: {
                         $in: [{ $floor: "$rating.score" }, rating]
                     }
@@ -64,7 +57,11 @@ export async function POST(req: NextRequest) {
                 $match: {
                     "location.province": province.name,
                     "location.district": { $in: districtList },
-                    $or: tagMatchConditions,
+                    $or: [
+                        { "type": { $in: typeLists } },
+                        { "facility": { $in: facilityList } },
+                        { $expr: { $and: [{ $eq: [typeLists.length, 0] }, { $eq: [facilityList.length, 0] }] } }
+                    ],
                 }
             },
             { $sort: { createdAt: -1 } }
@@ -75,12 +72,16 @@ export async function POST(req: NextRequest) {
                 $match: {
                     "location.province": province.name,
                     "location.district": { $in: districtList },
-                    $or: tagMatchConditions,
+                    $or: [
+                        { "type": { $in: typeLists } },
+                        { "facility": { $in: facilityList } },
+                        { $expr: { $and: [{ $eq: [typeLists.length, 0] }, { $eq: [facilityList.length, 0] }] } }
+                    ],
                 }
             },
             {
                 $facet: {
-                    attractionRatings: [
+                    restaurantRatings: [
                         {
                             $group: {
                                 _id: { $floor: "$rating.score" },
@@ -97,10 +98,10 @@ export async function POST(req: NextRequest) {
 
         
         if (radius && centerLongitude && centerLatitude) {
-            const allAttractions = await Attraction.aggregate(aggregationPipelineWithRadius);
+            const allrestaurants = await Restaurant.aggregate(aggregationPipelineWithRadius);
             
-            const attractionPromises = allAttractions.map(async (attraction) => {
-                const { longitude, latitude } = attraction;
+            const restaurantPromises = allrestaurants.map(async (restaurant) => {
+                const { longitude, latitude } = restaurant;
             
                 try {
                     const response = await axios.post(
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
             
                     const distance = response.data.routes[0].distance;
                     if (distance <= radius) {
-                        return attraction;
+                        return restaurant;
                     }
                 } catch (error) {
                     console.error("Error fetching data:", error);
@@ -117,44 +118,44 @@ export async function POST(req: NextRequest) {
                 return null; 
             });
             
-            const resolvedAttractions = await Promise.all(attractionPromises);
+            const resolvedrestaurants = await Promise.all(restaurantPromises);
             
-            const attractionsWithinRadius = resolvedAttractions.filter((attraction) => attraction !== null);
+            const restaurantsWithinRadius = resolvedrestaurants.filter((restaurant) => restaurant !== null);
             
             const ratingMap = new Map<number, number>();
-            attractionsWithinRadius.forEach((attraction) => {
-                const roundedRating = Math.floor(attraction.rating.score);
+            restaurantsWithinRadius.forEach((restaurant) => {
+                const roundedRating = Math.floor(restaurant.rating.score);
                 ratingMap.set(roundedRating, (ratingMap.get(roundedRating) || 0) + 1);
             });
         
-            const attractionRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count })).sort((a, b) => b._id - a._id);
+            const restaurantRatings = Array.from(ratingMap, ([_id, count]) => ({ _id, count })).sort((a, b) => b._id - a._id);
         
 
-            const attractionsWithRating = attractionsWithinRadius.filter((attraction) => {
-                return rating.includes(Math.floor(attraction.rating.score));
+            const restaurantsWithRating = restaurantsWithinRadius.filter((restaurant) => {
+                return rating.includes(Math.floor(restaurant.rating.score));
             });
 
-            const sortedAttractions = attractionsWithRating.sort((a, b) => {
+            const sortedrestaurants = restaurantsWithRating.sort((a, b) => {
                 return b.rating.score - a.rating.score;
             });
 
-            const totalCount = sortedAttractions.length;
+            const totalCount = sortedrestaurants.length;
             const totalPages = Math.ceil(totalCount / pageSize);
-            const paginatedData = sortedAttractions
+            const paginatedData = sortedrestaurants
             .slice(skip, skip + pageSize)
-            .map((attraction) => ({
-                _id: attraction._id,
-                name: attraction.name,
-                imgPath: attraction.imgPath,
+            .map((restaurant) => ({
+                _id: restaurant._id,
+                name: restaurant.name,
+                imgPath: restaurant.imgPath,
             }));
 
-            const completeAttractionRatings = allRatings.map(ratingId => {
-                const rating = attractionRatings.find(r => r._id === ratingId);
+            const completerestaurantRatings = allRatings.map(ratingId => {
+                const rating = restaurantRatings.find(r => r._id === ratingId);
                 return rating ? rating : { _id: ratingId, count: 0 };
             }).sort((a, b) => b._id - a._id);
             
             return NextResponse.json(
-                { attractions: paginatedData, totalCount, totalPages, currentPage: page, pageSize, completeAttractionRatings },
+                { restaurants: paginatedData, totalCount, totalPages, currentPage: page, pageSize, completerestaurantRatings },
                 { status: 200 }
             );
         }
@@ -168,20 +169,20 @@ export async function POST(req: NextRequest) {
             }
         );
 
-        const aggregationResult = await Attraction.aggregate(aggregationPipeline);
-        const aggregationRatingResult = await Attraction.aggregate(aggregationPipelineRating);
+        const aggregationResult = await Restaurant.aggregate(aggregationPipeline);
+        const aggregationRatingResult = await Restaurant.aggregate(aggregationPipelineRating);
         const totalCount = aggregationResult[0].totalCount[0]?.count || 0;
         const totalPages = Math.ceil(totalCount / pageSize);
-        const attractionsData = aggregationResult[0].data;
-        const attractionRatings = aggregationRatingResult[0].attractionRatings || [];
+        const restaurantsData = aggregationResult[0].data;
+        const restaurantRatings = aggregationRatingResult[0].restaurantRatings || [];
 
-        const completeAttractionRatings = allRatings.map(ratingId => {
-            const rating = attractionRatings.find((r: AttractionRating) => r._id === ratingId);
+        const completerestaurantRatings = allRatings.map(ratingId => {
+            const rating = restaurantRatings.find((r: RestaurantRating) => r._id === ratingId);
             return rating ? rating : { _id: ratingId, count: 0 };
         }).sort((a, b) => b._id - a._id);
 
         return NextResponse.json(
-            { attractions: attractionsData, totalCount, totalPages, currentPage: page, pageSize, completeAttractionRatings },
+            { restaurants: restaurantsData, totalCount, totalPages, currentPage: page, pageSize, completerestaurantRatings },
             { status: 200 }
         );
 

@@ -12,7 +12,7 @@ import Rating from "../interface/rating";
 import CheckboxElement from "../interface/checkboxElement";
 import LocationInfo from "../interface/locationInfo";
 import LocationCard from "../components/LocationCard";
-import { fetchAttractionTags, fetchAttractionKeyList, fetchAttraction, fetchPlanAllData, fetchUserPlans, addLocationToTrip} from '@/utils/apiService';
+import { fetchRestaurantType, fetchRestaurantFacility, fetchRestaurantKeyList, fetchRestaurant, fetchPlanAllData, fetchUserPlans, addLocationToTrip} from '@/utils/apiService';
 import { useQuery } from "react-query";
 import PaginationComponent from "../components/PaginationComponent";
 import AddToTripModal from "../components/modals/AddToTripModals";
@@ -45,12 +45,13 @@ export default function Home() {
     const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [maxPage, setMaxPage] = useState<number>(1);
-    const [selectedMarkRadiusAttraction, setSelectedMarkRadiusAttraction] = useState<LocationInfo|null>(null);
+    const [selectedMarkRadiusRestaurant, setSelectedMarkRadiusRestaurant] = useState<LocationInfo|null>(null);
 
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
     const [ratingCheckData, setRatingCheckData] = useState<boolean[]>(Array(6).fill(false));
     
-    const [tagsList, setTagList] = useState<CheckboxElement[]>([]);
+    const [typesList, setTypesList] = useState<CheckboxElement[]>([]);
+    const [facilityList, setFacilityList] = useState<CheckboxElement[]>([]);
     const [searchRadiusMarker,setSearchRadiusMarker] = useState<LocationInfo[]>([])
 
   const { data: session, status } = useSession();
@@ -77,12 +78,12 @@ export default function Home() {
     });
 
     const {
-        data: attractionList,
-        isLoading: isAttractionListLoading,
-        isError: isAttractionListError,
+        data: restaurantList,
+        isLoading: isRestaurantLoading,
+        isError: isRestaurantError,
     } = useQuery(
-        ["attractionData", selectedProvince, selectedDistrict],
-        () => fetchAttractionKeyList(
+        ["restaurantData", selectedProvince, selectedDistrict],
+        () => fetchRestaurantKeyList(
             selectedProvince,
             selectedDistrict
                 .filter((district) => district.selected)
@@ -95,36 +96,49 @@ export default function Home() {
     );
 
     const {
-        data: attractionTags,
-        isLoading: isAttractionTagsLoading,
-        isError: isAttractionTagsError,
+        data: restaurantType,
+        isLoading: isRestaurantTypeLoading,
+        isError: isRestaurantTypeError,
     } = useQuery(
-        ["attractionTags"],
-        () => fetchAttractionTags(),
+        ["restaurantType"],
+        () => fetchRestaurantType(),
         {
             retry: 0
         }
     );
 
     const {
-        data: attractionDataFromFilter,
-        isLoading: isAttractionDataFromFilterLoading,
-        isError: isAttractionDataFromFilterError,
+        data: restaurantFacility,
+        isLoading: isRestaurantFacilityLoading,
+        isError: isRestaurantFacilityError,
     } = useQuery(
-        ["attractionDataFromFilter", selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue
+        ["restaurantFacility"],
+        () => fetchRestaurantFacility(),
+        {
+            retry: 0
+        }
+    );
+
+    const {
+        data: restaurantDataFromFilter,
+        isLoading: isRestaurantDataFromFilterLoading,
+        isError: isRestaurantDataFromFilterError,
+    } = useQuery(
+        ["restaurantDataFromFilter", selectedProvince, selectedDistrict, typesList, facilityList, ratingCheckData,selectedMarkRadiusRestaurant,selectedMarkRadiusValue
             ,currentPage
         ],
-        () => fetchAttraction(
+        () => fetchRestaurant(
             selectedProvince,
             selectedDistrict
                 .filter((district) => district.selected)
                 .map((district) => district.name),
-            tagsList.filter((tag) => tag.selected).map((tag) => tag.name),
+            typesList.filter((type) => type.selected).map((type) => type.name),
+            facilityList.filter((facility) => facility.selected).map((facility) => facility.name),
             ratingObject.filter((rating) => rating.selected).map((rating) => rating.star),
             currentPage,
             selectedMarkRadiusValue*1000,
-            selectedMarkRadiusAttraction?.latitude,
-            selectedMarkRadiusAttraction?.longitude
+            selectedMarkRadiusRestaurant?.latitude,
+            selectedMarkRadiusRestaurant?.longitude
         ),
         {
             retry: 0
@@ -147,43 +161,55 @@ export default function Home() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProvince, selectedDistrict, tagsList, ratingCheckData,selectedMarkRadiusAttraction,selectedMarkRadiusValue]);
+    }, [selectedProvince, selectedDistrict, facilityList, typesList, ratingCheckData,selectedMarkRadiusRestaurant,selectedMarkRadiusValue]);
 
     useEffect(() => {
-        if (attractionDataFromFilter) {
+        if (restaurantDataFromFilter) {
+
+            
+
             setRatingObject(
-                attractionDataFromFilter.completeAttractionRatings.map((rating: any,index: number) => ({
+                restaurantDataFromFilter.completerestaurantRatings.map((rating: any,index: number) => ({
                     star: rating._id,
                     count: rating.count,
                     selected: ratingCheckData[index],
                 }))
             );
 
-            setLocationCardList(attractionDataFromFilter.attractions.map((data: LocationCardInterface)=>({
+            setLocationCardList(restaurantDataFromFilter.restaurants.map((data: LocationCardInterface)=>({
                 _id: data._id,
                 name: data.name,
                 imgPath: data.imgPath
             }))
 
             );
-            setMaxPage(attractionDataFromFilter.totalPages);
+            setMaxPage(restaurantDataFromFilter.totalPages);
         }
-    }, [attractionDataFromFilter]);
+    }, [restaurantDataFromFilter]);
 
     useEffect(() => {
-        if (attractionList) {
-            setSearchRadiusMarker(attractionList.attractions);
+        if (restaurantList) {
+            setSearchRadiusMarker(restaurantList.restaurants);
         }
 
-        if (attractionTags) {
-            setTagList(
-                attractionTags.attractionTagKeys.map((tag: string) => ({
-                    name: tag,
+        if (restaurantType) {
+            setTypesList(
+                restaurantType.type.map((type: string) => ({
+                    name: type,
                     selected: false,
                 }))
             );
         }
-    }, [attractionList, attractionTags]);
+
+        if(restaurantFacility) {
+            setFacilityList(
+                restaurantFacility.facility.map((facility: string) => ({
+                    name: facility,
+                    selected: false,
+                }))
+            );
+        }
+    }, [restaurantList, restaurantType, restaurantFacility]);
     
 
     const handleProvinceSelect = (province: string) => {
@@ -191,7 +217,7 @@ export default function Home() {
     };
 
     const handleMarkRadiusAttractionSelect = (markAttaction: LocationInfo|null) => {
-        setSelectedMarkRadiusAttraction(markAttaction); 
+        setSelectedMarkRadiusRestaurant(markAttaction); 
     };
 
     const handleMarkRadiusValueSelect = (markValue: number) => {
@@ -213,9 +239,14 @@ export default function Home() {
         setIndexDate(dateIndex);
     }
 
-    const handleTag = (tags: CheckboxElement[]) => {
-        setTagList(tags); 
+    const handleType = (tags: CheckboxElement[]) => {
+        setTypesList(tags); 
     };
+
+    const handleFacility = (tags: CheckboxElement[]) => {
+        setFacilityList(tags); 
+    };
+    
 
     const handleSelectPage = (page: number) => {
         if(page==currentPage) {
@@ -264,7 +295,7 @@ export default function Home() {
             text: "This location has been added to your trip"
           });
         
-       addLocationToTrip(planID,locationID,indexDate,"ATTRACTION");
+       addLocationToTrip(planID,locationID,indexDate,"RESTAURANT");
     }
 
     const handleSetPlanID = (planID: string) => {
@@ -299,11 +330,11 @@ export default function Home() {
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
                         <div className="kanit">
-                            {t('AttractionPages.infoMain')}
+                            {t('RestaurantPages.infoMain')}
                             
                         </div>
                         <div className="kanit font-bold">
-                            {t('AttractionPages.attraction')}
+                            {t('RestaurantPages.restaurant')}
                         </div>
                     </div>
                     <div className="flex w-full flex-row justify-end">
@@ -315,26 +346,29 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col px-20">
+                <div className="flex flex-col px-20 h-full">
                     <div className="flex kanit text-center text-xl font-bold mb-2">
-                        {t('AttractionPages.filter')}
+                        {t('RestaurantPages.filter')}
                     </div>
-                    <div className="flex flex-row h-full items-stretch">
+                    <div className="flex flex-row h-full">
                         <div className="flex flex-col w-[15%]">
                             <div className="flex mb-5">
-                                <SearchRadiusComponent translationPrefix={"AttractionPages"} locationList={searchRadiusMarker} onSelectLocationMark={handleMarkRadiusAttractionSelect} onSelectLocationValue={handleMarkRadiusValueSelect}/>
+                                <SearchRadiusComponent translationPrefix={"RestaurantPages"} locationList={searchRadiusMarker} onSelectLocationMark={handleMarkRadiusAttractionSelect} onSelectLocationValue={handleMarkRadiusValueSelect}/>
                             </div>
                             <div className="flex mb-5">
                                 <RatingComponent transaltionTitle={"RestaurantPages.title_star"} ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                             </div>
+                            <div className="flex mb-5">
+                                <TagCheckBoxComponent maxHeight={144} element={typesList} onCheckBoxSelect={handleType} translationPrefix={"Types."} translationTagTitle={"RestaurantPages.title_type"}/>
+                            </div>
                             <div className="flex">
-                                <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
+                                <TagCheckBoxComponent maxHeight={144} element={facilityList} onCheckBoxSelect={handleFacility} translationPrefix={"Facilities."} translationTagTitle={"RestaurantPages.title_facility"}/>
                             </div>
                         </div>
                         <div className="flex flex-wrap w-[85%] pl-16 h-full">
                         {
                             locationCardList.map((location, index) => (
-                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 " key={index}>
+                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 max-h-52" key={index}>
                                     <LocationCard 
                                         placeImage={location.imgPath[0]} 
                                         placeID={location._id}
@@ -344,9 +378,8 @@ export default function Home() {
                                 </div>
                             ))
                         }
+                        </div>
                     </div>
-                    </div>
-                    
                 </div>
                 <div className="flex px-20 justify-end w-full h-full mb-5 mt-2">
                     <PaginationComponent currentPage={currentPage} maxPage={maxPage} onSelectPage={handleSelectPage} />

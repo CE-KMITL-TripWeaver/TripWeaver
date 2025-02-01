@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon } from "@iconify/react";
-import AttractionInfo from "../interface/attractionInfo";
+import AttractionInfo from "../interface/locationInfo";
 
 interface SearchRadiusComponentElementProps {
     element: AttractionInfo

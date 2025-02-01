@@ -1,6 +1,6 @@
 import { NextResponse,NextRequest } from "next/server"
 import { connectMongoDB } from '../../../../../lib/mongodb'
-import Attraction from "../../../../../models/attraction";
+import Restaurant from "../../../../../models/restaurant";
 import Province from '../../../../../models/province'
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: `province not found in database`}, {status: 404})
         }
 
-        const attractions = await Attraction.aggregate([
+        const restaurants = await Restaurant.aggregate([
             {
                 $match: {
                     "location.province": province.name,
@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
         ])
 
         
-        return NextResponse.json({ attractions }, {status: 201})
+        return NextResponse.json({ restaurants }, {status: 201})
     } catch(error) {
-        return NextResponse.json({ message: `An error occured while get data attraction ${error}`}, {status: 500})
+        return NextResponse.json({ message: `An error occured while get data restaurant ${error}`}, {status: 500})
     }
 }
