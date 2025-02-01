@@ -7,6 +7,8 @@ interface AddToTripModalProps {
   isOpen: boolean;
   selectedPlan: PlanObject|null;
   selectedLocation: string;
+  dayIndex: number;
+  locationType: string;
   searchPlan: string;
   isDropdownPlanOpen: boolean;
   planList: PlanObject[];
@@ -23,6 +25,8 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
   searchPlan,
   selectedPlan,
   selectedLocation,
+  locationType,
+  dayIndex,
   planList,
   isDropdownPlanOpen,
   onClose,
@@ -37,15 +41,6 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
   const filteredTrips = planList.filter((trip) =>
     trip.tripName.toLowerCase().startsWith(searchPlan.toLowerCase())
   );
-  const onOutOfFocus = () => {
-    setTimeout(() => onChangeDropdown(false), 100);
-    const plan = planList.find((plan) => plan.tripName == searchPlan);
-    if(plan) {
-      onSelectPlan(plan._id);
-    } else {
-      onSelectPlan("null");
-    }
-  }
   
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -83,7 +78,6 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
                     placeholder="ค้นหาทริป"
                     value={searchPlan}
                     onFocus={() => onChangeDropdown(true)}
-                    onBlur={onOutOfFocus}
                     onChange={(e) => {
                     onInputPlanName(e.target.value);
                     onChangeDropdown(true);
@@ -115,6 +109,18 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
               <div className="flex w-full mt-5">
                 <TripDate startDate={selectedPlan.startDate} durationDate={selectedPlan.dayDuration} onSelectDay={onChangeDate}/>
               </div>   
+            )
+          }
+          {
+            selectedPlan && locationType == "ACCOMMODATION" && selectedPlan.accommodations && selectedPlan.accommodations.length > 0 && selectedPlan.accommodations[dayIndex] && selectedPlan.accommodations[dayIndex].accommodationID != "" && (
+              <div className="flex flex-row text-red-600 w-full mt-5">
+                <div className="flex justify-center items-center mr-2">
+                  <Icon icon="fe:warning" className="text-lg text-red-600" width={24} height={24} />
+                </div> 
+                <div className="flex justify-center items-center kanit text-sm text-center">
+                  วันดังกล่าวมีที่พักอยู่แล้วระบบจะทำการแทนที่ของที่พัก
+                </div>
+              </div>  
             )
           }
 

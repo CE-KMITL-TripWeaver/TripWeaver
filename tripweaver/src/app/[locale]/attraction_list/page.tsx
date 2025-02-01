@@ -334,7 +334,7 @@ export default function Home() {
                         <div className="flex flex-wrap w-[85%] pl-16 h-full">
                         {
                             locationCardList.map((location, index) => (
-                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 " key={index}>
+                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 h-48 " key={index}>
                                     <LocationCard 
                                         placeImage={location.imgPath[0]} 
                                         placeID={location._id}
@@ -355,8 +355,10 @@ export default function Home() {
                     isOpen={isModalOpen}
                     searchPlan={searchPlan}
                     selectedPlan={selectedPlan}
+                    locationType={"ATTRACTION"}
                     onClose={() => setIsModalOpen(false)}
                     onAddTrip={handleAddTripToPlan}
+                    dayIndex={indexDate}
                     onSelectPlan={handleSetPlanID}
                     onInputPlanName={handleSetSearchPlan}
                     selectedLocation={selectedLocation}

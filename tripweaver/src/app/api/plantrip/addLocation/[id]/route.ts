@@ -3,6 +3,7 @@ import { connectMongoDB } from "../../../../../../lib/mongodb";
 import PlanTrips from "../../../../../../models/plans";
 import Attraction from "../../../../../../models/attraction";
 import Restaurant from "../../../../../../models/restaurant";
+import Accommodation from "../../../../../../models/accommodation";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
@@ -25,6 +26,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             if (!location) {
                 return NextResponse.json({ message: `Location with id ${locationID} not found in restaurant` }, { status: 404 });
             }
+        } else if (locationType === "ACCOMMODATION") {
+            location = await Accommodation.findById(locationID);
+
+            if (!location) {
+                return NextResponse.json({ message: `Location with id ${locationID} not found in accmmodation` }, { status: 404 });
+            }
         }
 
 
@@ -36,6 +43,28 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         if (indexDate < 0 || indexDate >= plan.plans.length) {
             return NextResponse.json({ message: `Invalid indexDate ${indexDate}` }, { status: 400 });
         }
+
+        if (locationType === "ACCOMMODATION") {
+            location = await Accommodation.findById(locationID);
+
+            if (!location) {
+                return NextResponse.json({ message: `Location with id ${locationID} not found in accmmodation` }, { status: 404 });
+            }
+
+            const planToUpdate = plan.accommodations[indexDate];
+            planToUpdate.accommodationID = locationID;
+
+            const updatedPlan = await PlanTrips.findByIdAndUpdate(id, { accommodations: plan.accommodations }, {
+                new: true,
+                runValidators: true,
+            });
+    
+            return NextResponse.json(
+                { message: "Plan updated successfully", updatedPlan },
+                { status: 200 }
+            );
+        }
+
 
         const planToUpdate = plan.plans[indexDate];
         if (!planToUpdate) {

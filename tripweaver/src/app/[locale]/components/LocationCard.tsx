@@ -23,7 +23,7 @@ export default function LocationCard({
 
     return (
         <>
-            <div className="flex relative w-full h-44 flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
+            <div className="flex relative w-full h-full flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
                 (e) => {
                   e.stopPropagation();
                   handleClickViewDetails(placeID)}}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import {useTranslations} from 'next-intl';
 import SearchComponent from "../components/SearchComponent";
@@ -12,7 +12,7 @@ import Rating from "../interface/rating";
 import CheckboxElement from "../interface/checkboxElement";
 import LocationInfo from "../interface/locationInfo";
 import LocationCard from "../components/LocationCard";
-import { fetchRestaurantType, fetchRestaurantFacility, fetchRestaurantKeyList, fetchRestaurant, fetchPlanAllData, fetchUserPlans, addLocationToTrip} from '@/utils/apiService';
+import { fetchAccommodationType, fetchAccommodationFacility, fetchAccommodationKeyList, fetchAccommodationTag, fetchAccommodation, fetchPlanAllData, fetchUserPlans, addLocationToTrip} from '@/utils/apiService';
 import { useQuery } from "react-query";
 import PaginationComponent from "../components/PaginationComponent";
 import AddToTripModal from "../components/modals/AddToTripModals";
@@ -45,13 +45,14 @@ export default function Home() {
     const [selectedMarkRadiusValue, setSelectedMarkRadiusValue] = useState<number>(5);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [maxPage, setMaxPage] = useState<number>(1);
-    const [selectedMarkRadiusRestaurant, setSelectedMarkRadiusRestaurant] = useState<LocationInfo|null>(null);
+    const [selectedMarkRadiusAccommodation, setSelectedMarkRadiusRestaurant] = useState<LocationInfo|null>(null);
 
     const [ratingObject, setRatingObject] = useState<Rating[]>([]);
     const [ratingCheckData, setRatingCheckData] = useState<boolean[]>(Array(6).fill(false));
     
     const [typesList, setTypesList] = useState<CheckboxElement[]>([]);
     const [facilityList, setFacilityList] = useState<CheckboxElement[]>([]);
+    const [tagList, setTagList] = useState<CheckboxElement[]>([]);
     const [searchRadiusMarker,setSearchRadiusMarker] = useState<LocationInfo[]>([])
 
   const { data: session, status } = useSession();
@@ -72,18 +73,19 @@ export default function Home() {
         data: planListData,
         isLoading: isPlanListLoading,
         isError: isPlanListError,
+        refetch,
     } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
         enabled: !!userPlans,
         retry: 0
     });
 
     const {
-        data: restaurantList,
-        isLoading: isRestaurantLoading,
-        isError: isRestaurantError,
+        data: accommodationDataList,
+        isLoading: isAccommodationLoading,
+        isError: isAccommodationError,
     } = useQuery(
-        ["restaurantData", selectedProvince, selectedDistrict],
-        () => fetchRestaurantKeyList(
+        ["accommodationDataList", selectedProvince, selectedDistrict],
+        () => fetchAccommodationKeyList(
             selectedProvince,
             selectedDistrict
                 .filter((district) => district.selected)
@@ -96,49 +98,62 @@ export default function Home() {
     );
 
     const {
-        data: restaurantType,
-        isLoading: isRestaurantTypeLoading,
-        isError: isRestaurantTypeError,
+        data: accommodationType,
+        isLoading: isAccommodationTypeLoading,
+        isError: isAccommodationTypeError,
     } = useQuery(
-        ["restaurantType"],
-        () => fetchRestaurantType(),
+        ["accommodationType"],
+        () => fetchAccommodationType(),
         {
             retry: 0
         }
     );
 
     const {
-        data: restaurantFacility,
-        isLoading: isRestaurantFacilityLoading,
-        isError: isRestaurantFacilityError,
+        data: accommodationFacility,
+        isLoading: isAccommodationFacilityLoading,
+        isError: isAccommodationFacilityError,
     } = useQuery(
-        ["restaurantFacility"],
-        () => fetchRestaurantFacility(),
+        ["accommodationFacility"],
+        () => fetchAccommodationFacility(),
         {
             retry: 0
         }
     );
 
     const {
-        data: restaurantDataFromFilter,
-        isLoading: isRestaurantDataFromFilterLoading,
-        isError: isRestaurantDataFromFilterError,
+        data: accommodationTag,
+        isLoading: isAccommodationTagLoading,
+        isError: isAccommodationTagError,
     } = useQuery(
-        ["restaurantDataFromFilter", selectedProvince, selectedDistrict, typesList, facilityList, ratingCheckData,selectedMarkRadiusRestaurant,selectedMarkRadiusValue
+        ["accommodationTag"],
+        () => fetchAccommodationTag(),
+        {
+            retry: 0
+        }
+    );
+
+    const {
+        data: accommodationDataFromFilter,
+        isLoading: isAccommodationDataFromFilterLoading,
+        isError: isAccommodationDataFromFilterError,
+    } = useQuery(
+        ["AccommodationDataFromFilter", selectedProvince, selectedDistrict, typesList, facilityList, tagList, ratingCheckData,selectedMarkRadiusAccommodation,selectedMarkRadiusValue
             ,currentPage
         ],
-        () => fetchRestaurant(
+        () => fetchAccommodation(
             selectedProvince,
             selectedDistrict
                 .filter((district) => district.selected)
                 .map((district) => district.name),
             typesList.filter((type) => type.selected).map((type) => type.name),
             facilityList.filter((facility) => facility.selected).map((facility) => facility.name),
+            tagList.filter((tag) => tag.selected).map((tag) => tag.name),
             ratingObject.filter((rating) => rating.selected).map((rating) => rating.star),
             currentPage,
             selectedMarkRadiusValue*1000,
-            selectedMarkRadiusRestaurant?.latitude,
-            selectedMarkRadiusRestaurant?.longitude
+            selectedMarkRadiusAccommodation?.latitude,
+            selectedMarkRadiusAccommodation?.longitude
         ),
         {
             retry: 0
@@ -147,6 +162,9 @@ export default function Home() {
 
     useEffect(() => {
         if (planListData) {
+
+            console.log(planListData);
+
             const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
                 _id: plan._id,
                 startDate: plan.startDate,
@@ -161,55 +179,63 @@ export default function Home() {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProvince, selectedDistrict, facilityList, typesList, ratingCheckData,selectedMarkRadiusRestaurant,selectedMarkRadiusValue]);
+    }, [selectedProvince, selectedDistrict, facilityList, typesList, ratingCheckData,selectedMarkRadiusAccommodation,selectedMarkRadiusValue]);
 
     useEffect(() => {
-        if (restaurantDataFromFilter) {
+        if (accommodationDataFromFilter) {
 
-            
-
+        
             setRatingObject(
-                restaurantDataFromFilter.completerestaurantRatings.map((rating: any,index: number) => ({
+                accommodationDataFromFilter.completeaccommodationRatings.map((rating: any,index: number) => ({
                     star: rating._id,
                     count: rating.count,
                     selected: ratingCheckData[index],
                 }))
             );
 
-            setLocationCardList(restaurantDataFromFilter.restaurants.map((data: LocationCardInterface)=>({
+            setLocationCardList(accommodationDataFromFilter.accommodations.map((data: LocationCardInterface)=>({
                 _id: data._id,
                 name: data.name,
                 imgPath: data.imgPath
             }))
 
             );
-            setMaxPage(restaurantDataFromFilter.totalPages);
+            setMaxPage(accommodationDataFromFilter.totalPages);
         }
-    }, [restaurantDataFromFilter]);
+    }, [accommodationDataFromFilter]);
 
     useEffect(() => {
-        if (restaurantList) {
-            setSearchRadiusMarker(restaurantList.restaurants);
+        if (accommodationDataList) {
+            setSearchRadiusMarker(accommodationDataList.accommodations);
         }
 
-        if (restaurantType) {
+        if (accommodationType) {
             setTypesList(
-                restaurantType.type.map((type: string) => ({
+                accommodationType.type.map((type: string) => ({
                     name: type,
                     selected: false,
                 }))
             );
         }
 
-        if(restaurantFacility) {
+        if(accommodationFacility) {
             setFacilityList(
-                restaurantFacility.facility.map((facility: string) => ({
+                accommodationFacility.facility.map((facility: string) => ({
                     name: facility,
                     selected: false,
                 }))
             );
         }
-    }, [restaurantList, restaurantType, restaurantFacility]);
+
+        if(accommodationTag) {
+            setTagList(
+                accommodationTag.tag.map((tag: string) => ({
+                    name: tag,
+                    selected: false,
+                }))
+            );
+        }
+    }, [accommodationDataList, accommodationType, accommodationFacility, accommodationTag]);
     
 
     const handleProvinceSelect = (province: string) => {
@@ -243,9 +269,14 @@ export default function Home() {
         setTypesList(tags); 
     };
 
-    const handleFacility = (tags: CheckboxElement[]) => {
-        setFacilityList(tags); 
+    const handleFacility = (facility: CheckboxElement[]) => {
+        setFacilityList(facility); 
     };
+
+    const handleTag = (tags: CheckboxElement[]) => {
+        setTagList(tags); 
+    };
+    
     
 
     const handleSelectPage = (page: number) => {
@@ -286,7 +317,7 @@ export default function Home() {
         setSelectedLocation(locationID);
     }
 
-    const handleAddTripToPlan = (planID: string,locationID: string) => {
+    const handleAddTripToPlan = async (planID: string,locationID: string) => {
         setIsModalOpen(false);
         setSelectedLocation("");
         Swal.fire({
@@ -295,7 +326,8 @@ export default function Home() {
             text: "This location has been added to your trip"
           });
         
-       addLocationToTrip(planID,locationID,indexDate,"RESTAURANT");
+       await addLocationToTrip(planID,locationID,indexDate,"ACCOMMODATION");
+       refetch();
     }
 
     const handleSetPlanID = (planID: string) => {
@@ -330,11 +362,11 @@ export default function Home() {
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
                         <div className="kanit">
-                            {t('RestaurantPages.infoMain')}
+                            {t('AccommodationPages.infoMain')}
                             
                         </div>
                         <div className="kanit font-bold">
-                            {t('RestaurantPages.restaurant')}
+                            {t('AccommodationPages.accommodation')}
                         </div>
                     </div>
                     <div className="flex w-full flex-row justify-end">
@@ -348,27 +380,30 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col px-20 h-full">
                     <div className="flex kanit text-center text-xl font-bold mb-2">
-                        {t('RestaurantPages.filter')}
+                        {t('AccommodationPages.filter')}
                     </div>
                     <div className="flex flex-row h-full">
                         <div className="flex flex-col w-[15%]">
                             <div className="flex mb-5">
-                                <SearchRadiusComponent translationPrefix={"RestaurantPages"} locationList={searchRadiusMarker} onSelectLocationMark={handleMarkRadiusAttractionSelect} onSelectLocationValue={handleMarkRadiusValueSelect}/>
+                                <SearchRadiusComponent translationPrefix={"AccommodationPages"} locationList={searchRadiusMarker} onSelectLocationMark={handleMarkRadiusAttractionSelect} onSelectLocationValue={handleMarkRadiusValueSelect}/>
                             </div>
                             <div className="flex mb-5">
-                                <RatingComponent transaltionTitle={"RestaurantPages.title_star"} ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
+                                <RatingComponent transaltionTitle={"AccommodationPages.title_star"} ratingProps={ratingObject} onCheckBoxSelect={handleRating}/>
                             </div>
                             <div className="flex mb-5">
-                                <TagCheckBoxComponent maxHeight={144} element={typesList} onCheckBoxSelect={handleType} translationPrefix={"Types."} translationTagTitle={"RestaurantPages.title_type"}/>
+                                <TagCheckBoxComponent maxHeight={144} element={typesList} onCheckBoxSelect={handleType} translationPrefix={"Type_Accommodation."} translationTagTitle={"AccommodationPages.title_type"}/>
+                            </div>
+                            <div className="flex mb-5">
+                                <TagCheckBoxComponent maxHeight={144} element={tagList} onCheckBoxSelect={handleTag} translationPrefix={"Tag_Accommodation."} translationTagTitle={"AccommodationPages.title_facility"}/>
                             </div>
                             <div className="flex">
-                                <TagCheckBoxComponent maxHeight={144} element={facilityList} onCheckBoxSelect={handleFacility} translationPrefix={"Facilities."} translationTagTitle={"RestaurantPages.title_facility"}/>
+                                <TagCheckBoxComponent maxHeight={144} element={facilityList} onCheckBoxSelect={handleFacility} translationPrefix={"Facilities_Accommodation."} translationTagTitle={"AccommodationPages.title_facility"}/>
                             </div>
                         </div>
                         <div className="flex flex-wrap w-[85%] pl-16 h-full">
                         {
                             locationCardList.map((location, index) => (
-                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 h-48" key={index}>
+                                <div className="flex w-1/4 justify-end items-end px-2 pt-4 h-60" key={index}>
                                     <LocationCard 
                                         placeImage={location.imgPath[0]} 
                                         placeID={location._id}
@@ -388,14 +423,14 @@ export default function Home() {
                     isOpen={isModalOpen}
                     searchPlan={searchPlan}
                     selectedPlan={selectedPlan}
-                    locationType={"RESTAURANT"}
-                    dayIndex={indexDate}
+                    locationType={"ACCOMMODATION"}
                     onClose={() => setIsModalOpen(false)}
                     onAddTrip={handleAddTripToPlan}
                     onSelectPlan={handleSetPlanID}
                     onInputPlanName={handleSetSearchPlan}
                     selectedLocation={selectedLocation}
                     planList={plantripList}
+                    dayIndex={indexDate}
                     isDropdownPlanOpen={isDropdownPlanOpen}
                     onChangeDropdown={handleChangeDropdown}
                     onChangeDate={handleChangeDateIndex}

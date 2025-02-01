@@ -82,6 +82,29 @@ export const fetchRestaurantFacility = async () => {
 
 }
 
+export const fetchAccommodationFacility = async () => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/facility`);
+  return data;
+
+}
+
+export const fetchAccommodationType = async () => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/type`);
+  return data;
+
+}
+
+export const fetchAccommodationTag = async () => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/tag`);
+  return data;
+
+}
+
+
+
 export const fetchAttractionKeyList = async (provinceName: string,districtList: string[]) => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAttraction`, {
@@ -95,6 +118,16 @@ export const fetchAttractionKeyList = async (provinceName: string,districtList: 
 export const fetchRestaurantKeyList = async (provinceName: string,districtList: string[]) => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getRestaurant`, {
+    provinceName: provinceName,
+    districtList: districtList
+  });
+  return data;
+
+}
+
+export const fetchAccommodationKeyList = async (provinceName: string,districtList: string[]) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAccommodation`, {
     provinceName: provinceName,
     districtList: districtList
   });
@@ -161,6 +194,34 @@ export const fetchRestaurant = async (provinceName: string, districtList: string
   };
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getDataWithCondition`
+    , requestBody
+  );
+
+  return data;
+
+}
+
+export const fetchAccommodation = async (provinceName: string, districtList: string[],
+  typeLists: string[],facilityList: string[],tagList: string[], rating: number[], page: number,
+  radius?: number, centerLatitude?: number, centerLongitude?: number
+) => {
+
+  const requestBody: Record<string, any> = {
+    provinceName,
+    districtList,
+    typeLists,
+    facilityList,
+    tagList,
+    rating: rating && rating.length > 0 ? rating : [1, 2, 3, 4, 5],
+    page,
+    ...(radius !== null && radius !== undefined && { radius }),
+    ...(centerLatitude !== null && centerLatitude !== undefined && { centerLatitude }),
+    ...(centerLongitude !== null && centerLongitude !== undefined && { centerLongitude }),
+  };
+  
+  console.log(requestBody);
+  
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getDataWithCondition`
     , requestBody
   );
 

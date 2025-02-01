@@ -140,7 +140,7 @@ export default function SearchRadiusComponent({
         >
           <div className="relative w-full kanit">
             <div className="flex flex-col">
-              {locationFilter.length > 0 ? (
+              {locationFilter && locationFilter.length > 0 ? (
                 <div className="flex flex-col mt-2">
                   <div className="flex p-2 text-sm font-bold">
                     {t(`${translationPrefix}.subtitle_search_radius`)}
