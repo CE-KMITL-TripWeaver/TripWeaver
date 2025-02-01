@@ -1,7 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from "../../../../../../lib/mongodb";
 import PlanTrips from "../../../../../../models/plans";
-import Attraction from "../../../../../../models/attraction";;
+import Attraction from "../../../../../../models/attraction";
+import Restaurant from "../../../../../../models/restaurant";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
@@ -16,9 +17,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             location = await Attraction.findById(locationID);
 
             if (!location) {
-                return NextResponse.json({ message: `Location with id ${locationID} not found` }, { status: 404 });
+                return NextResponse.json({ message: `Location with id ${locationID} not found in attraction` }, { status: 404 });
+            }
+        } else if (locationType === "RESTAURANT") {
+            location = await Restaurant.findById(locationID);
+
+            if (!location) {
+                return NextResponse.json({ message: `Location with id ${locationID} not found in restaurant` }, { status: 404 });
             }
         }
+
 
         const plan = await PlanTrips.findById(id);
         if (!plan) {

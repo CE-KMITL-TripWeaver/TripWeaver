@@ -16,9 +16,6 @@ export default function LocationCard({
     onClickAddTrip
   }: LocationCard) {
 
-
-    console.log("Name",placeName,placeImage);
-
     const handleClickViewDetails = (placeID: string) => {
         console.log("Navigate to",placeID);
     }
