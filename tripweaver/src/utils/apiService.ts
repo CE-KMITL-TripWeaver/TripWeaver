@@ -218,9 +218,7 @@ export const fetchAccommodation = async (provinceName: string, districtList: str
     ...(centerLatitude !== null && centerLatitude !== undefined && { centerLatitude }),
     ...(centerLongitude !== null && centerLongitude !== undefined && { centerLongitude }),
   };
-  
-  console.log(requestBody);
-  
+
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getDataWithCondition`
     , requestBody
   );
