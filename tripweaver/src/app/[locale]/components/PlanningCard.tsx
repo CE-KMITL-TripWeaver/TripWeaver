@@ -157,15 +157,29 @@ export default function PlanningCard({
             </div>
           </div>
         </div>
-        <div className="flex h-full w-[40%] justify-end">
-        <Image
-          alt="img-planning-card"
-          src={imgPath[0]}
-          width={0}
-          height={0}
-          sizes="100vw"
-          className="rounded-xl w-full max-w-48 max-h-40 "
-        />
+        <div className="flex w-[40%] justify-end">
+          {
+            imgPath[0] && imgPath[0].trim() !== "" ? (
+              <Image
+                alt={`${imgPath[0]}-0`}
+                src={imgPath[0]}
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="rounded-xl w-full max-w-48 max-h-36 "
+              />
+            ) : (
+              <Image
+                alt={`${imgPath[0]}-1`}
+                src="/th/images/no-img.png"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="rounded-xl w-full max-w-48 max-h-36"
+              />
+            )
+          }
+
         </div>
         </div>
         <div className="flex absolute -top-3 -left-2">
