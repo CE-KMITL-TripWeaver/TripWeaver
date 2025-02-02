@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import { useQuery } from "react-query";
 import { fetchPlanData, fetchUserPlans, fetchAllData, updateUserPlans } from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
+import DropzoneModal from "../components/modals/DropzoneModal";
 
 import { v4 as uuidv4 } from "uuid";
 import "./carousel.css";
@@ -170,6 +171,7 @@ export default function Home() {
 
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
+  const [showUploadImageModal, setShowUploadImageModal] = useState<boolean>(false);
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
@@ -260,6 +262,7 @@ export default function Home() {
 
   useEffect(() => {
     if (planData && userPlans) {
+
       setTravelers(planData.plan.travelers);
 
       const startDate = new Date(planData.plan.startDate);
@@ -288,8 +291,6 @@ export default function Home() {
       const allAccommodationPlanningData: (AccommodationData|null)[] = [];
       const planPlacesDurationData: planningPlacesDuration[][] = [];
       const planNameListData: (string|undefined)[] = [];
-
-      console.log(planData);
 
       planData.plan.plans.map((plan: planInterface) => {
         const planName = plan.planName;
@@ -358,7 +359,6 @@ export default function Home() {
     if (status === "authenticated" && planID) {
       const autoUpdate = setInterval(() => {
 
-        console.log(dataSaveRef.current);
         if (!dataSaveRef.current.valueOf()) { // if not saved
 
           const accommodations = accommodationRef.current
@@ -973,6 +973,11 @@ export default function Home() {
     setSelectedLocationInfo(null);
   };
 
+  const handleClickChangeImage = () => {
+    console.log("Edit...");
+    setShowUploadImageModal(true);
+  }
+
 
   if (userPlans && Array.isArray(userPlans) && planData?.plan?._id) {
     if (!userPlans.includes(planData.plan._id)) {
@@ -1042,10 +1047,15 @@ export default function Home() {
           }}
         >
           <div className="flex flex-col">
-            <div
-              className={`flex h-36 w-full relative bg-[url('/images/sea-01.jpg')] bg-cover bg-center`}
-              id="section-1"
-            >
+              <div
+                className="flex h-36 w-full relative"
+                id="section-1"
+                style={{
+                  backgroundImage: `url(${planData.plan.tripImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
               <div
                 className="absolute h-[70%] w-[80%] bottom-[-20%] left-[10%] rounded-2xl"
                 style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
@@ -1082,7 +1092,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="absolute top-[2%] left-[95%]  justify-center items-center cursor-pointer">
+              <div className="absolute top-[2%] left-[95%]  justify-center items-center cursor-pointer" onClick={handleClickChangeImage}>
                 <Icon
                   icon="akar-icons:edit"
                   className="text-lg text-white"
@@ -1090,6 +1100,7 @@ export default function Home() {
                   width={23}
                 />
               </div>
+              {showUploadImageModal && <DropzoneModal tripID={planID} isOpen={showUploadImageModal} setIsOpen={setShowUploadImageModal} />}
             </div>
             <div className={`flex flex-col px-5 bg-[#F0F0F0]`} id="section-2">
               <div className="flex w-full flex-row mt-11 justify-between">
@@ -1499,7 +1510,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {
+            {/*
               <MapContainer
                 center={[7.7587, 98.2954147]}
                 zoom={14}
@@ -1540,7 +1551,7 @@ export default function Home() {
                   locationPlanning={locationPlanning[currentIndexDate]}
                 />
               </MapContainer>
-            }
+            */}
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ export const fetchPlanData = async (planID: string) => {
   const { data } = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
   );
+
   return data;
 };
 
@@ -103,7 +104,16 @@ export const fetchAccommodationTag = async () => {
 
 }
 
+export const uploadImg = async (formData: FormData) => {
 
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plantrip/uploadImg`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+
+}
 
 export const fetchAttractionKeyList = async (provinceName: string,districtList: string[]) => {
 

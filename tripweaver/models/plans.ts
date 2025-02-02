@@ -6,6 +6,10 @@ const plansSchema = new Schema(
       type: String,
       required: true,
     },
+    tripImage: {
+      type: String,
+      default: "https://i.ibb.co/fdqgHhPV/no-img.png"
+    },
     travelers: {
       type: Number,
       required: true,
