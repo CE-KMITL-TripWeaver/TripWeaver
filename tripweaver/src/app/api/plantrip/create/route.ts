@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
         await connectMongoDB();
         const createdPlan = await PlanTrips.create({
             tripName,
+            tripCreator: userID,
             travelers,
             startDate,
             dayDuration,

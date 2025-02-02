@@ -10,6 +10,14 @@ const plansSchema = new Schema(
       type: String,
       default: "https://i.ibb.co/fdqgHhPV/no-img.png"
     },
+    tripCreator: {
+      type: String,
+      required: true
+    },
+    tripLike: {
+      type: Number,
+      default: 0
+    },
     travelers: {
       type: Number,
       required: true,

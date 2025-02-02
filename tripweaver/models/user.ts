@@ -16,6 +16,7 @@ const UserSchema: Schema = new Schema({
   role: { type: String, default: "user" },
   favoritePlaces: { type: [String], default: [] },
   planList: { type: [String], default: [] },
+  likePlanList: { type: [String], default: [] },
   attractionTagScore: { type: attractionTagSchema, default: () => ({})},
   createdAt: { type: Date, default: Date.now },
 });

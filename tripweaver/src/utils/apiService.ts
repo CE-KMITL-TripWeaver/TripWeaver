@@ -33,12 +33,32 @@ export const fetchPlanAllData = async (planBody: planBodyInterface) => {
   return data;
 };
 
+export const updatePlanLike = async (planID: string,userID: string,statusType: string) => {
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/plantrip/addLike`,
+    {
+      planID: planID,
+      statusType: statusType,
+      userID: userID
+    }
+  );
+  return data;
+};
+
 export const fetchUserPlans = async (userID: string) => {
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${userID}`
   );
   return data.planList;
 };
+
+export const fetchUserData = async (userID: string) => {
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${userID}`
+  );
+  return data;
+};
+
 
 export const updateUserPlans = async (planID: string,planData: PlanUpdateInterface) => {
   const { data } = await axios.put(
@@ -111,6 +131,27 @@ export const uploadImg = async (formData: FormData) => {
       "Content-Type": "multipart/form-data",
     },
   });
+  return data;
+
+}
+
+export const fetchAttractionData = async (locationID: string) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAttraction/${locationID}`);
+  return data;
+
+}
+
+export const fetchRestaurantData = async (locationID: string) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getRestaurant/${locationID}`);
+  return data;
+
+}
+
+export const fetchAccommodationData = async (locationID: string) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getAccommodation/${locationID}`);
   return data;
 
 }

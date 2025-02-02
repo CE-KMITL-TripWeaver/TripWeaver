@@ -1510,7 +1510,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*
+            {
               <MapContainer
                 center={[7.7587, 98.2954147]}
                 zoom={14}
@@ -1551,7 +1551,7 @@ export default function Home() {
                   locationPlanning={locationPlanning[currentIndexDate]}
                 />
               </MapContainer>
-            */}
+            }
           </div>
         </div>
       </div>
