@@ -13,6 +13,7 @@ import TripCard from "@/app/[locale]/components/TripCard";
 import { PlanSummaryInterface } from "@/app/[locale]/interface/plantripObject";
 import { PlanningInformationDataInterface } from "@/app/[locale]/interface/plantripObject";
 
+
 import {
   fetchPlanData,
   fetchUserData,
@@ -30,7 +31,7 @@ import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../../../components/MapUpdater";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import AttractionData from "../../../interface/attraction";
 import RestaurantData from "../../../interface/restaurant";
 import { TripCardInterface } from "@/app/[locale]/interface/plantripObject";
@@ -79,7 +80,7 @@ interface MyArrowProps {
 export default function Home() {
   const { id } = useParams();
   const planID = id as string;
-
+  const router = useRouter();
 
   const { data: session, status } = useSession();
   const [polyline, setPolyline] = useState<any[][]>([]);
@@ -471,6 +472,10 @@ export default function Home() {
     setIsHoveredLike(isLikePlan);
   };
 
+  const handleEditTrip = () => {
+    router.push(`/plantrip?planID=${planID}`);
+  };
+
   if (isPlanLoading || isUserDataLoading || isAllDataLoading) {
     return <div>Loading...</div>;
   }
@@ -519,7 +524,8 @@ export default function Home() {
           </div>
           <div className="flex flex-row w-full justify-end px-5 mt-5 gap-x-3">
             {session?.user?.id! == planData.plan.tripCreator && (
-              <div className="flex text-white text-sm font-bold justify-center items-center bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl">
+              <div className="flex text-white text-sm font-bold justify-center items-center bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
+                onClick={handleEditTrip}>
                 แก้ไขทริป
               </div>
             )}
