@@ -376,15 +376,19 @@ export default function Home() {
           })),
         }));
 
+        setIsDataSaved(true);
+
+        if(accommodations.length == 0 && plans.length == 0) {
+          return;
+        }
+
         const plantripDataPayload = {
           accommodations,
           plans,
         };
         
           updateUserPlans(planID, plantripDataPayload);
-      
-          setIsDataSaved(true);
-          
+
         } else {
           //console.log("HERE....");
         }
