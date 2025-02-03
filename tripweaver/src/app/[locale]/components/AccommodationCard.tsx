@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import AccommodationData from "../interface/accommodation";
-import FacilityComponent from "./FacilityComponent";
+import FacilityComponent from "./facilityComponent";
 import ReactLightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 

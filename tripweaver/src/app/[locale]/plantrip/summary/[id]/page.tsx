@@ -5,9 +5,6 @@ import NavBar from "../../../components/NavBar";
 import { Icon } from "@iconify/react";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import PlanningCardDetails from "../../../components/PlanningCardDetails";
-import SearchPlaceObjectComponent from "../../../components/SearchPlaceObjectComponent";
-import AccommodationCard from "../../../components/AccommodationCard";
-import AccommodationData from "../../../interface/accommodation";
 import { updatePlanLike } from "@/utils/apiService";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -24,10 +21,8 @@ import {
   fetchAttractionData,
   fetchRestaurantData,
 } from "@/utils/apiService";
-import { useSearchParams } from "next/navigation";
-import DropzoneModal from "../../../components/modals/DropzoneModal";
 
-import { v4 as uuidv4 } from "uuid";
+
 import "../../carousel.css";
 
 import dynamic from "next/dynamic";
@@ -40,8 +35,8 @@ import AttractionData from "../../../interface/attraction";
 import RestaurantData from "../../../interface/restaurant";
 import { TripCardInterface } from "@/app/[locale]/interface/plantripObject";
 
-import haversine from "haversine-distance";
 import L from "leaflet";
+import AccommodationData from "@/app/[locale]/interface/accommodation";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -62,15 +57,6 @@ const Marker = dynamic(
   () => import("react-leaflet").then((mod) => mod.Marker),
   { ssr: false }
 );
-
-
-interface planningPlacesDuration {
-  uuid: string;
-  time: number;
-}
-interface accommodationPlanInterface {
-  accommodationID: string;
-}
 
 interface planInterface {
   planName: string;
@@ -94,12 +80,6 @@ export default function Home() {
   const { id } = useParams();
   const planID = id as string;
 
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-    });
 
   const { data: session, status } = useSession();
   const [polyline, setPolyline] = useState<any[][]>([]);
@@ -111,7 +91,7 @@ export default function Home() {
 
 
   const [selectedLocationInfo, setSelectedLocationInfo] = useState<
-    AttractionData | RestaurantData | null
+    AttractionData | RestaurantData | AccommodationData | null
   >(null);
 
   const [tripLocation, setTripLocation] = useState<
@@ -244,6 +224,7 @@ export default function Home() {
       console.log(":-----------:");
     }
   }, [polyline,waypoints,openIndex]);*/
+
 
   useEffect(() => {
     if (!tripCardDataList) {
@@ -415,6 +396,15 @@ export default function Home() {
     }
   };
 
+  const onClickChangeIndex = (index: number|null) => {
+    setOpenIndex(index);
+    setSelectedLocationInfo(null);
+  };
+
+  const onClickSelectLocation = (location: AttractionData | RestaurantData | AccommodationData) => {
+    setSelectedLocationInfo(location);
+  };
+
   const handleClickSelectInfo = () => {
     setSelectedLocationInfo(null);
   };
@@ -494,7 +484,7 @@ export default function Home() {
       <NavBar />
       <div className="flex flex-row w-full h-[calc(100vh-84px)]">
         <PerfectScrollbar
-          className="flex flex-col w-[50%] h-full relative bg-white"
+          className="flex flex-col w-[40%] h-full relative bg-white"
           style={{
             overflow: "hidden",
           }}
@@ -521,9 +511,6 @@ export default function Home() {
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
                       {planData.plan.travelers}{" "}
                       {planData.plan.travelers > 1 ? "Persons" : "Person"}
-                    </div>
-                    <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
-                      {planData.plan.tripLike} - {session?.user?.id!}
                     </div>
                   </div>
                 </div>
@@ -571,7 +558,7 @@ export default function Home() {
               {
                 tripLocation.map((data,index) => (
                   <div className="flex w-full h-full" key={index} >
-                     <TripCard dayIndex={index+1} plans={data}  openIndex={openIndex} setOpenIndex={setOpenIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
+                     <TripCard dayIndex={index+1} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
                   </div> 
                 ))
               }
@@ -579,7 +566,7 @@ export default function Home() {
           </div>
         </PerfectScrollbar>
 
-        <div className="flex relative flex-col h-full w-[50%]">
+        <div className="flex relative flex-col h-full w-[60%]">
           {selectedLocationInfo && (
             <div
               className="flex w-full absolute bottom-5"

@@ -13,7 +13,7 @@ interface PlanningCardDetailsProps {
   title: string;
   type: string[];
   address: string;
-  dateOpen: dateOpen[];
+  dateOpen?: dateOpen[];
   imgPath: string[];
   phone: string;
 }
@@ -75,7 +75,7 @@ export default function PlanningCardDetails({
                     Address: {splitAddress}
                   </div>
                 </div>
-                {dateOpen.length > 0 && (
+                {dateOpen && dateOpen.length > 0 && (
                   <div className="flex">
                     <OpenDateComponent dateOpen={dateOpen} />
                   </div>

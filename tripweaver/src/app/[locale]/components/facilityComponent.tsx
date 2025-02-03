@@ -56,6 +56,22 @@ export default function FacilityComponent({ facility }: FacilityComponentProps) 
         "ห้องน้ำเพิ่มเติม": "icon-park-outline:public-toilet",
         "สระว่ายน้ำสำหรับเด็ก": "teenyicons:pool-outline",
         "เสื้อคลุมอาบน้ำ": "map:clothing-store",
+        "ความบันเทิงยามค่ำคืน": "map:night-club",
+        "พื้นที่รับประทานอาหาร": "fluent:food-16-filled",
+        "การดำน้ำตื้น": "tabler:scuba-mask",
+        "Visa": "tabler:credit-card",
+        "Wifi ฟรี": "tabler:wifi", 
+        "การจอง": "tabler:calendar-check", 
+        "ซื้อกลับบ้าน": "tabler:shopping-bag",
+        "ที่นั่ง": "ph:chair-fill", 
+        "บริการส่ง": "tabler:truck-delivery",
+        "บริการเสิร์ฟถึงโต๊ะ": "tabler:table",
+        "มีที่จอดรถ": "tabler:parking",
+        "มีเก้าอี้สูงสำหรับเด็ก": "tabler:baby-carriage", 
+        "รับบัตรเครดิต": "tabler:credit-card", 
+        "ร้านอาหารปลอดบุหรี่": "tabler:smoking-no", 
+        "แบบครอบครัว": "tabler:users-group", 
+        "สะดวกสำหรับผู้ใช้รถเข็น": "tabler:wheelchair", 
         "Default": "mdi:help-circle-outline"
     };
 
@@ -65,10 +81,14 @@ export default function FacilityComponent({ facility }: FacilityComponentProps) 
         "อ่างอาบน้ำ / ฝักบัวอาบน้ำ": "อ่างอาบน้ำ",
         "เคเบิลทีวี / ทีวีดาวเทียม": "ทีวีดาวเทียม",
         "ฟิตเนสเซนเตอร์พร้อมห้องออกกำลังกาย": "ฟิตเนส",
+        "ความบันเทิงยามค่ำคืน": "ไนท์คลับ",
+        "สะดวกสำหรับผู้ใช้รถเข็น": "มีที่สำหรับผู้พิการ",
+        "ร้านอาหารปลอดบุหรี่": "ปลอดบุหรี่",
         "กิจกรรมสำหรับเด็ก (เป็นมิตรกับเด็กและครอบครัว)": "กิจกรรมครอบครัว",
         "บริการรถรับส่งฟรีหรือแท็กซี่": "บริการรถรับส่ง",
         "ปลอดภัย": "ตู้เซฟ",
         "เฉลียงบนดาดฟ้า": "ดาดฟ้า",
+        "พื้นที่รับประทานอาหาร": "ห้องอาหาร",
         "ห้องพักปลอดสารก่อภูมิแพ้": "ปลอดสารก่อภูมิแพ้",
         "ศูนย์บริการธุรกิจพร้อมบริการอินเทอร์เน็ต": "WiFi ฟรี"
     };

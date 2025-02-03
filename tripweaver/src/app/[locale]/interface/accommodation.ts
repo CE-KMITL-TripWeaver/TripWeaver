@@ -1,5 +1,6 @@
 import LocationObject from "../interface/locationObject";
 import RatingObject from "../interface/ratingObject";
+import dateOpen from "./dateOpen";
 
 export default interface AccommodationData {
   _id: string;
@@ -12,6 +13,7 @@ export default interface AccommodationData {
   phone: string;
   website: string;
   star: number;
+  openingHour: dateOpen[];
   facility: string[];
   tag: string[];
   location: LocationObject;
