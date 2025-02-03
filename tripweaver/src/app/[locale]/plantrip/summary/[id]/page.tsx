@@ -228,11 +228,13 @@ export default function Home() {
       fetchData();
 
       const isLiked = userData?.likePlanList?.includes(planID) ?? false;
+
       setIsLikePlan(isLiked);
-      setIsHoveredLike(!isLikePlan);
+      setIsHoveredLike(isLiked);
 
     }
   }, [planData, userData]);
+
 
   /*useEffect(() => {
     console.log(openIndex);
