@@ -1,33 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import { PlanSummaryInterface } from "../interface/plantripObject";
 import { TripCardInterface } from "../interface/plantripObject";
 import { PlanningInformationDataInterface } from "../interface/plantripObject";
 
-import {
-  fetchAccommodationData,
-  fetchAttractionData,
-  fetchRestaurantData,
-} from "@/utils/apiService";
-import axios from "axios";
-
 interface TripCardProps {
   dayIndex: number;
+  openIndex: number|null;
   plans: PlanSummaryInterface;
   tripData: TripCardInterface;
   dataTravel: PlanningInformationDataInterface[];
+  setOpenIndex: (index: number|null) => void;
 }
 
-const TripCard: React.FC<TripCardProps> = ({ dayIndex, plans, tripData, dataTravel }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(dayIndex === 1);
+const TripCard: React.FC<TripCardProps> = ({ dayIndex, plans, tripData,openIndex, dataTravel,setOpenIndex }) => {
 
-  console.log(tripData);
-  console.log("------------");
-  console.log(plans)
-  console.log("------------");
-  console.log(dataTravel)
-  console.log("------------");
+  const isOpen = openIndex === (dayIndex-1);
 
   return (
     <>
@@ -40,7 +29,7 @@ const TripCard: React.FC<TripCardProps> = ({ dayIndex, plans, tripData, dataTrav
               </div>
               <div
                 className="flex justify-center items-center cursor-pointer"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setOpenIndex(isOpen ? null : (dayIndex-1))} 
               >
                 <Icon
                   icon={
@@ -59,13 +48,25 @@ const TripCard: React.FC<TripCardProps> = ({ dayIndex, plans, tripData, dataTrav
     
             {/* Content Section */}
             <div
-              className={`overflow-hidden transition-all duration-300 ${
-                isOpen ? "max-h-full" : "max-h-0"
+              className={`overflow-hidden transition-all duration-300 flex-col ${
+                isOpen ? "max-h-screen" : "max-h-0"
               }`}
             >
-              <div className="p-5">
-                <p>เนื้อหาสำหรับ Day {dayIndex} ที่จะถูกซ่อนได้เมื่อไม่เปิด</p>
-              </div>
+                {
+                    tripData && tripData.location.map((data,index) => (
+                        <div className="flex" key={index}>
+                        {data.name}
+                        </div>
+                    ))
+                }
+                {
+                   tripData && tripData.accommodation && (
+                        <div className="flex" key={tripData.accommodation._id}>
+                        {tripData.accommodation.name}
+                        </div>
+                    )
+                }
+
             </div>
           </div>
         )

@@ -1512,8 +1512,8 @@ export default function Home() {
           <div className="flex" style={{ zIndex: 0 }}>
             {
               <MapContainer
-                center={[7.7587, 98.2954147]}
-                zoom={14}
+                center={[7.9843109, 98.3307468]}
+                zoom={11}
                 className="h-[calc(100vh-84px)]"
                 style={{ width: "100%" }}
               >

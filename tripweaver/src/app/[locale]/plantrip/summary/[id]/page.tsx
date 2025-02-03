@@ -107,6 +107,8 @@ export default function Home() {
   const [planningInformationDataList, setPlanningInformationDataList] = useState<PlanningInformationDataInterface[][]>([]);
   const [isHoveredLike, setIsHoveredLike] = useState<boolean>(false);
   const [isLikePlan, setIsLikePlan] = useState<boolean>(false);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
 
   const [selectedLocationInfo, setSelectedLocationInfo] = useState<
     AttractionData | RestaurantData | null
@@ -232,6 +234,15 @@ export default function Home() {
     }
   }, [planData, userData]);
 
+  /*useEffect(() => {
+    console.log(openIndex);
+    if(polyline && waypoints && openIndex != null) {
+      console.log(polyline[openIndex])
+      console.log(waypoints[openIndex]);
+      console.log(":-----------:");
+    }
+  }, [polyline,waypoints,openIndex]);*/
+
   useEffect(() => {
     if (!tripCardDataList) {
       return;
@@ -310,7 +321,15 @@ export default function Home() {
           const { geometry, legs } = response.data.routes[0];
           if (geometry) {
             const decodedPolyline = decodePolyline(geometry);
-            setPolyline(decodedPolyline.map(([lat, lng]) => [lat, lng]));
+            /*setPolyline(
+              decodedPolyline.map(([lat, lng]) => [lat, lng])
+            );*/
+
+            setPolyline((prev) => {
+              const newPolyline = [...prev];
+              newPolyline[index] = decodedPolyline.map(([lat, lng]) => [lat, lng]);
+              return newPolyline;
+            });
           }
           const updatedWaypoints = trip.location.map(
             (loc) => [loc.latitude, loc.longitude]
@@ -546,8 +565,15 @@ export default function Home() {
               />
             </div>
           </div>
-          <div className="flex mt-10 w-full">
-              <TripCard dayIndex={1} plans={tripLocation[0]} tripData={tripCardDataList[0]} dataTravel={planningInformationDataList[0]}/>
+          <div className="flex flex-col mt-10 w-full gap-y-5">
+              {
+                tripLocation.map((data,index) => (
+                  <div className="flex w-full h-full" key={index} >
+                     <TripCard dayIndex={index+1} plans={data}  openIndex={openIndex} setOpenIndex={setOpenIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
+                  </div> 
+                ))
+              }
+            
           </div>
         </PerfectScrollbar>
 
@@ -569,25 +595,27 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*
+            {
               <MapContainer
-                center={[7.7587, 98.2954147]}
-                zoom={14}
+                center={[7.9843109, 98.3307468]}
+                zoom={11}
                 className="h-[calc(100vh-84px)]"
                 style={{ width: "100%" }}
               >
                 <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png" />
-                {polyline.length > 0 && (
+                {openIndex != null && polyline[openIndex] && polyline[openIndex].length > 0 && (
                   <Polyline
-                    positions={polyline}
+                    positions={polyline[openIndex]}
                     pathOptions={{ color: "green" }}
                   />
                 )}
-                {waypoints.map((position, idx) => {
+                {openIndex != null && waypoints[openIndex] && waypoints[openIndex].map((position, idx) => {
                   const isLastWaypointWithAccommodation =
-                    idx === waypoints.length - 1 &&
-                    accommodationData[currentIndexDate] !== null;
-
+                    idx === waypoints[openIndex].length - 1 &&
+                    tripCardDataList[openIndex].accommodation !== null;
+                  
+                    
+                  console.log("waypoints[openIndex].length", waypoints[openIndex].length,"openIndex",openIndex);
                   return (
                     <Marker
                       key={idx}
@@ -600,17 +628,21 @@ export default function Home() {
                     >
                       <Popup>
                         {isLastWaypointWithAccommodation
-                          ? `${accommodationData[currentIndexDate]?.name}`
-                          : `${locationPlanning[currentIndexDate][idx]?.name}`}
+                          ? `${tripCardDataList[openIndex].accommodation?.name}`
+                          : `${ tripCardDataList[openIndex].location[idx]?.name}`}
                       </Popup>
                     </Marker>
                   );
                 })}
-                <MapUpdater
-                  locationPlanning={locationPlanning[currentIndexDate]}
-                />
+                {
+                  openIndex != null && tripCardDataList[openIndex] && (
+                    <MapUpdater
+                      locationPlanning={tripCardDataList[openIndex].location}
+                    />
+                  )
+                }
               </MapContainer>
-              */}
+              }
           </div>
         </div>
       </div>
