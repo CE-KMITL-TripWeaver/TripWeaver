@@ -8,6 +8,7 @@ import Tags from "../interface/tags";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
 import { url } from "inspector";
+import { t } from "i18next";
 
 const profile = {
   name: "Panat Inwza007",
@@ -19,85 +20,125 @@ const profile = {
 const recentTrip = [
   {
     name: "ไต๋ผจญภัย 1",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 1,
   },
   {
     name: "ไต๋ผจญภัย 2",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 2,
   },
   {
     name: "ไต๋ผจญภัย 3",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 3,
   },
   {
     name: "ไต๋ผจญภัย 4",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 4,
   },
   {
     name: "ไต๋ผจญภัย 5",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 5,
   },
   {
     name: "ไต๋ผจญภัย 6",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 6,
   },
   {
     name: "ไต๋ผจญภัย 7",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 7,
   },
   {
     name: "ไต๋ผจญภัย 8",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
     id: 8,
+  },
+];
+
+const placeRequests = [
+  {
+    id: 1,
+    placeName: "ลุงโล่ตามสั่ง",
+    type: "add",
+    status: "Pending",
+    dateRequested: "2023-10-01",
+  },
+  {
+    id: 2,
+    placeName: "แหลมพรหมเทพ",
+    type: "edit",
+    status: "Approved",
+    dateRequested: "2023-09-25",
+  },
+  {
+    id: 3,
+    placeName: "ลุงโล่ตามสั่ง",
+    type: "add",
+    status: "Rejected",
+    dateRequested: "2023-09-20",
   },
 ];
 
 const recentBlog = [
   {
     name: "ไต๋พาเที่ยว 1",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 1,
   },
   {
     name: "ไต๋พาเที่ยว 2",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 2,
   },
   {
     name: "ไต๋พาเที่ยว 3",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 3,
   },
   {
     name: "ไต๋พาเที่ยว 4",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 4,
   },
   {
     name: "ไต๋พาเที่ยว 5",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 5,
   },
   {
     name: "ไต๋พาเที่ยว 6",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 6,
   },
   {
     name: "ไต๋พาเที่ยว 7",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 7,
   },
   {
     name: "ไต๋พาเที่ยว 8",
-    image: "https://img2.pic.in.th/pic/panat.jpg",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 8,
   },
 ];
@@ -199,7 +240,7 @@ const ProfileContent = () => (
   <div className="flex">
     {/* information */}
     <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8 shadow-lg">
-      <div className="m-3">
+      <div className="mt-3">
         <Image
           src={profile.image}
           alt={profile.name}
@@ -302,9 +343,9 @@ const TripContent = ({
   tagsList: Tags[];
   handleTag: (tags: Tags[]) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-8">
-    <div className="flex mb-5 mt-14 h-fit">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
+  <div className="flex kanit rounded-md mt-8 ml-4">
+    <div className="flex mb-5 mt-[19px] h-fit">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
@@ -315,7 +356,7 @@ const TripContent = ({
           className="p-2 border-2 border-gray-200 rounded-md mr-5"
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2">
+      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
         {recentTrip.map((trip, index) => (
           <a
             key={index}
@@ -345,12 +386,12 @@ const BlogContent = ({
   tagsList: Tags[];
   handleTag: (tags: Tags[]) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-8">
-    <div className="flex mb-5 mt-14 h-fit">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag}/>
+  <div className="flex kanit rounded-md mt-8 ml-4">
+    <div className="flex mb-5 mt-[19px] h-fit">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
     </div>
     <div className="flex flex-col">
-    <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end">
         <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
         <input
           type="text"
@@ -358,7 +399,7 @@ const BlogContent = ({
           className="p-2 border-2 border-gray-200 rounded-md mr-5"
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2">
+      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
         {recentBlog.map((blog, index) => (
           <a
             key={index}
@@ -382,8 +423,60 @@ const BlogContent = ({
 );
 
 const PlacesContent = () => (
-  <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8">
-    <div className="flex kanit font-bold text-2xl">Places Content</div>
+  <div className="flex flex-col ml-4 mt-8">
+    <div className="flex kanit font-bold text-2xl mb-4">
+      คำขอเพิ่ม/แก้ไขสถานที่
+    </div>
+    <div className="mt-4 w-full">
+      <table className="bg-white kanit w-full">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b text-left">ชื่อสถานที่</th>
+            <th className="py-2 px-4 border-b text-left">ประเภท</th>
+            <th className="py-2 px-4 border-b text-left">สถานะ</th>
+            <th className="py-2 px-4 border-b text-left">วันที่ส่งคำขอ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {placeRequests.map((request) => (
+            <tr key={request.id}>
+              <td className="py-2 px-4 border-b">{request.placeName}</td>
+              <td className="py-2 px-4 border-b">
+                {request.type === "add" ? "เพิ่มสถานที่" : "แก้ไขสถานที่"}
+              </td>
+              <td
+                className={`py-2 px-4 border-b ${
+                  request.status === "Approved"
+                    ? "text-green-500"
+                    : request.status === "Pending"
+                    ? "text-yellow-500"
+                    : "text-red-500"
+                }`}
+              >
+                {request.status === "Approved"
+                  ? "สำเร็จ"
+                  : request.status === "Pending"
+                  ? "รอดำเนินการ"
+                  : request.status === "Rejected"
+                  ? "ปฎิเสธคำขอ"
+                  : request.status}
+              </td>
+              <td className="py-2 px-4 border-b">{request.dateRequested}</td>
+              <td className="py-2 px-4 border-b flex gap-x-2">
+                <button className="kanit bg-[#EE6527] hover:bg-[#DDDDDD] hover:text-black text-white px-4 rounded-full font-regular h-8 flex items-center space-x-2">
+                  <Icon icon="mdi:pencil" />
+                  <span>แก้ไข</span>
+                </button>
+                <button className="kanit bg-[#EE6527] hover:bg-[#DDDDDD] hover:text-black text-white px-4 rounded-full font-regular h-8 flex items-center space-x-2">
+                  <Icon icon="mdi:close" />
+                  <span>ยกเลิกคำขอ</span>
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
@@ -434,9 +527,13 @@ export default function Profile() {
       case "profile":
         return <ProfileContent />;
       case "trip":
-        return <TripContent tagsList={tripTagsList} handleTag={handleTripTag} />;
+        return (
+          <TripContent tagsList={tripTagsList} handleTag={handleTripTag} />
+        );
       case "blog":
-        return <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />;
+        return (
+          <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />
+        );
       case "places":
         return <PlacesContent />;
       case "interests":
