@@ -18,6 +18,9 @@ export async function POST(req: NextRequest) {
             plans
         });
 
+        //console.log("accommodations",accommodations);
+        //console.log("plans",plans);
+
         await User.findOneAndUpdate(
             { _id: userID },
             { $push: { planList: createdPlan._id.toString() } }

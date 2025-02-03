@@ -248,11 +248,11 @@ export default function Home() {
   useEffect(() => {
     if (allData) {
       const { attractions, restaurants, accommodations } = allData;
-
       const attractionsData = attractions || [];
       const restaurantsData = restaurants || [];
       const accommodationsData = accommodations || [];
 
+      setSearchPlace("");
       setAccommodationsData(accommodationsData);
       setFilteredAccommodations(accommodationsData);
       setPlacesData([...attractionsData, ...restaurantsData]);
@@ -355,7 +355,7 @@ export default function Home() {
   }, [planData, userPlans]);
 
   useEffect(() => {
-    console.log("Come...")
+
     if (status === "authenticated" && planID) {
       const autoUpdate = setInterval(() => {
 
@@ -426,19 +426,26 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    const filtered = placesData.filter((item) =>
-      item.name.toLocaleLowerCase().startsWith(searchPlace.toLocaleLowerCase())
-    );
-    setFilteredLocations(filtered);
+    if(placesData && placesData.length != 0) {
+      const filtered = placesData.filter((item) =>
+        item.name.toLocaleLowerCase().startsWith(searchPlace.toLocaleLowerCase())
+      );
+      setFilteredLocations(filtered);
+    }
+
   }, [searchPlace]);
 
   useEffect(() => {
-    const filtered = accommodationsData.filter((item) =>
-      item.name
-        .toLocaleLowerCase()
-        .startsWith(searchAccommodation.toLocaleLowerCase())
-    );
-    setFilteredAccommodations(filtered);
+
+    if(accommodationsData && accommodationData.length != 0) {
+      const filtered = accommodationsData.filter((item) =>
+        item.name
+          .toLocaleLowerCase()
+          .startsWith(searchAccommodation.toLocaleLowerCase())
+      );
+      setFilteredAccommodations(filtered);
+    }
+
   }, [searchAccommodation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1209,6 +1216,7 @@ export default function Home() {
                   <input
                     ref={inputTitle}
                     type="text"
+                    maxLength={30}
                     className={`flex w-full text-lg kanit justify-start font-bold p-2 focus:outline-none rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] pr-8 ${
                       inputTitleWidth === 0 ? "min-w-96" : "max-w-[450px]"
                     }`}
@@ -1256,7 +1264,7 @@ export default function Home() {
                 </div>
                 <div
                   className={`flex flex-col w-full overflow-hidden transition-all duration-500 ${
-                    showPlanning ? "max-h-[1000px]" : "max-h-0"
+                    showPlanning ? "max-h-[100000px]" : "max-h-0"
                   }`}
                 >
                   {planningInformationDataList.length >= 0 && locationPlanning.length > 0 && (

@@ -12,6 +12,7 @@ import { useQuery } from "react-query";
 import TripCard from "@/app/[locale]/components/TripCard";
 import { PlanSummaryInterface } from "@/app/[locale]/interface/plantripObject";
 import { PlanningInformationDataInterface } from "@/app/[locale]/interface/plantripObject";
+import CopyTripModal from "@/app/[locale]/components/modals/CopyTripModals";
 
 
 import {
@@ -88,6 +89,7 @@ export default function Home() {
   const [planningInformationDataList, setPlanningInformationDataList] = useState<PlanningInformationDataInterface[][]>([]);
   const [isHoveredLike, setIsHoveredLike] = useState<boolean>(false);
   const [isLikePlan, setIsLikePlan] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
 
@@ -424,6 +426,9 @@ export default function Home() {
     
   };
 
+  
+
+
   const handleClickShare = () => {
     const url = window.location.href;
     navigator.clipboard
@@ -474,6 +479,18 @@ export default function Home() {
 
   const handleEditTrip = () => {
     router.push(`/plantrip?planID=${planID}`);
+  };
+
+  const handleCopyTrip = () => {
+    console.log("-----START COPY-----")
+    console.log(tripLocation);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModals = async () => {
+
+    setIsModalOpen(false);
+    
   };
 
   if (isPlanLoading || isUserDataLoading || isAllDataLoading) {
@@ -529,7 +546,8 @@ export default function Home() {
                 แก้ไขทริป
               </div>
             )}
-            <div className="flex text-white justify-center items-center text-sm font-bold bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl">
+            <div className="flex text-white justify-center items-center text-sm font-bold bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
+              onClick={handleCopyTrip}>
               คัดลอกทริป
             </div>
             <div
@@ -609,8 +627,7 @@ export default function Home() {
                     idx === waypoints[openIndex].length - 1 &&
                     tripCardDataList[openIndex].accommodation !== null;
                   
-                    
-                  console.log("waypoints[openIndex].length", waypoints[openIndex].length,"openIndex",openIndex);
+                  
                   return (
                     <Marker
                       key={idx}
@@ -641,6 +658,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <CopyTripModal isOpen={isModalOpen} onClose={handleCloseModals} tripLocation={tripLocation} userID={session?.user?.id}/>
     </div>
   );
 }

@@ -142,6 +142,7 @@ export default function Home() {
               </label>
               <input
                 type="text"
+                maxLength={30}
                 id="tripName"
                 name="tripName"
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200"
