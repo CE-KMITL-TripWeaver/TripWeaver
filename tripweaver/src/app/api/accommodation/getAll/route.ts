@@ -1,3 +1,4 @@
+export const revalidate = 0;
 import { NextResponse } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb'
 import Accommodation from "../../../../../models/accommodation";
