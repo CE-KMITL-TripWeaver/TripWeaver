@@ -2,6 +2,24 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import SearchComponent from "./SearchComponent";
 
+type Province = {
+    _id: string;
+    name: string;
+    idRef?: string;
+};
+
+type District = {
+    _id: string;
+    name: string;
+    idRef?: string;
+};
+
+type SubDistrict = {
+    _id: string;
+    name: string;
+    idRef?: string;
+};
+
 type Place = {
     _id: string;
     name: string;
@@ -39,9 +57,9 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
-    const [provinces, setProvinces] = useState([]);
-    const [districts, setDistricts] = useState([]);
-    const [subDistricts, setSubDistricts] = useState([]);
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [subDistricts, setSubDistricts] = useState<SubDistrict[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editingPlaceId, setEditingPlaceId] = useState<string | null>(null);
     const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
@@ -105,9 +123,10 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
     useEffect(() => {
         setFormData((prev) => ({
             ...prev,
-            phone: selectedCategory === "attraction" ? "" : Array.isArray(prev.phone) ? prev.phone : [""],
+            phone: selectedCategory === "attraction" ? "" : (Array.isArray(prev.phone) ? prev.phone : [""]),
         }));
     }, [selectedCategory]);
+    
 
     const itemsPerPage = 10;
     const maxPageNumbersToShow = 5;
@@ -156,7 +175,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
 
         const submissionData = {
             ...formData,
-            phone: selectedCategory === "attraction" ? formData.phone : formData.phone.filter(Boolean),
+            phone: selectedCategory === "attraction" ? formData.phone : (formData.phone as string[]).filter(Boolean),
         };
 
         try {
@@ -343,7 +362,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <label className="block kanit">{t("Admin.Description")}</label>
                                 <textarea
                                     name="description"
-                                    value={formData.description}
+                                    value={formData.description ?? ""}
                                     onChange={handleFormChange}
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                 />
@@ -355,7 +374,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <input
                                     type="number"
                                     name="latitude"
-                                    value={formData.latitude}
+                                    value={formData.latitude ?? ""}
                                     onChange={handleFormChange}
                                     required
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
@@ -368,7 +387,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <input
                                     type="number"
                                     name="longitude"
-                                    value={formData.longitude}
+                                    value={formData.longitude ?? ""}
                                     onChange={handleFormChange}
                                     required
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
@@ -378,17 +397,17 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                             <div className="mb-4">
                                 <label className="block kanit">{t("Admin.Province")}</label>
                                 <select
-                                    value={formData.location.province}
+                                    value={formData.location.province ?? ""}
                                     onChange={async (e) => {
                                         const selectedProvinceName = e.target.value;
-                                        const selectedProvince = provinces.find((p) => p.name === selectedProvinceName);
+                                        const selectedProvince = provinces.find((p) => (p as Province).name === selectedProvinceName);
 
                                         setFormData((prev) => ({
                                             ...prev,
                                             location: {
                                                 ...prev.location,
                                                 province: selectedProvinceName,
-                                                province_code: selectedProvince?.idRef || "",
+                                                province_code: selectedProvince?.idRef ?? "",
                                                 district: "",
                                                 district_code: "",
                                                 subDistrict: "",
@@ -438,10 +457,12 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                             <div className="mb-4">
                                 <label className="block kanit">{t("Admin.District")}</label>
                                 <select
-                                    value={formData.location.district}
+                                    value={formData.location.district ?? ""}
                                     onChange={async (e) => {
                                         const selectedDistrictName = e.target.value;
-                                        const selectedDistrict = districts.find((d) => d.name === selectedDistrictName);
+                                        const selectedDistrict: District | undefined = districts.find(
+                                            (d) => d.name === selectedDistrictName
+                                        );
 
                                         setFormData((prev) => ({
                                             ...prev,
@@ -494,7 +515,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                             <div className="mb-4">
                                 <label className="block kanit">{t("Admin.SubDistrict")}</label>
                                 <select
-                                    value={formData.location.subDistrict}
+                                    value={formData.location.subDistrict ?? ""}
                                     onChange={(e) => {
                                         const selectedSubDistrictName = e.target.value;
                                         const selectedSubDistrict = subDistricts.find((s) => s.name === selectedSubDistrictName);
@@ -579,7 +600,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <input
                                     type="text"
                                     name="website"
-                                    value={formData.website}
+                                    value={formData.website ?? ""}
                                     onChange={handleFormChange}
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                 />
@@ -704,7 +725,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                     <input
                                         type="text"
                                         name="priceRange"
-                                        value={formData.priceRange}
+                                        value={formData.priceRange ?? ""}
                                         onChange={handleFormChange}
                                         className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                     />
@@ -761,7 +782,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                         <input
                                             type="number"
                                             name="star"
-                                            value={formData.star}
+                                            value={formData.star ?? ""}
                                             onChange={handleFormChange}
                                             className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                         />
@@ -813,8 +834,13 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <input
                                     type="number"
                                     name="rating"
-                                    value={formData.rating.score}
-                                    onChange={handleFormChange}
+                                    value={formData.rating.score ?? 0}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            rating: { ...prev.rating, score: Number(e.target.value) },
+                                        }))
+                                    }
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                 />
                             </div>
@@ -825,8 +851,13 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                 <input
                                     type="number"
                                     name="ratingCount"
-                                    value={formData.rating.ratingCount}
-                                    onChange={handleFormChange}
+                                    value={formData.rating.ratingCount ?? 0}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            rating: { ...prev.rating, ratingCount: Number(e.target.value) },
+                                        }))
+                                    }
                                     className="kanit px-4 py-2 border border-gray-300 rounded-lg w-full"
                                 />
                             </div>
@@ -905,18 +936,42 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                     <div className="flex justify-center space-x-2">
                                         <button
                                             onClick={async () => {
-                                                setFormData(place);
+                                                setFormData({
+                                                    ...place,
+                                                    description: place.description ?? "",
+                                                    latitude: place.latitude ?? "",
+                                                    longitude: place.longitude ?? "",
+                                                    imgPath: place.imgPath ?? [],
+                                                    phone: place.phone ?? "",
+                                                    website: place.website ?? "",
+                                                    openingHour: place.openingHour ?? [],
+                                                    facility: place.facility ?? [],
+                                                    priceRange: place.priceRange ?? "",
+                                                    star: place.star ?? "",
+                                                    tag: place.tag ?? [],
+                                                    rating: place.rating ?? { score: 0, ratingCount: 0 },
+                                                    location: place.location ?? {
+                                                        address: "",
+                                                        province: "",
+                                                        district: "",
+                                                        subDistrict: "",
+                                                        province_code: "",
+                                                        district_code: "",
+                                                        sub_district_code: "",
+                                                    },
+                                                });
+
                                                 setEditingPlaceId(place._id);
                                                 setIsEditing(true);
 
-                                                if (place.location.province) {
+                                                if (place.location?.province) {
                                                     try {
                                                         const districtResponse = await fetch(`/api/province/listDistrict`, {
                                                             method: "POST",
                                                             headers: {
                                                                 "Content-Type": "application/json",
                                                             },
-                                                            body: JSON.stringify({ provinceName: place.location.province }),
+                                                            body: JSON.stringify({ provinceName: place.location?.province }),
                                                         });
 
                                                         if (districtResponse.ok) {
@@ -928,7 +983,7 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                                                     }
                                                 }
 
-                                                if (place.location.district) {
+                                                if (place.location?.district) {
                                                     try {
                                                         const subDistrictResponse = await fetch(`/api/province/listSubDistrict`, {
                                                             method: "POST",
