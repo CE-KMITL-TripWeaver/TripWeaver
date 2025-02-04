@@ -1,7 +1,9 @@
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages} from 'next-intl/server';
+import { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import ClientSessionProvider from "./provider/ClientSessionProvider";
 import './globals.css';
-import { Kanit } from 'next/font/google'
+import { Kanit } from 'next/font/google';
 
 const kanit = Kanit({
   subsets: ["latin"],
@@ -9,21 +11,23 @@ const kanit = Kanit({
   weight: "300",
 });
 
-export default async function LocaleLayout({
+export default async function RootLayout({
   children,
-  params: {locale}
+  params: { locale }
 }: {
-  children: React.ReactNode;
-  params: {locale: string};
+  children: ReactNode;
+  params: { locale: string };
 }) {
   const messages = await getMessages();
- 
+
   return (
     <html lang={locale}>
       <body className={`${kanit.variable}`}>
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        <ClientSessionProvider>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </ClientSessionProvider>
       </body>
     </html>
   );

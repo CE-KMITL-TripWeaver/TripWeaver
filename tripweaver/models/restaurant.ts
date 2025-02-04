@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import locationSchema from "./location" 
 import ratingSchema from "./rating"
+import openingHourSchema from './dateOpen';
 
 const restaurantSchema = new Schema({
 
@@ -8,11 +9,11 @@ const restaurantSchema = new Schema({
         type: String,
         required: true
     },
-    sub_name: {
-        type: String,
+    description: {
+        type: String
     },
-    wongnai_url: {
-        type: String,
+    type: {
+        type: [String],
     },
     latitude: {
         type: Number,
@@ -22,23 +23,21 @@ const restaurantSchema = new Schema({
         type: Number,
         required: true
     },
-    restaurantTag: {
-        type: [String],
-    },
     facility: {
         type: [String],
     },
     imgPath: {
         type: [String],
     },
+    openingHour: {
+        type: [openingHourSchema],
+        default: () => ([])
+    },
     phone: {
         type: [String],
     },
     website: {
         type: String,
-    },
-    openingHour: {
-        type: [String],
     },
     priceRange: {
         type: String,
