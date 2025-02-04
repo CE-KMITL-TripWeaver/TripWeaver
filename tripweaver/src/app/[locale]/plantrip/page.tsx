@@ -1226,11 +1226,13 @@ export default function Home() {
                     {locationRecommend.map((item) => (
                       <RecommendCard
                         key={item._id}
+                        id={item._id}
                         title={item.name}
                         type={item.type[0]}
                         img={item.imgPath[0]}
                         rating={item.rating.score}
                         ratingCount={item.rating.ratingCount}
+                        clickAddTrip={handleAddLocation}
                       />
                     ))}
                   </Carousel>
