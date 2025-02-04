@@ -9,6 +9,8 @@ import Image from "next/image";
 interface TripCardElementProps {
   location: AccommodationData | RestaurantData | AttractionData;
   onClickLocationInfo: (location: AttractionData | RestaurantData | AccommodationData) => void;
+  handleClickLocationDetails: (locationID: string,locationType: string) => void;
+  locationType: string
   stayDuration?: number;
   travelTime: number;
   locationDistance: number;
@@ -45,7 +47,9 @@ const TripCardElement: React.FC<TripCardElementProps> = ({
   stayDuration,
   index,
   locationDistance,
-  onClickLocationInfo
+  locationType,
+  onClickLocationInfo,
+  handleClickLocationDetails
 }) => {
   return (
     <div className="flex relative pr-7 pl-10 py-2 flex-col w-full h-full cursor-pointer" 
@@ -77,7 +81,7 @@ const TripCardElement: React.FC<TripCardElementProps> = ({
           className="flex text-sm flex-row bg-[#636363] rounded-2xl text-white px-2 py-1 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            console.log("Click");
+            handleClickLocationDetails(location._id,locationType)
           }}
         >
           <div className="flex mr-1">ข้อมูลสถานที่</div>

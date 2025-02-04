@@ -16,6 +16,7 @@ interface TripCardProps {
   tripData: TripCardInterface;
   dataTravel: PlanningInformationDataInterface[];
   setOpenIndex: (index: number | null) => void;
+  handleClickLocationDetails: (locationID: string,locationType: string) => void;
   onClickLocationInfo: (location: AttractionData | RestaurantData | AccommodationData) => void;
 }
 
@@ -26,9 +27,11 @@ const TripCard: React.FC<TripCardProps> = ({
   openIndex,
   dataTravel,
   setOpenIndex,
-  onClickLocationInfo
+  onClickLocationInfo,
+  handleClickLocationDetails
 }) => {
   const isOpen = openIndex === dayIndex - 1;
+  
   return (
     <>
       {plans && (
@@ -76,10 +79,12 @@ const TripCard: React.FC<TripCardProps> = ({
                   <TripCardElement
                     index={index}
                     location={data}
+                    locationType={plans.plans.places[index].type}
                     stayDuration={plans.plans.places[index].duration}
                     travelTime={dataTravel ? dataTravel[index].timeTravel : 0}
                     locationDistance={dataTravel ? dataTravel[index].rangeBetween : 0}
                     onClickLocationInfo={onClickLocationInfo}
+                    handleClickLocationDetails={handleClickLocationDetails}
                   />
                 </div>
               ))}
@@ -93,7 +98,9 @@ const TripCard: React.FC<TripCardProps> = ({
                     locationDistance={
                       (dataTravel && dataTravel[tripData.location.length]) ? dataTravel[tripData.location.length].rangeBetween : 0
                     }
+                    locationType={"ACCOMMODATION"}
                     onClickLocationInfo={onClickLocationInfo}
+                    handleClickLocationDetails={handleClickLocationDetails}
                   />
                 </div>
               )}

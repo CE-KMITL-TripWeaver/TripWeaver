@@ -499,6 +499,16 @@ export default function Home() {
     
   };
 
+  const handleClickLocationDetails = (locationID: string,locationType: string) => {
+    if(locationType === "ATTRACTION") {
+      router.push(`/th/attraction_detail/${locationID}`)
+    } else if(locationType === "RESTAURANT") {
+      router.push(`/th/restaurant_detail/${locationID}`)
+    } else {
+      router.push(`/th/accommodation_detail/${locationID}`)
+    }
+  }
+
   if (isPlanLoading || isUserDataLoading || isAllDataLoading) {
     return <div>Loading...</div>;
   }
@@ -588,7 +598,7 @@ export default function Home() {
               {
                 tripLocation.map((data,index) => (
                   <div className="flex w-full h-full" key={index} >
-                     <TripCard dayIndex={index+1} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
+                     <TripCard dayIndex={index+1} handleClickLocationDetails={handleClickLocationDetails} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
                   </div> 
                 ))
               }
