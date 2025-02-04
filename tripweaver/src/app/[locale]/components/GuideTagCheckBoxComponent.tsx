@@ -1,24 +1,30 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import Tags from "../interface/tags";
+import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponentElement from "./TagCheckBoxComponentElement";
 
 interface TagCheckboxComponentProps {
-  tagsList: Tags[];
-  onCheckBoxSelect: (tags: Tags[]) => void;
+  element: CheckboxElement[];
+  translationTagTitle: string;
+  translationPrefix: string;
+  maxHeight: number
+  onCheckBoxSelect: (tags: CheckboxElement[]) => void;
 }
 
 export default function TagCheckBoxComponent({
-  tagsList,
+  element: element,
+  translationPrefix,
+  translationTagTitle,
+  maxHeight,
   onCheckBoxSelect,
 }: TagCheckboxComponentProps) {
   const t = useTranslations();
-  const [tagList, setTagList] = useState<Tags[]>(tagsList);
+  const [tagList, setTagList] = useState<CheckboxElement[]>(element);
 
   useEffect(() => {
-    setTagList(tagsList);
-  }, [tagsList]);
+    setTagList(element);
+  }, [element]);
 
   const handleCheckboxClick = (tagsName: string) => {
     const updatedTags = tagList.map((tags) =>
@@ -31,14 +37,15 @@ export default function TagCheckBoxComponent({
   return (
     <>
       <div className="flex flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit p-5 w-full rounded-xl">
-        <div className="flex text-sm">{t("AttractionPages.title_tags")}</div>
+        <div className="flex text-sm">{t(translationTagTitle)}</div>
         <div className="flex flex-col">
-          <ul className="overflow-y-auto h-[912px] w-full">
+          <ul style={{ maxHeight: `${maxHeight}px` }} className={`overflow-y-auto w-full`}>
             {tagList.map((tags, index) => (
               <li key={index}>
                 <TagCheckBoxComponentElement
                   name={tags.name}
                   checked={tags.selected}
+                  translationPrefix={translationPrefix}
                   onClick={handleCheckboxClick}
                 />
               </li>

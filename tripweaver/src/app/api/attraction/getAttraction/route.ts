@@ -35,6 +35,6 @@ export async function POST(req: NextRequest) {
         
         return NextResponse.json({ attractions }, {status: 201})
     } catch(error) {
-        return NextResponse.json({ message: `An error occured while get data district ${error}`}, {status: 500})
+        return NextResponse.json({ message: `An error occured while get data attraction ${error}`}, {status: 500})
     }
 }

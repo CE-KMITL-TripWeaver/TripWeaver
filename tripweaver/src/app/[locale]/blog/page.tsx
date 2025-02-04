@@ -5,10 +5,14 @@ import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useTranslations } from "next-intl";
 import SearchComponent from "../components/SearchComponent";
-import GuideTagCheckBoxComponent from "../components/GuideTagCheckBoxComponent";
+import TagCheckBoxComponent from "../components/GuideTagCheckBoxComponent";
 import { format } from "date-fns";
-import Tags from "../interface/tags";
+import CheckBoxComponent from "../components/CheckBoxComponent";
 import axios from "axios";
+import CheckboxElement from "../interface/checkboxElement";
+import PaginationComponent from "../components/PaginationComponent";
+import { useQuery } from "react-query";
+import { fetchBlog } from "@/utils/apiService";
 
 export default function Home() {
   const t = useTranslations();
@@ -27,7 +31,7 @@ export default function Home() {
 
   const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
 
-  const [tagsList, setTagList] = useState<Tags[]>([]);
+  const [tagsList, setTagList] = useState<CheckboxElement[]>([]);
   const [blogList, setBlogList] = useState<BlogData[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [maxPage, setMaxPage] = useState<number>(1);
@@ -36,34 +40,75 @@ export default function Home() {
     setSelectedProvince(province);
   };
 
-  const handleTag = (tags: Tags[]) => {
+  const handleTag = (tags: CheckboxElement[]) => {
     setTagList(tags);
   };
 
-  const fetchBlogAllData = async () => {
-    const {data} = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog`);
-    console.log(data);
-    setBlogList(data.map((blog: BlogData) => ({
-      _id: blog._id,
-      blogName: blog.blogName,
-      blogImage: blog.blogImage,
-      blogCreator: blog.blogCreator,
-      blogViews: blog.blogViews,
-      blogLikes: blog.blogLikes,
-      description: blog.description,
-      tags: blog.tags,
-      createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd HH:mm"),
-    })));
-  };
+  const handleSelectPage = (page: number) => {
+    if(page==currentPage) {
+        return;
+    }
+    if(page > maxPage) {
+        return;
+    }
+
+    if(page <= 0) {
+        return;
+    }
+
+    setCurrentPage(page);
+}
+
+  // const fetchBlogAllData = async () => {
+  //   const { data } = await axios.post(
+  //     `${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog`,
+  //     {
+  //       provinceName: "ภูเก็ต",
+  //       tagLists: tagsList.filter((tag) => tag.selected).map((tag) => tag.name),
+  //       page: 1
+  //     }
+  //   );
+  //   console.log(data);
+  //   setBlogList(
+  //     data.map((blog: BlogData) => ({
+  //       _id: blog._id,
+  //       blogName: blog.blogName,
+  //       blogImage: blog.blogImage,
+  //       blogCreator: blog.blogCreator,
+  //       blogViews: blog.blogViews,
+  //       blogLikes: blog.blogLikes,
+  //       description: blog.description,
+  //       tags: blog.tags,
+  //       createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd"),
+  //     }))
+  //   );
+  // };
+
+  const {
+          data: blogDataFromFilter,
+          isLoading: isblogDataFromFilterLoading,
+          isError: isblogDataFromFilterError,
+      } = useQuery(
+          ["blogDataFromFilter", selectedProvince, tagsList, currentPage],  
+          () => fetchBlog(
+              selectedProvince,
+              tagsList.filter((tag) => tag.selected).map((tag) => t(`Tags.${tag.name}`)),
+              currentPage
+          ),
+          {
+              retry: 0
+          }
+      );
 
   useEffect(() => {
-    fetchBlogAllData();
     const fetchData = async () => {
       try {
-        const response = await axios.post( `${process.env.NEXT_PUBLIC_API_URL}/attraction/tags`);
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/attraction/tags`
+        );
 
         const tagWithDefaultSelected = response.data.attractionTagKeys.map(
-          (tag: Tags) => ({
+          (tag: CheckboxElement) => ({
             name: tag,
             selected: false,
           })
@@ -77,17 +122,36 @@ export default function Home() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+          if (blogDataFromFilter) {
+            setBlogList(
+                  blogDataFromFilter.blogs.map((blog: BlogData) => ({
+                    _id: blog._id,
+                    blogName: blog.blogName,
+                    blogImage: blog.blogImage,
+                    blogCreator: blog.blogCreator,
+                    blogViews: blog.blogViews,
+                    blogLikes: blog.blogLikes,
+                    description: blog.description,
+                    tags: blog.tags,
+                    createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd"),
+                  }))
+                );
+              setMaxPage(blogDataFromFilter.totalPages);
+          }
+      }, [blogDataFromFilter]);
+
   return (
     <>
       <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
         <NavBar />
-        <div className="flex px-20 mt-10 flex-col">
+        <div className="flex px-20 pt-10 flex-col">
           <div className="flex flex-row text-lg">
             <div className="kanit">{t("AttractionPages.infoMain")}</div>
             <div className="kanit font-bold">บล็อกการท่องเที่ยว</div>
           </div>
           <div className="flex w-full flex-row justify-end">
-            <div className="flex flex-row mr-5">
+            <div className="flex flex-row">
               <SearchComponent
                 defaultValue={selectedProvince}
                 onProvinceSelect={handleProvinceSelect}
@@ -127,8 +191,12 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  <h2 className="text-2xl font-bold mt-4 overflow-hidden text-ellipsis whitespace-nowrap">{post.blogName}</h2>
-                  <p className="text-gray-600 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">{post.description}</p>
+                  <h2 className="text-2xl font-bold mt-4 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {post.blogName}
+                  </h2>
+                  <p className="text-gray-600 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {post.description}
+                  </p>
                   <span className="text-gray-500">{post.createdAt}</span>
                   <div className="flex items-center gap-x-4">
                     <div className="flex items-center gap-x-1">
@@ -147,15 +215,18 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="flex flex-row mb-64">
+          <div className="flex flex-row mb-20">
             <div className="flex flex-col w-[15%]">
               <div className="flex kanit text-center text-xl font-bold mb-2 pt-8">
                 {t("AttractionPages.filter")}
               </div>
               <div className="flex mb-5 ">
-                <GuideTagCheckBoxComponent
-                  tagsList={tagsList}
+                <TagCheckBoxComponent
+                  maxHeight={910}
+                  element={tagsList}
+                  translationTagTitle={"AttractionPages.title_tags"}
                   onCheckBoxSelect={handleTag}
+                  translationPrefix={"Tags."}
                 />
               </div>
             </div>
@@ -192,10 +263,14 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <p className="text-gray-600 mt-2">{post.description}</p>
+                            <p className="text-gray-600 mt-2">
+                              {post.description}
+                            </p>
                           </div>
                           <div className="flex items-center mt-4">
-                            <span className="text-gray-500">{post.createdAt}</span>
+                            <span className="text-gray-500">
+                              {post.createdAt}
+                            </span>
                             <div className="flex items-center gap-x-4 ml-4">
                               <div className="flex items-center gap-x-1">
                                 <Icon
@@ -224,6 +299,13 @@ export default function Home() {
                 ))}
               </div>
             </div>
+          </div>
+          <div className="flex px-20 justify-end w-full h-full mb-5 mt-2">
+            <PaginationComponent
+              currentPage={currentPage}
+              maxPage={maxPage}
+              onSelectPage={handleSelectPage}
+            />
           </div>
         </div>
       </div>

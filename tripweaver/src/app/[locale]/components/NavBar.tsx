@@ -1,24 +1,46 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from "next/link";
+import { useSession, signOut } from 'next-auth/react';
 
 export default function NavBar() {
   const t = useTranslations();
+  const { data: session } = useSession();
+  const user = session?.user as { name: string; email: string; image: string; role: string };
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setIsDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="flex w-full px-20 py-3 bg-white">
       <div className="flex flex-row items-center justify-between w-full">
-        <a href="/" className="flex items-center">
-          <Image
-            src="https://img2.pic.in.th/pic/tripweaver-high-resolution-logo-transparent.png"
-            alt="TripWeaver Logo"
-            unoptimized
-            width={200}
-            height={200}
-          />
-        </a>
+        <Link href="/" passHref>
+            <Image
+              src="https://img2.pic.in.th/pic/tripweaver-high-resolution-logo-transparent.png"
+              alt="TripWeaver Logo"
+              unoptimized
+              width={200}
+              height={200}
+            />
+        </Link>
 
         <div className="flex w-[45%] px-10">
           <div className="flex rounded-3xl overflow-hidden w-full font-[sans-serif] shadow-lg">
@@ -44,7 +66,7 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Link href="/plantrip" passHref>
+          <Link href="/plantrip/create" passHref>
             <button className="kanit font-bold text-black py-2 px-4">
               {t('Navbar.createTrip')}
             </button>
@@ -52,17 +74,77 @@ export default function NavBar() {
           <button className="kanit font-bold text-black py-2 px-4">
             {t('Navbar.myTrip')}
           </button>
-          <button className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24" height="24"
-              viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2" /><path d="M4.271 18.346S6.5 15.5 12 15.5s7.73 2.846 7.73 2.846M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
-              </g>
-            </svg>
-            <span>{t('Navbar.login')}</span>
-          </button>
+
+          {session ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={handleDropdownToggle}
+                className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl"
+              >
+                {user.image ? (
+                  <Image
+                    src={user.image}
+                    alt="User Profile"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2" />
+                      <path d="M4.271 18.346S6.5 15.5 12 15.5s7.73 2.846 7.73 2.846M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
+                    </g>
+                  </svg>
+                )}
+                <span>{user.name}</span>
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                  <Link href="/profile" passHref>
+                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit">
+                      โปรไฟล์ของฉัน
+                    </button>
+                  </Link>
+                  {user.role === "admin" && (
+                    <Link href="/admin" passHref>
+                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit">
+                        จัดการเว็บไซต์
+                      </button>
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => signOut()}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit"
+                  >
+                    ออกจากระบบ
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/login" passHref>
+              <button className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24"
+                  viewBox="0 0 24 24"
+                >
+                  <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2" />
+                    <path d="M4.271 18.346S6.5 15.5 12 15.5s7.73 2.846 7.73 2.846M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
+                  </g>
+                </svg>
+                <span>{t('Navbar.login')}</span>
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </nav>

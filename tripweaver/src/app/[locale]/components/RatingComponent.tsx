@@ -4,11 +4,12 @@ import Rating from "../interface/rating";
 import RatingComponentElement from "./RatingComponentElement";
 
 interface RatingComponentProps {
-    ratingProps: Rating[]
+    ratingProps: Rating[],
+    transaltionTitle: string;
     onCheckBoxSelect: (districts: Rating[]) => void;
 }
 
-export default function RatingComponent({ ratingProps, onCheckBoxSelect }: RatingComponentProps) {
+export default function RatingComponent({ ratingProps, transaltionTitle, onCheckBoxSelect }: RatingComponentProps) {
     const t = useTranslations();
     const [ratings, setRatings] = useState<Rating[]>(ratingProps);
 
@@ -32,7 +33,7 @@ export default function RatingComponent({ ratingProps, onCheckBoxSelect }: Ratin
         <>
             <div className="flex flex-col bg-[#F8F8F8] border border-[#E0E0E0] shadow-xl kanit p-5 w-full rounded-xl">
                 <div className="flex text-sm">
-                    {t('AttractionPages.title_star')}
+                    {t(transaltionTitle)}
                 </div>
                 <div className="flex flex-col">
                     {

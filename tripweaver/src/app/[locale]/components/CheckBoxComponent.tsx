@@ -3,54 +3,58 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@iconify/react";
 import CheckBoxComponentElement from "./CheckBoxComponentElement";
-import axios from "axios";
-import District from '../interface/district'
+import District from "../interface/district";
+import { fetchDistrict } from "@/utils/apiService";
+import { useQuery } from "react-query";
 
 interface CheckBoxComponentProps {
-    provinceName: string;
-    onCheckBoxSelect: (districts: District[]) => void;
+  provinceName: string;
+  onCheckBoxSelect: (districts: District[]) => void;
 }
 
 export default function CheckBoxComponent({
-  provinceName, onCheckBoxSelect
+  provinceName,
+  onCheckBoxSelect,
 }: CheckBoxComponentProps) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const [districtsFromQuery, setDistrictsFromQuery] = useState<District[]>([]);
 
   const handleCheckboxClick = (name: string) => {
-
     const updatedDistricts = districtsFromQuery.map((district) =>
-        district.name === name
-          ? { ...district, selected: !district.selected } 
-          : district
-      );
-      setDistrictsFromQuery(updatedDistricts);
-      onCheckBoxSelect(updatedDistricts);
-
+      district.name === name
+        ? { ...district, selected: !district.selected }
+        : district
+    );
+    setDistrictsFromQuery(updatedDistricts);
+    onCheckBoxSelect(updatedDistricts);
   };
-  
+
+  const {
+    data: districtList,
+    isLoading: isDistrictLoading,
+    isError: isDistrictError,
+  } = useQuery(
+    ["districtList", provinceName],
+    () => fetchDistrict(provinceName),
+    {
+      enabled: !!provinceName,
+      retry: 0,
+    }
+  );
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-       const response = await axios.post('http://localhost:3000/api/province/listDistrict', {
-        provinceName: provinceName,
-      });
-
-      const districtsWithDefaultSelected = response.data.districts.map((district: District) => ({
-        ...district,
-        selected: district.selected ?? true,
-      }));
+    if(districtList) {
+      const districtsWithDefaultSelected = districtList.districts.map(
+        (district: District) => ({
+          ...district,
+          selected: district.selected ?? true,
+        })
+      );
       setDistrictsFromQuery(districtsWithDefaultSelected);
       onCheckBoxSelect(districtsWithDefaultSelected);
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [provinceName]);
+    }
+  }, [districtList]);
 
   const handleClickOpen = () => {
     setIsOpen(!isOpen);
@@ -71,7 +75,7 @@ export default function CheckBoxComponent({
                   className="text-xl text-[#828282]"
                 />
               </div>
-              <div className="flex kanit">{t('CheckboxComponent.title')}</div>
+              <div className="flex kanit">{t("CheckboxComponent.title")}</div>
               <div className=" flex items-center justify-center ml-2">
                 <Icon
                   icon="icon-park-outline:down-c"
@@ -87,19 +91,17 @@ export default function CheckBoxComponent({
           }`}
         >
           <div className="relative w-full">
-                <ul className="overflow-y-auto max-h-48 w-full">
-                    {
-                      districtsFromQuery.map((districts, index) => (
-                        <li key={index}>
-                          <CheckBoxComponentElement
-                            elementName={districts.name}
-                            checked={districts.selected}
-                            onClick={handleCheckboxClick}
-                        />
-                        </li>
-                      ))
-                    }
-                </ul>
+            <ul className="overflow-y-auto max-h-48 w-full">
+              {districtsFromQuery.map((districts, index) => (
+                <li key={index}>
+                  <CheckBoxComponentElement
+                    elementName={districts.name}
+                    checked={districts.selected}
+                    onClick={handleCheckboxClick}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

@@ -9,7 +9,6 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import Tags from "../../interface/tags";
 import axios from "axios";
 import { useTranslations } from "next-intl";
 import Select from 'react-select';

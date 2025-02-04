@@ -4,7 +4,7 @@ import NavBar from "../components/NavBar";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import Tags from "../interface/tags";
+import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
 import { url } from "inspector";
@@ -372,12 +372,12 @@ const TripContent = ({
   tagsList,
   handleTag,
 }: {
-  tagsList: Tags[];
-  handleTag: (tags: Tags[]) => void;
+  tagsList: CheckboxElement[];
+  handleTag: (tags: CheckboxElement[]) => void;
 }) => (
   <div className="flex kanit rounded-md mt-8 ml-4">
     <div className="flex mb-5 mt-[19px] h-fit">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
+    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
@@ -415,12 +415,12 @@ const BlogContent = ({
   tagsList,
   handleTag,
 }: {
-  tagsList: Tags[];
-  handleTag: (tags: Tags[]) => void;
+  tagsList: CheckboxElement[];
+  handleTag: (tags: CheckboxElement[]) => void;
 }) => (
   <div className="flex kanit rounded-md mt-8 ml-4">
     <div className="flex mb-5 mt-[19px] h-fit">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
+    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
@@ -458,12 +458,12 @@ const FavoriteContent = ({
   tagsList,
   handleTag,
 }: {
-  tagsList: Tags[];
-  handleTag: (tags: Tags[]) => void;
+  tagsList: CheckboxElement[];
+  handleTag: (tags: CheckboxElement[]) => void;
 }) => (
   <div className="flex kanit rounded-md mt-8 ml-4">
     <div className="flex mb-5 mt-[19px] h-fit">
-      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
+    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
@@ -563,12 +563,12 @@ const InterestsContent = () => (
 
 export default function Profile() {
   const t = useTranslations();
-  const [tripTagsList, setTripTagList] = useState<Tags[]>([]);
-  const [blogTagsList, setBlogTagList] = useState<Tags[]>([]);
-  const handleTripTag = (tags: Tags[]) => {
+  const [tripTagsList, setTripTagList] = useState<CheckboxElement[]>([]);
+  const [blogTagsList, setBlogTagList] = useState<CheckboxElement[]>([]);
+  const handleTripTag = (tags: CheckboxElement[]) => {
     setTripTagList(tags);
   };
-  const handleBlogTag = (tags: Tags[]) => {
+  const handleBlogTag = (tags: CheckboxElement[]) => {
     setBlogTagList(tags);
   };
 
@@ -580,7 +580,7 @@ export default function Profile() {
         );
 
         const tagWithDefaultSelected = response.data.attractionTagKeys.map(
-          (tag: Tags) => ({
+          (tag: CheckboxElement) => ({
             name: tag,
             selected: false,
           })
