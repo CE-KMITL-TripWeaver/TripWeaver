@@ -143,17 +143,22 @@ export default function Home() {
 
       const formattedPlanData: PlanSummaryInterface[] = planData.plan.plans.map((plan: planInterface, index: number) => ({
         accommodations: {
-          accommodationID: planData.plan.accommodations[index]?.accommodationID || "", 
+          accommodationID: planData.plan.accommodations?.[index]?.accommodationID || "", 
         },
         plans: {
           planName: plan.planName || "",  
-          places: plan.places.map(place => ({
+          places: plan.places?.map(place => ({
             placeID: place.placeID || "", 
             type: place.type || "",  
             duration: place.duration || 0, 
           })) || [],
         },
-      }));
+    }));
+    
+/*
+      console.log(planData);
+      console.log("--------------")
+      console.log(formattedPlanData);*/
 
       setTripLocation(formattedPlanData);
 
@@ -480,6 +485,7 @@ export default function Home() {
   const handleEditTrip = () => {
     router.push(`/plantrip?planID=${planID}`);
   };
+
 
   const handleCopyTrip = () => {
     console.log("-----START COPY-----")
