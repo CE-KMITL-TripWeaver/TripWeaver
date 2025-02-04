@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
     try {
         const { provinceName, tagLists, page } = await req.json();
         await connectMongoDB();
-        
 
         const pageSize = 5;
         const skip = (page - 1) * pageSize;
@@ -22,15 +21,20 @@ export async function POST(req: NextRequest) {
                 $match: {
                     tags: { $in: tagLists },
                 },
-            });
-        }
-
-        aggregationPipeline.push(
+            },
             {
                 $sort: {
                     createdAt: -1,
-                },
+                }
             },
+        );
+        }
+
+        aggregationPipeline.push({
+            $sort: { createdAt: -1 },
+          });
+
+        aggregationPipeline.push(
             {
                 $facet: {
                     paginatedResults: [

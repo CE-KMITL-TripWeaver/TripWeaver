@@ -33,6 +33,7 @@ export default function Home() {
 
   const [tagsList, setTagList] = useState<CheckboxElement[]>([]);
   const [blogList, setBlogList] = useState<BlogData[]>([]);
+  const [popularBlogList, setPopularBlogList] = useState<BlogData[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [maxPage, setMaxPage] = useState<number>(1);
 
@@ -100,6 +101,17 @@ export default function Home() {
           }
       );
 
+      const fetchPopularBlog = async () => {
+        try {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/getPopularBlog`);
+          return response.data.blogs;
+        } catch (error) {
+          console.error("Error fetching popular blogs:", error);
+          throw error;
+        }
+      };
+    
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -141,6 +153,30 @@ export default function Home() {
           }
       }, [blogDataFromFilter]);
 
+      useEffect(() => {
+        const fetchPopularBlogs = async () => {
+          try {
+            const blogs = await fetchPopularBlog();
+            setPopularBlogList(
+              blogs.map((blog: BlogData) => ({
+                _id: blog._id,
+                blogName: blog.blogName,
+                blogImage: blog.blogImage,
+                blogCreator: blog.blogCreator,
+                blogViews: blog.blogViews,
+                blogLikes: blog.blogLikes,
+                description: blog.description,
+                tags: blog.tags,
+                createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd"),
+              }))
+            );
+          } catch (error) {
+            console.error("Error fetching popular blogs:", error);
+          }
+        };
+        fetchPopularBlogs();
+      }, []);
+
   return (
     <>
       <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -167,7 +203,7 @@ export default function Home() {
           </div>
           <h1 className="kanit text-xl font-bold mb-2 ">บล็อกมาแรง</h1>
           <div className="kanit grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {blogList.slice(0, 5).map((post) => (
+            {popularBlogList.slice(0, 5).map((post) => (
               <div
                 key={post._id}
                 className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
@@ -233,7 +269,7 @@ export default function Home() {
             <div className="flex flex-col w-[85%] ml-8">
               <h1 className="kanit text-xl font-bold mb-2 pt-8">บล็อกใหม่</h1>
               <div className="flex flex-col gap-y-2">
-                {[...blogList].reverse().map((post) => (
+                {blogList.map((post) => (
                   <div
                     key={post._id}
                     className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"

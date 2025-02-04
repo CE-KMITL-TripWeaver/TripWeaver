@@ -16,6 +16,20 @@ export default function BlogPost() {
     tags: string[];
   }
 
+  const updateBlogView = async () => {
+    const viewedBlogs = JSON.parse(localStorage.getItem("viewedBlogs") || "[]");
+
+    if (!viewedBlogs.includes(id)) {
+      try {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/updateView`, { blogId: id });
+        viewedBlogs.push(id);
+        localStorage.setItem("viewedBlogs", JSON.stringify(viewedBlogs));
+      } catch (error) {
+        console.error("Error updating blog view count:", error);
+      }
+    }
+  };
+
   const [blogData, setBlogData] = useState<BlogData>();
 
   const fetchBlogData = async () => {
@@ -31,6 +45,7 @@ export default function BlogPost() {
 
   useEffect(() => {
     fetchBlogData();
+    updateBlogView();
   }, [id]);
 
   useEffect(() => {
@@ -44,7 +59,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
       <NavBar />
       <div className="flex px-20 mt-10 flex-col">
         <div className="flex flex-row text-lg">
@@ -53,7 +68,7 @@ export default function BlogPost() {
           <div className="kanit font-bold pl-1">{blogData.blogName}</div>
         </div>
       </div>
-      <div className="container mx-auto w-[75%] bg-gray-100 rounded-lg m-4">
+      <div className="container mx-auto w-[75%] bg-white rounded-lg m-4">
         <div className="flex flex-col p-4">
           <div className="text-3xl font-bold pt-4">{blogData.blogName}</div>
           <div className="flex flex-row space-x-2 pt-4">
