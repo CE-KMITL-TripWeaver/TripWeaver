@@ -15,7 +15,7 @@ import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
 import { useQuery } from "react-query";
-import { fetchPlanData, fetchUserPlans, fetchAllData, updateUserPlans } from "@/utils/apiService";
+import { fetchPlanData, fetchUserData, fetchAllData, updateUserPlans, fetchRecommendAttraction, fetchUserRating, fetchAttractionData} from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
 import DropzoneModal from "../components/modals/DropzoneModal";
 
@@ -168,6 +168,9 @@ export default function Home() {
   const [placesStayDurationList, setPlacesStayDurationList] = useState<
     planningPlacesDuration[][]
   >([]);
+  const [locationRecommend, setLocationRecommend] = useState<
+  (AttractionData)[]
+  >([]);
 
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
@@ -223,7 +226,7 @@ export default function Home() {
     retry: 0
   });
 
-  const {
+  /*const {
     data: userPlans,
     isLoading: isUserPlansLoading,
     isError: isUserPlansError,
@@ -233,8 +236,68 @@ export default function Home() {
     {
       enabled: !!session?.user?.id,
     }
+  );*/
+
+  const {
+    data: userPlans,
+    isLoading: isUserPlansLoading,
+    isError: isUserPlansError,
+  } = useQuery(
+    ["userPlans", session?.user?.id],
+    () => fetchUserData(session?.user?.id!),
+    {
+      enabled: !!session?.user?.id,
+    }
   );
 
+  const {
+    data: userRating,
+    isLoading: isuserRatingLoading,
+    isError: isuserRatingError,
+  } = useQuery(
+    ["userRating", session?.user?.id],
+    () => fetchUserRating(session?.user?.id!),
+    {
+      enabled: !!session?.user?.id,
+    }
+  );
+
+  const {
+    data: recommendLocation,
+    isLoading: isRecommendLocationLoading,
+    isError: isRecommendLocationError,
+  } = useQuery(
+    ["RecommendLocation", session?.user?.id, userPlans, userRating],
+    () => fetchRecommendAttraction(session?.user?.id!,userRating.rating.length,userPlans.attractionTagScore.attractionTagFields),
+    {
+      enabled: !!session?.user?.id && !! userPlans && !! userRating,
+    }
+  );
+
+  useEffect(() => {
+    if (recommendLocation) {
+  
+      // ใช้ async function ใน useEffect
+      const fetchData = async () => {
+        try {
+          const response = await Promise.all(
+            recommendLocation.res_recommendation.slice(0, 10).map(async (placeID: string) => {
+              return fetchAttractionData(placeID).then((data) => data.attraction);
+            })
+          );
+          
+          //console.log(response);
+          setLocationRecommend(response);
+
+        } catch (error) {
+          console.error("Error fetching attraction data:", error);
+        }
+      };
+  
+      fetchData();
+    }
+  }, [recommendLocation]);
+  
   const {
     data: allData,
     isLoading: isAllDataLoading,
@@ -985,13 +1048,12 @@ export default function Home() {
   };
 
   const handleClickChangeImage = () => {
-    console.log("Edit...");
     setShowUploadImageModal(true);
   }
 
 
-  if (userPlans && Array.isArray(userPlans) && planData?.plan?._id) {
-    if (!userPlans.includes(planData.plan._id)) {
+  if (userPlans && userPlans.planList && Array.isArray(userPlans.planList) && planData?.plan?._id) {
+    if (!userPlans.planList.includes(planData.plan._id)) {
       redirect("/plantrip/create");
     }
   }
@@ -1149,67 +1211,32 @@ export default function Home() {
                 </div>
               </div>
               <div
-                className={`flex flex-col ${
+                className={`flex flex-col  ${
                   showRecommendPage
                     ? "max-h-screen transition-all duration-500"
                     : "max-h-0 transition-all duration-500"
                 } overflow-hidden`}
               >
-                <div className="flex flex-row mt-1">
-                  <div
-                    className="flex px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer mr-5"
-                    style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
-                  >
-                    <Icon
-                      icon="tabler:map-pin-filled"
-                      className="text-lg text-[#828282] mr-1"
-                      height={16}
-                      width={16}
-                    />
-                    <div className="flex kanit text-[#828282] mr-1">
-                      {" "}
-                      ที่ท่องเที่ยว{" "}
-                    </div>
-                    <Icon
-                      icon="icon-park-outline:down-c"
-                      className="text-lg text-[#828282]"
-                      height={16}
-                      width={16}
-                    />
-                  </div>
-                  <div
-                    className="flex px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer"
-                    style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
-                  >
-                    <Icon
-                      icon="lucide:filter"
-                      className="text-lg text-[#828282] mr-1"
-                      height={16}
-                      width={16}
-                    />
-                    <div className="flex kanit text-[#828282]"> ฟิลเตอร์ </div>
-                  </div>
-                </div>
                 <div className="flex mt-2">
                   <Carousel
                     breakPoints={breakPoints}
                     pagination={false}
                     renderArrow={myArrow}
                   >
-                    {mockItems.map((item) => (
+                    {locationRecommend.map((item) => (
                       <RecommendCard
-                        key={item.id}
-                        title={item.title}
-                        type={item.type}
-                        img={item.img}
-                        rating={item.rating}
-                        ratingCount={item.ratingCount}
+                        key={item._id}
+                        title={item.name}
+                        type={item.type[0]}
+                        img={item.imgPath[0]}
+                        rating={item.rating.score}
+                        ratingCount={item.rating.ratingCount}
                       />
                     ))}
                   </Carousel>
                 </div>
               </div>
-              <div className="flex bg-[#F0F0F0] mb-10" />
+              <div className="flex bg-[#F0F0F0] mb-6" />
             </div>
             <div
               className="flex flex-col bg-white pl-5 py-5 mt-2"
@@ -1228,7 +1255,7 @@ export default function Home() {
                     value={planName[currentIndexDate] ?? ""}
                     size={inputTitleWidth}
                     onInput={handleInput}
-                  />
+                  /> 
                   <Icon
                     icon="mdi:pencil"
                     className="text-lg text-[#666666] absolute right-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity duration-200"
@@ -1268,7 +1295,7 @@ export default function Home() {
                 </div>
                 <div
                   className={`flex flex-col w-full overflow-hidden transition-all duration-500 ${
-                    showPlanning ? "max-h-[100000px]" : "max-h-0"
+                    showPlanning ? "max-h-[10000px]" : "max-h-0"
                   }`}
                 >
                   {planningInformationDataList.length >= 0 && locationPlanning.length > 0 && (

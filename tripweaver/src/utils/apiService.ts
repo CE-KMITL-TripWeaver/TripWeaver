@@ -5,6 +5,47 @@ interface planBodyInterface {
   planList: string[];
 }
 
+interface UserTagScore {
+  attractionTagFields: {
+    Tourism: number;
+    Adventure: number;
+    Meditation: number;
+    Art: number;
+    Cultural: number;
+    Landscape: number;
+    Nature: number;
+    Historical: number;
+    Cityscape: number;
+    Beach: number;
+    Mountain: number;
+    Architecture: number;
+    Temple: number;
+    WalkingStreet: number;
+    Market: number;
+    Village: number;
+    NationalPark: number;
+    Diving: number;
+    Snuggle: number;
+    Waterfall: number;
+    Island: number;
+    Shopping: number;
+    Camping: number;
+    Fog: number;
+    Cycling: number;
+    Monument: number;
+    Zoo: number;
+    Waterpark: number;
+    Hiking: number;
+    Museum: number;
+    Riverside: number;
+    NightLife: number;
+    Family: number;
+    Kid: number;
+    Landmark: number;
+    Forest: number;
+  };
+}
+
 export const fetchPlanData = async (planID: string) => {
   const { data } = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/plantrip/getPlan/${planID}`
@@ -191,6 +232,28 @@ export const fetchDistrict = async (provinceName: string) => {
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/province/listDistrict`, {
     provinceName: provinceName
   });
+  return data;
+
+}
+
+export const fetchUserRating = async (userID: string) => {
+
+  const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/userrating/get/${userID}`,);
+  return data;
+
+}
+
+export const fetchRecommendAttraction = async (userID: string,ratingLen: number,attractionTag: UserTagScore) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_REC_API_URL}/recommend-hybrid`, {
+    _id: userID,
+    rating_amount: ratingLen,
+    attractionTagScore: 
+    {
+      attractionTagFields: attractionTag
+    }
+  });
+
   return data;
 
 }

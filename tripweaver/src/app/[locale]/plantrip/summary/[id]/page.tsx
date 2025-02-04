@@ -528,7 +528,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-row gap-x-5">
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
-                      {planData.plan.dayDuration}-Day Trip
+                      {planData.plan.dayDuration+1}-Day Trip
                     </div>
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
                       {planData.plan.travelers}{" "}
