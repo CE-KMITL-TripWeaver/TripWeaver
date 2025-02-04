@@ -187,6 +187,17 @@
       "Tags": "แท็ก",
       "AddTag": "เพิ่มแท็ก",
       "Day": "วัน",
-      "PriceRange": "ช่วงราคา"
+      "PriceRange": "ช่วงราคา",
+      "View": "รายละเอียด",
+      "Approve": "อนุมัติ",
+      "Reject": "ปฏิเสธ",
+      "RequestType": "ประเภทคำขอ",
+      "Date": "วันที่ส่งคำขอ",
+      "Status": "สถานะ",
+      "AllStatus": "คำขอทั้งหมด",
+      "Waiting": "รอดำเนินการ",
+      "Approved": "อนุมัติ",
+      "Rejected": "ปฏิเสธ",
+      "AllCategories": "สถานที่ทั้งหมด"
     }   
 }

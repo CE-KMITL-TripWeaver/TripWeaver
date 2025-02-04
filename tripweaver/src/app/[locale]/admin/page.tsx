@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import NavBar from "../components/NavBar";
 import UserManagementTable from "../components/UserManagementTable";
 import PlaceManagementTable from "../components/PlaceManagementTable";
+import RequestManagementTable from "../components/RequestManagementTable";
 
 const fetchUserData = async () => {
     try {
@@ -61,12 +62,7 @@ const AdminPage = () => {
             return <PlaceManagementTable t={t} />;
         }
         if (activeMenu === "requests") {
-            return (
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h1 className="kanit text-2xl font-bold">{t("Admin.RequestsManagement")}</h1>
-                    <p className="kanit">{t("Admin.NoDataRequests")}</p>
-                </div>
-            );
+            return <RequestManagementTable t={t} />;
         }
         return <div className="kanit">{t("Admin.NoData")}</div>;
     };
