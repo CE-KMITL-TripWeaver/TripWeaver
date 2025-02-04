@@ -143,6 +143,21 @@ const recentBlog = [
   },
 ];
 
+const favoritePlace = [
+  {
+    name: "ลุงโล่ตามสั่ง",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
+    id: 1,
+  },
+  {
+    name: "แหลมพรหมเทพ",
+    image:
+      "https://www.ananda.co.th/blog/thegenc/wp-content/uploads/2024/05/%E0%B8%94%E0%B8%B5%E0%B9%84%E0%B8%8B%E0%B8%99%E0%B9%8C%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%84%E0%B8%94%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD-2024-05-20T120256.309.png",
+    id: 2,
+  },
+];
+
 const Sidebar = ({
   setSelectedContent,
 }: {
@@ -199,6 +214,23 @@ const Sidebar = ({
             </span>
           </div>
         </li>
+        <li className="relative group">
+          <div
+            onClick={() => setSelectedContent("favorite")}
+            className="hover:bg-gray-700 hover:text-white p-2 rounded flex items-center justify-center"
+          >
+            <Icon
+              icon="mdi:heart"
+              width="24"
+              height="24"
+              className="flex-shrink-0"
+            />
+            <span className="kanit text-lg ml-6 transition-opacity duration-300 absolute left-full whitespace-nowrap bg-orange-200 p-2 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:bg-gray-700">
+              สถานที่ที่ชื่นชอบ
+            </span>
+          </div>
+        </li>
+        
         <li className="relative group">
           <div
             onClick={() => setSelectedContent("places")}
@@ -422,6 +454,49 @@ const BlogContent = ({
   </div>
 );
 
+const FavoriteContent = ({
+  tagsList,
+  handleTag,
+}: {
+  tagsList: Tags[];
+  handleTag: (tags: Tags[]) => void;
+}) => (
+  <div className="flex kanit rounded-md mt-8 ml-4">
+    <div className="flex mb-5 mt-[19px] h-fit">
+      <TagCheckBoxComponent tagsList={tagsList} onCheckBoxSelect={handleTag} />
+    </div>
+    <div className="flex flex-col">
+      <div className="flex justify-between items-end">
+        <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
+        <input
+          type="text"
+          placeholder="ค้นหาบล็อกของฉัน"
+          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+        />
+      </div>
+      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
+        {favoritePlace.map((favorite, index) => (
+          <a
+            key={index}
+            href={`#/trip/${favorite.id}`}
+            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+          >
+            <Image
+              src={favorite.image}
+              alt={favorite.name}
+              width={256}
+              height={256}
+              unoptimized
+              className="h-36 rounded-lg"
+            />
+            <div className="flex kanit text-lg mt-3">{favorite.name}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const PlacesContent = () => (
   <div className="flex flex-col ml-4 mt-8">
     <div className="flex kanit font-bold text-2xl mb-4">
@@ -534,6 +609,8 @@ export default function Profile() {
         return (
           <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />
         );
+      case "favorite":
+        return <FavoriteContent tagsList={blogTagsList} handleTag={handleBlogTag} />;
       case "places":
         return <PlacesContent />;
       case "interests":

@@ -5,81 +5,32 @@ import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useTranslations } from "next-intl";
 import SearchComponent from "../components/SearchComponent";
-import CheckBoxComponent from "../components/CheckBoxComponent";
 import GuideTagCheckBoxComponent from "../components/GuideTagCheckBoxComponent";
-import District from "../interface/district";
+import { format } from "date-fns";
 import Tags from "../interface/tags";
 import axios from "axios";
-
-const blogPosts = [
-  {
-    id: 1,
-    title: "เที่ยวภูเก็ต",
-    tags: ["แหล่งท่องเที่ยว", "ธรรมชาติ", "ชายหาด"],
-    excerpt: "This is the excerpt for post 1.",
-    image:
-      "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/1.-%E0%B9%81%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A1%E0%B9%80%E0%B8%97%E0%B8%9E.webp",
-    user: "John Doe",
-    date: "2023-08-01",
-    views: 120,
-    likes: 30,
-  },
-  {
-    id: 2,
-    title: "3 วัน 2 คืน ทริปภูเก็ต",
-    tags: ["ถนนคนเดิน", "วัฒนธรรม", "อาหาร"],
-    excerpt: "This is the excerpt for post 2.",
-    image:
-      "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/2.-%E0%B9%80%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%87%E0%B9%80%E0%B8%81%E0%B9%88%E0%B8%B2%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95.webp",
-    user: "Tom Smith",
-    date: "2023-08-02",
-    views: 150,
-    likes: 45,
-  },
-  {
-    id: 3,
-    title: "กินลมชมวิวที่ภูเก็ต",
-    tags: ["ภูเขา", "วัด", "อาหาร"],
-    excerpt: "This is the excerpt for post 3.",
-    image:
-      "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/4.-%E0%B8%88%E0%B8%B8%E0%B8%94%E0%B8%8A%E0%B8%A1%E0%B8%A7%E0%B8%B4%E0%B8%A7-%E0%B8%9C%E0%B8%B2%E0%B8%AB%E0%B8%B4%E0%B8%99%E0%B8%94%E0%B9%8D%E0%B8%B2.webp",
-    user: "Ying Lee",
-    date: "2023-08-03",
-    views: 200,
-    likes: 60,
-  },
-  {
-    id: 4,
-    title: "เที่ยวสายธรรม ณ ภูเก็ต",
-    tags: ["ประวัติศาสตร์", "วัฒนธรรม", "วัด"],
-    excerpt: "This is the excerpt for post 4.",
-    image:
-      "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/5.-%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%89%E0%B8%A5%E0%B8%AD%E0%B8%87.webp",
-    user: "golf1245",
-    date: "2023-08-04",
-    views: 180,
-    likes: 50,
-  },
-  {
-    id: 5,
-    title: "ภูเก็ตรวมชายหาด",
-    tags: ["ชายหาด", "ธรรมชาติ"],
-    excerpt: "This is the excerpt for post 5.",
-    image:
-      "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/6.-%E0%B8%AB%E0%B8%B2%E0%B8%94%E0%B8%9B%E0%B9%88%E0%B8%B2%E0%B8%95%E0%B8%AD%E0%B8%87.webp",
-    user: "harrypotter",
-    date: "2023-08-05",
-    views: 220,
-    likes: 70,
-  },
-];
 
 export default function Home() {
   const t = useTranslations();
 
+  interface BlogData {
+    _id: string;
+    blogName: string;
+    blogImage: string;
+    blogCreator: string;
+    blogViews: number;
+    blogLikes: number;
+    description: string;
+    tags: string[];
+    createdAt: string;
+  }
+
   const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
 
   const [tagsList, setTagList] = useState<Tags[]>([]);
+  const [blogList, setBlogList] = useState<BlogData[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [maxPage, setMaxPage] = useState<number>(1);
 
   const handleProvinceSelect = (province: string) => {
     setSelectedProvince(province);
@@ -92,6 +43,17 @@ export default function Home() {
   const fetchBlogAllData = async () => {
     const {data} = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog`);
     console.log(data);
+    setBlogList(data.map((blog: BlogData) => ({
+      _id: blog._id,
+      blogName: blog.blogName,
+      blogImage: blog.blogImage,
+      blogCreator: blog.blogCreator,
+      blogViews: blog.blogViews,
+      blogLikes: blog.blogLikes,
+      description: blog.description,
+      tags: blog.tags,
+      createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd HH:mm"),
+    })));
   };
 
   useEffect(() => {
@@ -141,19 +103,19 @@ export default function Home() {
           </div>
           <h1 className="kanit text-xl font-bold mb-2 ">บล็อกมาแรง</h1>
           <div className="kanit grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {blogPosts.slice(0, 5).map((post) => (
+            {blogList.slice(0, 5).map((post) => (
               <div
-                key={post.id}
+                key={post._id}
                 className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
               >
-                <a href={`/blog/post/${post.id}`}>
+                <a href={`/blog/post/${post._id}`}>
                   <Image
-                    src={post.image}
-                    alt={post.title}
+                    src={post.blogImage}
+                    alt={post.blogName}
                     width={300}
-                    height={150}
+                    height={100}
                     unoptimized
-                    className="rounded-lg"
+                    className="rounded-lg w-[100%] h-[200px]"
                   />
                   <div className="flex gap-2 mt-2">
                     {post.tags.map((tag) => (
@@ -165,20 +127,20 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  <h2 className="text-2xl font-bold mt-4">{post.title}</h2>
-                  <p className="text-gray-600 mt-2">{post.excerpt}</p>
-                  <span className="text-gray-500">{post.date}</span>
+                  <h2 className="text-2xl font-bold mt-4 overflow-hidden text-ellipsis whitespace-nowrap">{post.blogName}</h2>
+                  <p className="text-gray-600 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">{post.description}</p>
+                  <span className="text-gray-500">{post.createdAt}</span>
                   <div className="flex items-center gap-x-4">
                     <div className="flex items-center gap-x-1">
                       <Icon icon="mdi:eye-outline" className="text-gray-500" />
-                      <span className="text-gray-500">{post.views}</span>
+                      <span className="text-gray-500">{post.blogViews}</span>
                     </div>
                     <div className="flex items-center gap-x-1">
                       <Icon
                         icon="mdi:heart-outline"
                         className="text-gray-500"
                       />
-                      <span className="text-gray-500">{post.likes}</span>
+                      <span className="text-gray-500">{post.blogLikes}</span>
                     </div>
                   </div>
                 </a>
@@ -200,16 +162,16 @@ export default function Home() {
             <div className="flex flex-col w-[85%] ml-8">
               <h1 className="kanit text-xl font-bold mb-2 pt-8">บล็อกใหม่</h1>
               <div className="flex flex-col gap-y-2">
-                {[...blogPosts].reverse().map((post) => (
+                {[...blogList].reverse().map((post) => (
                   <div
-                    key={post.id}
+                    key={post._id}
                     className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
                   >
-                    <a href={`/blog/post/${post.id}`}>
+                    <a href={`/blog/post/${post._id}`}>
                       <div className="flex">
                         <Image
-                          src={post.image}
-                          alt={post.title}
+                          src={post.blogImage}
+                          alt={post.blogName}
                           width={200}
                           height={100}
                           unoptimized
@@ -218,7 +180,7 @@ export default function Home() {
                         <div className="kanit ml-4 flex flex-col justify-between">
                           <div>
                             <h2 className="text-2xl font-bold mt-4">
-                              {post.title}
+                              {post.blogName}
                             </h2>
                             <div className="flex gap-2 mt-2">
                               {post.tags.map((tag) => (
@@ -230,10 +192,10 @@ export default function Home() {
                                 </span>
                               ))}
                             </div>
-                            <p className="text-gray-600 mt-2">{post.excerpt}</p>
+                            <p className="text-gray-600 mt-2">{post.description}</p>
                           </div>
                           <div className="flex items-center mt-4">
-                            <span className="text-gray-500">{post.date}</span>
+                            <span className="text-gray-500">{post.createdAt}</span>
                             <div className="flex items-center gap-x-4 ml-4">
                               <div className="flex items-center gap-x-1">
                                 <Icon
@@ -241,7 +203,7 @@ export default function Home() {
                                   className="text-gray-500"
                                 />
                                 <span className="text-gray-500">
-                                  {post.views}
+                                  {post.blogViews}
                                 </span>
                               </div>
                               <div className="flex items-center gap-x-1">
@@ -250,7 +212,7 @@ export default function Home() {
                                   className="text-gray-500"
                                 />
                                 <span className="text-gray-500">
-                                  {post.likes}
+                                  {post.blogLikes}
                                 </span>
                               </div>
                             </div>

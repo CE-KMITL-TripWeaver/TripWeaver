@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import Select from 'react-select';
 import ImageResize from 'tiptap-extension-resize-image';
 import { t } from "i18next";
+import { useRouter } from "next/navigation";
 
 const tagsList = [
   "แหล่งท่องเที่ยว",
@@ -63,6 +64,7 @@ const CreateBlogPost = () => {
   const [content, setContent] = useState("");
   const [tagselect, setTagselect] = useState<string[]>([]);
   const [blogImage, setBlogImage] = useState<string | null>(null);
+  const router = useRouter();
 
   const editor = useEditor({
     extensions: [
@@ -164,6 +166,7 @@ const CreateBlogPost = () => {
 
       if (response.status === 201) {
         console.log("Blog post created:", responseData);
+        router.push(`/blog/post/${responseData.BlogID}`);
       }
     } catch (error) {
       console.error("Error creating blog post:", error);
@@ -208,7 +211,7 @@ const CreateBlogPost = () => {
 
         <div>
           <label htmlFor="blogImage" className="block text-lg font-medium mb-2">
-            อัปโหลดรูปภาพบล็อก
+            อัปโหลดรูปภาพหน้าปกบล็อก
           </label>
           <input
             type="file"

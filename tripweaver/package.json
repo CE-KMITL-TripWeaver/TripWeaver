@@ -20,6 +20,7 @@
     "@tiptap/react": "^2.11.2",
     "@tiptap/starter-kit": "^2.11.0",
     "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
     "i18next": "^23.15.1",
     "mongodb": "^6.13.0",
     "mongoose": "^8.6.0",
