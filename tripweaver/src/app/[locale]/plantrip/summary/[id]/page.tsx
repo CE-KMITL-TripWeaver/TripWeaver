@@ -143,17 +143,22 @@ export default function Home() {
 
       const formattedPlanData: PlanSummaryInterface[] = planData.plan.plans.map((plan: planInterface, index: number) => ({
         accommodations: {
-          accommodationID: planData.plan.accommodations[index]?.accommodationID || "", 
+          accommodationID: planData.plan.accommodations?.[index]?.accommodationID || "", 
         },
         plans: {
           planName: plan.planName || "",  
-          places: plan.places.map(place => ({
+          places: plan.places?.map(place => ({
             placeID: place.placeID || "", 
             type: place.type || "",  
             duration: place.duration || 0, 
           })) || [],
         },
-      }));
+    }));
+    
+/*
+      console.log(planData);
+      console.log("--------------")
+      console.log(formattedPlanData);*/
 
       setTripLocation(formattedPlanData);
 
@@ -481,6 +486,7 @@ export default function Home() {
     router.push(`/plantrip?planID=${planID}`);
   };
 
+
   const handleCopyTrip = () => {
     console.log("-----START COPY-----")
     console.log(tripLocation);
@@ -492,6 +498,16 @@ export default function Home() {
     setIsModalOpen(false);
     
   };
+
+  const handleClickLocationDetails = (locationID: string,locationType: string) => {
+    if(locationType === "ATTRACTION") {
+      router.push(`/th/attraction_detail/${locationID}`)
+    } else if(locationType === "RESTAURANT") {
+      router.push(`/th/restaurant_detail/${locationID}`)
+    } else {
+      router.push(`/th/accommodation_detail/${locationID}`)
+    }
+  }
 
   if (isPlanLoading || isUserDataLoading || isAllDataLoading) {
     return <div>Loading...</div>;
@@ -528,7 +544,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-row gap-x-5">
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
-                      {planData.plan.dayDuration}-Day Trip
+                      {planData.plan.dayDuration+1}-Day Trip
                     </div>
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
                       {planData.plan.travelers}{" "}
@@ -582,7 +598,7 @@ export default function Home() {
               {
                 tripLocation.map((data,index) => (
                   <div className="flex w-full h-full" key={index} >
-                     <TripCard dayIndex={index+1} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
+                     <TripCard dayIndex={index+1} handleClickLocationDetails={handleClickLocationDetails} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
                   </div> 
                 ))
               }

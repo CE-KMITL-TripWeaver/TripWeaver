@@ -36,8 +36,6 @@ const CopyTripModal: React.FC<CopyTripModalsProps> = ({ isOpen, onClose, tripLoc
       
       const timeDifference = (dateRange[0].endDate.getTime() - dateRange[0].startDate.getTime()) / (1000 * 3600 * 24);
 
-      console.log(timeDifference)
-
       if (timeDifference + 1 < tripLocation.length) {
         setErrorMessage(`แพลนการท่องเที่ยวดังกล่าวไม่น้อยกว่า ${tripLocation.length} วัน`);
         return;

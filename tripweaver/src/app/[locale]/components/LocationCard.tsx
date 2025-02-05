@@ -6,27 +6,26 @@ interface LocationCard {
   placeID: string;
   placeName: string;
   placeImage: string;
+  placeType: string;
+  handleClickViewDetails: (placeID: string,locationType: string) => void;
   onClickAddTrip: (tripID: string) => void;
 }
 
 export default function LocationCard({
     placeID,
     placeName,
+    placeType,
+    handleClickViewDetails,
     placeImage,
     onClickAddTrip
   }: LocationCard) {
-
-    const handleClickViewDetails = (placeID: string) => {
-        console.log("Navigate to",placeID);
-    }
-
 
     return (
         <>
             <div className="flex relative w-full h-full flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
                 (e) => {
                   e.stopPropagation();
-                  handleClickViewDetails(placeID)}}
+                  handleClickViewDetails(placeID,placeType)}}
             >
                 <div 
                 className={`flex absolute bg-cover bg-center w-full h-full rounded-xl group-hover:scale-110 transition-all duration-300`} 

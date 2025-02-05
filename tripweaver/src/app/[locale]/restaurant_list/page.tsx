@@ -163,6 +163,17 @@ export default function Home() {
         setCurrentPage(1);
     }, [selectedProvince, selectedDistrict, facilityList, typesList, ratingCheckData,selectedMarkRadiusRestaurant,selectedMarkRadiusValue]);
 
+
+    const handleClickViewDetails = (locationID: string,locationType: string) => {
+        if(locationType === "ATTRACTION") {
+          router.push(`/th/attraction_detail/${locationID}`)
+        } else if(locationType === "RESTAURANT") {
+          router.push(`/th/restaurant_detail/${locationID}`)
+        } else {
+          router.push(`/th/accommodation_detail/${locationID}`)
+        }
+      }
+
     useEffect(() => {
         if (restaurantDataFromFilter) {
 
@@ -374,6 +385,8 @@ export default function Home() {
                                         placeID={location._id}
                                         placeName={location.name}
                                         onClickAddTrip={handleAddTrip}
+                                        handleClickViewDetails={handleClickViewDetails}
+                                        placeType="RESTAURANT"
                                     />
                                 </div>
                             ))

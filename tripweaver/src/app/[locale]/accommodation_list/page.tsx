@@ -350,6 +350,17 @@ export default function Home() {
         setIsDropdownPlanOpen(isOpen);
     }
 
+    
+    const handleClickViewDetails = (locationID: string,locationType: string) => {
+        if(locationType === "ATTRACTION") {
+          router.push(`/th/attraction_detail/${locationID}`)
+        } else if(locationType === "RESTAURANT") {
+          router.push(`/th/restaurant_detail/${locationID}`)
+        } else {
+          router.push(`/th/accommodation_detail/${locationID}`)
+        }
+      }
+
     if (status === "unauthenticated") {
         redirect("/login");
     }
@@ -409,6 +420,8 @@ export default function Home() {
                                         placeID={location._id}
                                         placeName={location.name}
                                         onClickAddTrip={handleAddTrip}
+                                        handleClickViewDetails={handleClickViewDetails}
+                                        placeType="ACCOMMODATION"
                                     />
                                 </div>
                             ))

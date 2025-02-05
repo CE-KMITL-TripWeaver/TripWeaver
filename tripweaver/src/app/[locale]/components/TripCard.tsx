@@ -16,6 +16,7 @@ interface TripCardProps {
   tripData: TripCardInterface;
   dataTravel: PlanningInformationDataInterface[];
   setOpenIndex: (index: number | null) => void;
+  handleClickLocationDetails: (locationID: string,locationType: string) => void;
   onClickLocationInfo: (location: AttractionData | RestaurantData | AccommodationData) => void;
 }
 
@@ -26,10 +27,11 @@ const TripCard: React.FC<TripCardProps> = ({
   openIndex,
   dataTravel,
   setOpenIndex,
-  onClickLocationInfo
+  onClickLocationInfo,
+  handleClickLocationDetails
 }) => {
   const isOpen = openIndex === dayIndex - 1;
-
+  
   return (
     <>
       {plans && (
@@ -40,7 +42,6 @@ const TripCard: React.FC<TripCardProps> = ({
           <div className="flex flex-col w-full cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            console.log("Click2");
             setOpenIndex(isOpen ? null : dayIndex - 1)
           }}>
           <div className="flex flex-row justify-between">
@@ -73,32 +74,33 @@ const TripCard: React.FC<TripCardProps> = ({
             }`}
           >
             {tripData &&
-              dataTravel &&
               tripData.location.map((data, index) => (
                 <div className="flex" key={index}>
                   <TripCardElement
                     index={index}
                     location={data}
+                    locationType={plans.plans.places[index].type}
                     stayDuration={plans.plans.places[index].duration}
-                    travelTime={dataTravel[index].timeTravel}
-                    locationDistance={dataTravel[index].rangeBetween}
+                    travelTime={dataTravel ? dataTravel[index].timeTravel : 0}
+                    locationDistance={dataTravel ? dataTravel[index].rangeBetween : 0}
                     onClickLocationInfo={onClickLocationInfo}
+                    handleClickLocationDetails={handleClickLocationDetails}
                   />
                 </div>
               ))}
             {tripData &&
-              dataTravel &&
-              tripData.accommodation &&
-              dataTravel[tripData.location.length] && (
+              tripData.accommodation && (
                 <div className="flex" key={tripData.accommodation._id}>
                   <TripCardElement
                     index={tripData.location.length}
                     location={tripData.accommodation}
-                    travelTime={dataTravel[tripData.location.length].timeTravel}
+                    travelTime={(dataTravel && dataTravel[tripData.location.length]) ? dataTravel[tripData.location.length].timeTravel : 0}
                     locationDistance={
-                      dataTravel[tripData.location.length].rangeBetween
+                      (dataTravel && dataTravel[tripData.location.length]) ? dataTravel[tripData.location.length].rangeBetween : 0
                     }
+                    locationType={"ACCOMMODATION"}
                     onClickLocationInfo={onClickLocationInfo}
+                    handleClickLocationDetails={handleClickLocationDetails}
                   />
                 </div>
               )}
