@@ -1267,7 +1267,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-center">
                   <button
-                    className="flex kanit -mt-1 font-normal border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 focus:outline-none focus:ring-gray-300 transition"
+                    className="flex kanit -mt-1 font-normal border border-gray-300 bg-[#fd8433]  text-white rounded-md px-4 py-2 hover:bg-[#f59c60] focus:outline-none transition"
                     onClick={handleClickAutoPlan}
                   >
                     จัดเส้นทางอัติโนมัติ
