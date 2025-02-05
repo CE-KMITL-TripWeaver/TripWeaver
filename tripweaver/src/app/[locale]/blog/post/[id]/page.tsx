@@ -4,7 +4,9 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import NavBar from "@/app/[locale]/components/NavBar";
 import { useTranslations } from "next-intl";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
+import { format } from "date-fns";
 export default function BlogPost() {
   const { id } = useParams();
   const t = useTranslations();
@@ -13,6 +15,7 @@ export default function BlogPost() {
     blogImage: string;
     description: string;
     content: string;
+    createdAt: string;
     tags: string[];
   }
 
@@ -21,13 +24,23 @@ export default function BlogPost() {
 
     if (!viewedBlogs.includes(id)) {
       try {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/updateView`, { blogId: id });
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/updateView`, {
+          blogId: id,
+        });
         viewedBlogs.push(id);
         localStorage.setItem("viewedBlogs", JSON.stringify(viewedBlogs));
       } catch (error) {
         console.error("Error updating blog view count:", error);
       }
     }
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    }).format(date);
   };
 
   const [blogData, setBlogData] = useState<BlogData>();
@@ -37,7 +50,8 @@ export default function BlogPost() {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog/${id}`
       );
-      setBlogData(data.blog);
+      (data.blog.createdAt = formatDate(new Date(data.blog.createdAt))),
+        setBlogData(data.blog);
     } catch (error) {
       console.error("Error fetching blog data:", error);
     }
@@ -59,7 +73,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
+    <div className="flex flex-col bg-[#F4F4F4] w-full h-full kanit">
       <NavBar />
       <div className="flex px-20 mt-10 flex-col">
         <div className="flex flex-row text-lg">
@@ -81,9 +95,20 @@ export default function BlogPost() {
               </span>
             ))}
           </div>
+          <div className="pt-4 flex flex-row items-center space-x-2">
+            <Icon icon="mdi:calendar" className="text-gray-500 mr-1" />
+            {blogData.createdAt}
+          </div>
           <div className="pt-8">{blogData.description}</div>
+          <div>
+            <img
+              src={blogData.blogImage}
+              alt="blog"
+              className="w-auto h-[500px] object-cover rounded-lg mx-auto"
+            />
+          </div>
           <div
-            className="pt-4"
+            className="pt-4 text-xl"
             dangerouslySetInnerHTML={{ __html: blogData.content }}
           />
         </div>

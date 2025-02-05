@@ -110,6 +110,14 @@ export default function Home() {
           throw error;
         }
       };
+
+      const formatDate = (date: Date) => {
+        return new Intl.DateTimeFormat("th-TH", {
+          day: "numeric",
+          month: "short",
+          year: "2-digit",
+        }).format(date);
+      }
     
 
   useEffect(() => {
@@ -146,7 +154,7 @@ export default function Home() {
                     blogLikes: blog.blogLikes,
                     description: blog.description,
                     tags: blog.tags,
-                    createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd"),
+                    createdAt: formatDate(new Date(blog.createdAt)),
                   }))
                 );
               setMaxPage(blogDataFromFilter.totalPages);
@@ -167,7 +175,7 @@ export default function Home() {
                 blogLikes: blog.blogLikes,
                 description: blog.description,
                 tags: blog.tags,
-                createdAt: format(new Date(blog.createdAt), "yyyy-MM-dd"),
+                createdAt: formatDate(new Date(blog.createdAt)),
               }))
             );
           } catch (error) {
@@ -201,7 +209,7 @@ export default function Home() {
               <a href="http://localhost:3000/th/blog/create">สร้างบล็อก</a>
             </button>
           </div>
-          <h1 className="kanit text-xl font-bold mb-2 ">บล็อกมาแรง</h1>
+          <h1 className="kanit text-2xl font-bold mb-2 ">บล็อกยอดนิยม</h1>
           <div className="kanit grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {popularBlogList.slice(0, 5).map((post) => (
               <div
@@ -251,14 +259,14 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="flex flex-row mb-20">
+          <div className="flex flex-row mb-4">
             <div className="flex flex-col w-[15%]">
-              <div className="flex kanit text-center text-xl font-bold mb-2 pt-8">
+              <div className="flex kanit text-center text-2xl font-bold mb-2 pt-8">
                 {t("AttractionPages.filter")}
               </div>
               <div className="flex mb-5 ">
                 <TagCheckBoxComponent
-                  maxHeight={910}
+                  maxHeight={735}
                   element={tagsList}
                   translationTagTitle={"AttractionPages.title_tags"}
                   onCheckBoxSelect={handleTag}
@@ -267,22 +275,22 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col w-[85%] ml-8">
-              <h1 className="kanit text-xl font-bold mb-2 pt-8">บล็อกใหม่</h1>
+              <h1 className="kanit text-2xl font-bold mb-2 pt-8">บล็อกใหม่</h1>
               <div className="flex flex-col gap-y-2">
                 {blogList.map((post) => (
                   <div
                     key={post._id}
-                    className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+                    className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200 h-[193px] "
                   >
                     <a href={`/blog/post/${post._id}`}>
                       <div className="flex">
                         <Image
                           src={post.blogImage}
                           alt={post.blogName}
-                          width={200}
+                          width={240}
                           height={100}
                           unoptimized
-                          className="rounded-lg"
+                          className="rounded-lg h-[100%] my-auto"
                         />
                         <div className="kanit ml-4 flex flex-col justify-between">
                           <div>
@@ -336,7 +344,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="flex px-20 justify-end w-full h-full mb-5 mt-2">
+          <div className="flex justify-end w-full h-full mb-5 px-4">
             <PaginationComponent
               currentPage={currentPage}
               maxPage={maxPage}

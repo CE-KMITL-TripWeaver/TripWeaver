@@ -16,6 +16,7 @@ import ImageResize from "tiptap-extension-resize-image";
 import { t } from "i18next";
 import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
+import BlogDropzoneModal from "../../components/modals/BlogDropzoneModal";
 
 const tagsList = [
   "แหล่งท่องเที่ยว",
@@ -52,12 +53,10 @@ const formSchema = z.object({
     .max(100, { message: "Title must be less than 100 characters" }),
   description: z
     .string()
-    .min(5, { message: "Description must be at least 5 characters long" })
-    .max(256, { message: "Description must be less than 256 characters" }),
+    .max(256, { message: "Description must be less than 350 characters" }),
   tags: z
     .array(z.string())
-    .nonempty({ message: "At least one tag is required" }),
-  trip: z.string().url({ message: "Trip link must be a valid URL" }),
+    .nonempty({ message: "At least one tag is required" })
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -195,7 +194,7 @@ const CreateBlogPost = () => {
       }
     }
   };
-
+  
   const handleTagRemove = (tagToRemove: string) => {
     const newTags = tagselect.filter((tag) => tag !== tagToRemove);
     setTagselect(newTags);
@@ -224,7 +223,6 @@ const CreateBlogPost = () => {
               </p>
             )}
           </div>
-
           <div>
             <label
               htmlFor="blogImage"
@@ -451,20 +449,6 @@ const CreateBlogPost = () => {
             </div>
             {errors.tags && (
               <p className="text-red-500 mt-2 text-sm">{errors.tags.message}</p>
-            )}
-          </div>
-          <div>
-            <label htmlFor="trip" className="block text-lg font-medium mb-2">
-              ทริปของคุณ
-            </label>
-            <input
-              id="trip"
-              {...register("trip")}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-orange-400"
-              placeholder="ใส่ลิงค์ทริปของคุณ"
-            />
-            {errors.trip && (
-              <p className="text-red-500 mt-2 text-sm">{errors.trip.message}</p>
             )}
           </div>
 

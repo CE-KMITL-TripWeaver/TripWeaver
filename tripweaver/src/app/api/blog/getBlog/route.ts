@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
         const { provinceName, tagLists, page } = await req.json();
         await connectMongoDB();
 
-        const pageSize = 5;
+        const pageSize = 4;
         const skip = (page - 1) * pageSize;
 
         if (!page) {
