@@ -8,17 +8,20 @@ interface Location {
   }
   
   interface MapUpdaterProps {
-    locationPlaning: Location[];
+    locationPlanning: Location[];
   }
 
-export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlaning }) => {
+export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlanning }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (locationPlaning.length === 1) {
-      map.flyTo([locationPlaning[0].latitude, locationPlaning[0].longitude], 14);
+    if(!locationPlanning) {
+      return;
     }
-  }, [locationPlaning, map]);
+    if (locationPlanning.length === 1) {
+      map.flyTo([locationPlanning[0].latitude, locationPlanning[0].longitude], 14);
+    }
+  }, [locationPlanning, map]);
 
   return null;
 };

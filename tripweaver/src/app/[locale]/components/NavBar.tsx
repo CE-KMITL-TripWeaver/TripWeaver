@@ -66,7 +66,7 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Link href="/plantrip" passHref>
+          <Link href="/plantrip/create" passHref>
             <button className="kanit font-bold text-black py-2 px-4">
               {t('Navbar.createTrip')}
             </button>

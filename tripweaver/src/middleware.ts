@@ -7,7 +7,6 @@ const intlMiddleware = createMiddleware(routing, {
 });
 
 export default function middleware(req: NextRequest) {
-    console.log(req.nextUrl.pathname);
 
     if (req.nextUrl.pathname.startsWith('/api') || req.nextUrl.pathname.startsWith('/_next/')) {
         

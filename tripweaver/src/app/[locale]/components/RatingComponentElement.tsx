@@ -31,13 +31,13 @@ export default function RatingComponentElement({ ratingObject, checked, onClick 
                 className="kanit w-full ms-2 text-sm font-medium rounded text-black cursor-pointer"
             >
                 <div className="flex w-full flex-row">
-                    <div className="flex items-center flex-[10%]">
+                    <div className="flex items-center w-[10%]">
                         {ratingObject.star}
                     </div>
-                    <div className="flex items-center flex-[20%]">
+                    <div className="flex items-center w-[30%]">
                         ({ratingObject.count})
                     </div>
-                    <div className="flex items-center flex-[70%]">
+                    <div className="flex items-center w-[60%]">
                         {stars}
                     </div>
                 </div>

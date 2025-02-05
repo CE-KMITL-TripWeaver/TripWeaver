@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import ClientSessionProvider from "./provider/ClientSessionProvider";
+import QueryProvider from "./provider/ReactQueryProvider";
 import './globals.css';
 import { Kanit } from 'next/font/google';
 
@@ -24,9 +25,11 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${kanit.variable}`}>
         <ClientSessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
+          <QueryProvider>
+            <NextIntlClientProvider messages={messages}>
+              {children}
+            </NextIntlClientProvider>
+          </QueryProvider>
         </ClientSessionProvider>
       </body>
     </html>
