@@ -281,7 +281,7 @@ export default function Home() {
       const fetchData = async () => {
         try {
           const response = await Promise.all(
-            recommendLocation.res_recommendation.slice(0, 10).map(async (placeID: string) => {
+            recommendLocation.res_recommendation.sort(() => Math.random() - 0.5).slice(0, 10).map(async (placeID: string) => {
               return fetchAttractionData(placeID).then((data) => data.attraction);
             })
           );
