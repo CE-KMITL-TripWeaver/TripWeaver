@@ -29,7 +29,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 planList: user.planList,
                 likePlanList: user.likePlanList,
                 favoritePlaces: user.favoritePlaces,
-                planList: user.planList,
                 attractionTagScore: user.attractionTagScore,
                 createdAt: user.createdAt,
             });
