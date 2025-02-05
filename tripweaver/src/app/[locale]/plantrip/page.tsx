@@ -14,8 +14,18 @@ import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
 import { useTranslations } from "next-intl";
+import ScrollLocationCard from "../components/ScrollLocationCard";
 import { useQuery } from "react-query";
-import { fetchPlanData, fetchUserData, fetchAllData, updateUserPlans, fetchRecommendAttraction, fetchUserRating, fetchAttractionData} from "@/utils/apiService";
+import {
+  fetchPlanData,
+  fetchUserData,
+  fetchAllData,
+  updateUserPlans,
+  fetchRecommendAttraction,
+  fetchUserRating,
+  fetchAttractionData,
+  fetchAttractionRecommend,
+} from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
 import DropzoneModal from "../components/modals/DropzoneModal";
 
@@ -27,7 +37,7 @@ import "leaflet/dist/leaflet.css";
 import { decode as decodePolyline } from "@mapbox/polyline";
 import { MapUpdater } from "../components/MapUpdater";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import AttractionData from "../interface/attraction";
 import RestaurantData from "../interface/restaurant";
 
@@ -69,11 +79,13 @@ interface accommodationPlanInterface {
 
 interface planInterface {
   planName: string;
-  places: [{
-    placeID: string,
-    type: string,
-    duration: number
-  }]
+  places: [
+    {
+      placeID: string;
+      type: string;
+      duration: number;
+    }
+  ];
 }
 
 interface modalEditorProps {
@@ -87,52 +99,12 @@ interface MyArrowProps {
   isEdge: boolean;
 }
 
-const mockItems = [
-  {
-    id: 1,
-    title: "item #1",
-    type: "ทะเล ชายหาด",
-    rating: 3.9,
-    ratingCount: 9556,
-    img: "/images/sea-01.jpg",
-  },
-  {
-    id: 2,
-    title: "item #2",
-    type: "ทะเล ชายหาด",
-    rating: 3.8,
-    ratingCount: 6521,
-    img: "/images/sea-01.jpg",
-  },
-  {
-    id: 3,
-    title: "item #3",
-    type: "ทะเล ชายหาด",
-    rating: 3.9,
-    ratingCount: 3648,
-    img: "/images/sea-01.jpg",
-  },
-  {
-    id: 4,
-    title: "item #4",
-    type: "ทะเล ชายหาด",
-    rating: 4.1,
-    ratingCount: 5468,
-    img: "/images/sea-01.jpg",
-  },
-  {
-    id: 5,
-    title: "item #5",
-    type: "ทะเล ชายหาด",
-    rating: 4.2,
-    ratingCount: 5696,
-    img: "/images/sea-01.jpg",
-  },
-];
 
 export default function Home() {
+  
   const searchParams = useSearchParams();
   const planID = searchParams.get("planID");
+  const router = useRouter();
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString("th-TH", {
@@ -141,17 +113,18 @@ export default function Home() {
       year: "2-digit",
     });
 
-
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [travelers, setTravelers] = useState<number>(0);
-  const [dateRangeFormatted, setDateRangeFormatted] = useState<string>('');
+  const [dateRangeFormatted, setDateRangeFormatted] = useState<string>("");
   const [planDuration, setPlanDuration] = useState<number>(0);
+  const [scrollPage, setScrollPage] = useState<number>(1);
   const [planDateObject, setPlanDateObject] = useState<string[]>([]);
 
   const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
   const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
     useState(false);
   const searchPlacesRef = useRef<HTMLDivElement>(null);
+  const selectLocationTypeRef = useRef<HTMLDivElement>(null);
   const searchAccommodationRef = useRef<HTMLDivElement>(null);
 
   const { data: session, status } = useSession();
@@ -159,7 +132,7 @@ export default function Home() {
   const [waypoints, setWaypoints] = useState<number[][]>([]);
   const [planningInformationDataList, setPlanningInformationDataList] =
     useState<planningInformationData[]>([]);
-    const [accommodationData, setAccommodationData] = useState<
+  const [accommodationData, setAccommodationData] = useState<
     (AccommodationData | null)[]
   >([]);
   const [locationPlanning, setLocationPlanning] = useState<
@@ -168,23 +141,34 @@ export default function Home() {
   const [placesStayDurationList, setPlacesStayDurationList] = useState<
     planningPlacesDuration[][]
   >([]);
-  const [locationRecommend, setLocationRecommend] = useState<
-  (AttractionData)[]
-  >([]);
+  const [locationRecommend, setLocationRecommend] = useState<AttractionData[]>(
+    []
+  );
+  const scrollbarRef = useRef(null);
+  const [isAllLocationPageOpen, setIsAllLocationPageOpen] =
+    useState<boolean>(false);
+  const [isDropDownSelectLocationOpen, setIsDropDownSelectLocationOpen] =
+    useState<boolean>(false);
+  const [filterLocationType, setFilterLocationType] =
+    useState<string>("ที่ท่องเที่ยว");
 
   const [showRecommendPage, setShowRecommendPage] = useState<boolean>(true);
   const [showPlanning, setShowPlanning] = useState<boolean>(true);
-  const [showUploadImageModal, setShowUploadImageModal] = useState<boolean>(false);
+  const [showUploadImageModal, setShowUploadImageModal] =
+    useState<boolean>(false);
   const [showAccommodation, setShowAccommodation] = useState<boolean>(true);
   const [inputTitleWidth, setInputTitleWidth] = useState(0);
   const inputTitle = useRef<HTMLInputElement | null>(null);
   const [selectedLocationInfo, setSelectedLocationInfo] = useState<
-    AttractionData | RestaurantData | null
+    AttractionData | RestaurantData | AccommodationData | null
   >(null);
 
   const [planName, setPlanName] = useState<(string | undefined)[]>([]);
   const [searchPlace, setSearchPlace] = useState<string>("");
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
+  const [attractionScrollList, setAttractionScrollList] = useState<
+    AttractionData[]
+  >([]);
 
   const [filteredAccomodations, setFilteredAccommodations] = useState<
     AccommodationData[]
@@ -214,7 +198,7 @@ export default function Home() {
   const planDurationRef = useRef<planningPlacesDuration[][]>(
     placesStayDurationList
   );
-  const dataSaveRef = useRef<boolean>(isDataSaved);
+  const dataSaveRef = useRef<boolean>(true);
   const planNameRef = useRef<(string | undefined)[]>(planName);
 
   const {
@@ -223,7 +207,7 @@ export default function Home() {
     isError: isPlanError,
   } = useQuery(["planData", planID], () => fetchPlanData(planID!), {
     enabled: !!planID,
-    retry: 0
+    retry: 0,
   });
 
   /*const {
@@ -268,36 +252,64 @@ export default function Home() {
     isError: isRecommendLocationError,
   } = useQuery(
     ["RecommendLocation", session?.user?.id, userPlans, userRating],
-    () => fetchRecommendAttraction(session?.user?.id!,userRating.rating.length,userPlans.attractionTagScore.attractionTagFields),
+    () =>
+      fetchRecommendAttraction(
+        session?.user?.id!,
+        userRating.rating.length,
+        userPlans.attractionTagScore.attractionTagFields
+      ),
     {
-      enabled: !!session?.user?.id && !! userPlans && !! userRating,
+      enabled: !!session?.user?.id && !!userPlans && !!userRating,
+    }
+  );
+
+  const {
+    data: attractionScrollData,
+    isLoading: isAttractionScrollDataLoading,
+    isError: isAttractionScrollDataError,
+  } = useQuery(
+    ["attractionScrollData", recommendLocation, scrollPage],
+    () =>
+      fetchAttractionRecommend(
+        recommendLocation.res_recommendation,
+        scrollPage
+      ),
+    {
+      enabled: !!session?.user?.id && !!recommendLocation && !!scrollPage,
     }
   );
 
   useEffect(() => {
+    if (attractionScrollData) {
+      setAttractionScrollList(attractionScrollData.attractions);
+    }
+  }, [attractionScrollData]);
+
+  useEffect(() => {
     if (recommendLocation) {
-  
-      // ใช้ async function ใน useEffect
       const fetchData = async () => {
         try {
           const response = await Promise.all(
-            recommendLocation.res_recommendation.sort(() => Math.random() - 0.5).slice(0, 10).map(async (placeID: string) => {
-              return fetchAttractionData(placeID).then((data) => data.attraction);
-            })
+            recommendLocation.res_recommendation
+              .slice(0, 10)
+              .map(async (placeID: string) => {
+                return fetchAttractionData(placeID).then(
+                  (data) => data.attraction
+                );
+              })
           );
-          
+
           //console.log(response);
           setLocationRecommend(response);
-
         } catch (error) {
           console.error("Error fetching attraction data:", error);
         }
       };
-  
+
       fetchData();
     }
   }, [recommendLocation]);
-  
+
   const {
     data: allData,
     isLoading: isAllDataLoading,
@@ -325,7 +337,6 @@ export default function Home() {
 
   useEffect(() => {
     if (planData && userPlans) {
-
       setTravelers(planData.plan.travelers);
 
       const startDate = new Date(planData.plan.startDate);
@@ -351,9 +362,9 @@ export default function Home() {
       setPlanDateObject(dateItems);
 
       const allLocationPlanningData: (AttractionData | RestaurantData)[][] = [];
-      const allAccommodationPlanningData: (AccommodationData|null)[] = [];
+      const allAccommodationPlanningData: (AccommodationData | null)[] = [];
       const planPlacesDurationData: planningPlacesDuration[][] = [];
-      const planNameListData: (string|undefined)[] = [];
+      const planNameListData: (string | undefined)[] = [];
 
       planData.plan.plans.map((plan: planInterface) => {
         const planName = plan.planName;
@@ -362,34 +373,38 @@ export default function Home() {
         planNameListData.push(planName);
 
         const updatedPlacesData: (AttractionData | RestaurantData)[] = [];
-        const placesDuration: (planningPlacesDuration)[] = [];
+        const placesDuration: planningPlacesDuration[] = [];
         plan.places.map((place) => {
           const placeID = place.placeID;
           //const type = place.type;
           const duration = place.duration;
           const placeData = placesData.find((place) => place._id === placeID);
-          
-          if(placeData) {
+
+          if (placeData) {
             const uuid = uuidv4();
             const placeWithUUID = { ...placeData, uuid: uuid };
-            const placeDurationWithUUID = { uuid: uuid, time: duration};
+            const placeDurationWithUUID = { uuid: uuid, time: duration };
             updatedPlacesData.push(placeWithUUID);
             placesDuration.push(placeDurationWithUUID);
           }
-        })
+        });
 
         allLocationPlanningData.push(updatedPlacesData);
         planPlacesDurationData.push(placesDuration);
       });
 
-      planData.plan.accommodations.map((accommodation: accommodationPlanInterface) => {
-        const accommodationData = accommodationsData.find((data) => data._id === accommodation.accommodationID);
-        if(accommodationData) {
-          allAccommodationPlanningData.push(accommodationData);
-        } else {
-          allAccommodationPlanningData.push(null);
+      planData.plan.accommodations.map(
+        (accommodation: accommodationPlanInterface) => {
+          const accommodationData = accommodationsData.find(
+            (data) => data._id === accommodation.accommodationID
+          );
+          if (accommodationData) {
+            allAccommodationPlanningData.push(accommodationData);
+          } else {
+            allAccommodationPlanningData.push(null);
+          }
         }
-      }) 
+      );
 
       const lengthToFill = durationInDay - allLocationPlanningData.length;
       if (lengthToFill > 0) {
@@ -398,9 +413,12 @@ export default function Home() {
         planNameListData.push(...Array(lengthToFill).fill(undefined));
       }
 
-      const lengthToFillAccommodation = durationInDay - allAccommodationPlanningData.length;
+      const lengthToFillAccommodation =
+        durationInDay - allAccommodationPlanningData.length;
       if (lengthToFillAccommodation > 0) {
-        allAccommodationPlanningData.push(...Array(lengthToFillAccommodation).fill(null));
+        allAccommodationPlanningData.push(
+          ...Array(lengthToFillAccommodation).fill(null)
+        );
       }
 
       /*console.log(allLocationPlanningData);
@@ -413,45 +431,44 @@ export default function Home() {
       setPlacesStayDurationList(planPlacesDurationData);
       setAccommodationData(allAccommodationPlanningData);
       setPlanName(planNameListData);
-
     }
   }, [planData, userPlans]);
 
   useEffect(() => {
-
     if (status === "authenticated" && planID) {
       const autoUpdate = setInterval(() => {
-
-        if (!dataSaveRef.current.valueOf()) { // if not saved
+        if (!dataSaveRef.current.valueOf()) {
+          // if not saved
 
           const accommodations = accommodationRef.current
-          ? accommodationRef.current.map((accommodation) =>
-              accommodation ? { accommodationID: accommodation._id } : { accommodationID: '' }
-            )
-          : [];
-        
-        const plans = planLocationRef.current.map((dayPlans, dayIndex) => ({
-          planName: planNameRef.current[dayIndex] ?? "",
-          places: dayPlans.map((place, placeIndex) => ({
-            placeID: place?._id ?? '',
-            type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
-            duration: planDurationRef.current[dayIndex][placeIndex].time,
-          })),
-        }));
+            ? accommodationRef.current.map((accommodation) =>
+                accommodation
+                  ? { accommodationID: accommodation._id }
+                  : { accommodationID: "" }
+              )
+            : [];
 
-        setIsDataSaved(true);
+          const plans = planLocationRef.current.map((dayPlans, dayIndex) => ({
+            planName: planNameRef.current[dayIndex] ?? "",
+            places: dayPlans.map((place, placeIndex) => ({
+              placeID: place?._id ?? "",
+              type: isRestaurantData(place!) ? "RESTAURANT" : "ATTRACTION",
+              duration: planDurationRef.current[dayIndex][placeIndex].time,
+            })),
+          }));
 
-        if(accommodations.length == 0 && plans.length == 0) {
-          return;
-        }
+          setIsDataSaved(true);
 
-        const plantripDataPayload = {
-          accommodations,
-          plans,
-        };
-        
+          if (accommodations.length == 0 && plans.length == 0) {
+            return;
+          }
+
+          const plantripDataPayload = {
+            accommodations,
+            plans,
+          };
+
           updateUserPlans(planID, plantripDataPayload);
-
         } else {
           //console.log("HERE....");
         }
@@ -485,26 +502,21 @@ export default function Home() {
     planDurationRef.current = placesStayDurationList;
     planNameRef.current = planName;
     setIsDataSaved(false);
-  }, [
-    accommodationData,
-    locationPlanning,
-    placesStayDurationList,
-    planName
-  ]);
+  }, [accommodationData, locationPlanning, placesStayDurationList, planName]);
 
   useEffect(() => {
-    if(placesData && placesData.length != 0) {
+    if (placesData && placesData.length != 0) {
       const filtered = placesData.filter((item) =>
-        item.name.toLocaleLowerCase().startsWith(searchPlace.toLocaleLowerCase())
+        item.name
+          .toLocaleLowerCase()
+          .startsWith(searchPlace.toLocaleLowerCase())
       );
       setFilteredLocations(filtered);
     }
-
   }, [searchPlace]);
 
   useEffect(() => {
-
-    if(accommodationsData && accommodationData.length != 0) {
+    if (accommodationsData && accommodationData.length != 0) {
       const filtered = accommodationsData.filter((item) =>
         item.name
           .toLocaleLowerCase()
@@ -512,7 +524,6 @@ export default function Home() {
       );
       setFilteredAccommodations(filtered);
     }
-
   }, [searchAccommodation]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -529,7 +540,8 @@ export default function Home() {
 
   const handleInput = () => {
     if (inputTitle.current) {
-      const textLength = inputTitle.current.value.replace(/\s+/g, "").length || 0;
+      const textLength =
+        inputTitle.current.value.replace(/\s+/g, "").length || 0;
 
       const updatedPlanName = [...planName];
       updatedPlanName[currentIndexDate] = inputTitle.current.value || undefined;
@@ -597,12 +609,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-
-    if(locationPlanning.length == 0 && accommodationData.length == 0) {
+    if (locationPlanning.length == 0 && accommodationData.length == 0) {
       return;
     }
 
-    const textLength = planName[currentIndexDate]?.replace(/\s+/g, "").length || 0;
+    const textLength =
+      planName[currentIndexDate]?.replace(/\s+/g, "").length || 0;
     setInputTitleWidth(textLength);
 
     const coordinates = [
@@ -721,9 +733,11 @@ export default function Home() {
     });
   };
 
-  const onClick = (location: AttractionData | RestaurantData) => {
+  const onClick = (location: AttractionData | RestaurantData | AccommodationData) => {
     setSelectedLocationInfo(location);
   };
+
+  
 
   const handleClickEditDuration = (id: string) => {
     setDuration(120);
@@ -781,6 +795,22 @@ export default function Home() {
   const handleClickSelectInfo = () => {
     setSelectedLocationInfo(null);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        selectLocationTypeRef.current &&
+        !selectLocationTypeRef.current.contains(event.target as Node)
+      ) {
+        setIsDropDownSelectLocationOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectLocationTypeRef]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -930,6 +960,12 @@ export default function Home() {
     });
   };
 
+  const handleClickBackToPlan = () => {
+    setIsDropDownSelectLocationOpen(false);
+    setIsAllLocationPageOpen(false);
+    setSelectedLocationInfo(null);
+  };
+
   function isRestaurantData(
     location: AttractionData | RestaurantData
   ): location is RestaurantData {
@@ -1049,14 +1085,52 @@ export default function Home() {
 
   const handleClickChangeImage = () => {
     setShowUploadImageModal(true);
-  }
+  };
 
-
-  if (userPlans && userPlans.planList && Array.isArray(userPlans.planList) && planData?.plan?._id) {
+  if (
+    userPlans &&
+    userPlans.planList &&
+    Array.isArray(userPlans.planList) &&
+    planData?.plan?._id
+  ) {
     if (!userPlans.planList.includes(planData.plan._id)) {
       redirect("/plantrip/create");
     }
   }
+
+  const handleScroll = () => {
+    const scrollbar = scrollbarRef.current;
+    if (scrollbar) {
+      if(scrollbar._ps.reach.y == "end") {
+        setScrollPage(scrollPage + 1);
+      }
+    }
+  };
+
+  const handleShowRecommendPage = () => {
+    setIsAllLocationPageOpen(true);
+    setScrollPage(1);
+    const scrollbar = scrollbarRef.current;
+    if (scrollbar) {
+      const psInstance = scrollbar._ps;
+      if (psInstance && psInstance.element) {
+        psInstance.element.scrollTop = 0;
+        psInstance.update(); 
+      }
+    }
+  };
+
+  const handleClickLocationDetails = (locationID: string,locationType: string) => {
+    if(locationType === "ATTRACTION") {
+      router.push(`/th/attraction_detail/${locationID}`)
+    } else if(locationType === "RESTAURANT") {
+      router.push(`/th/restaurant_detail/${locationID}`)
+    } else {
+      router.push(`/th/accommodation_detail/${locationID}`)
+    }
+  }
+  
+
 
   if (isPlanLoading || isUserPlansLoading || isAllDataLoading) {
     return <div>Loading...</div>;
@@ -1066,473 +1140,643 @@ export default function Home() {
     return <div>Error occurred!</div>;
   }
 
+  const mockData = Array.from({ length: 100 }, (_, index) => ({
+    _id: index + 1,
+    name: `Attraction ${index + 1}`,
+  }));
+  
+
   return (
-    <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
+    <div className="flex flex-col bg-[#F4F4F4] w-full h-screen">
       <NavBar />
-      <div className="flex flex-row w-full h-[calc(100vh-84px)]">
-        <div className="flex flex-col w-[8%] kanit mt-5">
-          <div className="flex w-full justify-center">
-            <div className="flex w-full justify-center rounded-tr-xl rounded-br-xl border border-[#B7B7B7] bg-[#3B3B3B] text-white font-bold mr-3 py-2">
-              ภาพรวม
-            </div>
-          </div>
-          <div className="flex h-[100%] w-full">
-            <div className="flex flex-col w-full items-center mt-40 kanit">
-              <div className="flex bg-[#070707] rounded-full p-[10px]">
-                <Icon
-                  icon="tdesign:calendar-2"
-                  className="text-lg text-white "
-                  height={32}
-                  width={32}
-                />
-              </div>
-              <div className="flex flex-col w-full items-center font-bold">
-                <div className="flex">วางแผน</div>
-                <div className="flex">การเดินทาง</div>
-              </div>
-              <PerfectScrollbar
-                className="flex flex-col w-full max-h-72 relative bg-white mt-2"
-                style={{
-                  overflow: "auto",
-                }}
-              >
-                {planDateObject.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${
-                      currentIndexDate == index
-                        ? "bg-[#929191]"
-                        : "bg-[#F4F4F4]"
-                    }`}
-                    onClick={() => handleClickChangeDate(index)}
-                  >
-                    {item}
+      <div className="flex relative flex-row w-full h-[calc(100vh-70px)]">
+        <>
+          <div
+            className={`h-full absolute bg-white transition-all duration-700 ${
+              isAllLocationPageOpen
+                ? "w-[50%] opacity-100 visibility-visible z-50"
+                : "w-0 opacity-0 visibility-hidden "
+            }`}
+          >
+            <div className="flex w-full h-full kanit">
+              <div className="flex flex-col h-full w-full">
+                <div className="flex flex-col p-5 pb-7 border-b-2 border-[#B7B7B7]">
+                  <div className="flex flex-row gap-x-2 ">
+                    <div
+                      className="flex justify-center items-center cursor-pointer"
+                      onClick={handleClickBackToPlan}
+                    >
+                      <Icon
+                        icon="ion:arrow-back"
+                        className="text-xl text-black "
+                        height={28}
+                        width={28}
+                      />
+                    </div>
+                    <div className="flex justify-center items-center font-bold text-2xl">
+                      จัดการแผนท่องเที่ยว
+                    </div>
                   </div>
-                ))}
-              </PerfectScrollbar>
+                  <div className="flex flex-row mt-5 gap-x-5">
+                    <div className="relative w-60">
+                      <div className="absolute inset-y-0  flex items-center ps-2 pointer-events-none">
+                        <Icon
+                          icon="material-symbols:search"
+                          className="text-2xl text-[#828282]"
+                          width={24}
+                          height={24}
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        id="search-location"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full ps-10 p-2.5 focus:outline-none"
+                        placeholder="Test"
+                      />
+                    </div>
+                    <div
+                      className="flex relative px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer mr-5"
+                      style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
+                      onClick={() =>
+                        setIsDropDownSelectLocationOpen(
+                          !isDropDownSelectLocationOpen
+                        )
+                      }
+                    >
+                      <Icon
+                        icon="tabler:map-pin-filled"
+                        className="text-lg text-[#828282] mr-1"
+                        height={20}
+                        width={20}
+                      />
+                      <div className="flex kanit text-[#828282] mr-1 w-20 justify-center items-center">
+                        {" "}
+                        {filterLocationType}{" "}
+                      </div>
+                      <Icon
+                        icon="icon-park-outline:down-c"
+                        className="text-lg text-[#828282]"
+                        height={20}
+                        width={20}
+                      />
+                      {isDropDownSelectLocationOpen && (
+                        <div
+                          ref={selectLocationTypeRef}
+                          className="flex flex-col absolute z-50 -bottom-40 w-full bg-white shadow-lg rounded-lg border border-[#B7B7B7] mt-2"
+                        >
+                          <div
+                            className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() =>
+                              setFilterLocationType("ที่ท่องเที่ยว")
+                            }
+                          >
+                            <Icon
+                              icon="tabler:map-pin-filled"
+                              className="text-lg text-[#828282] mr-3"
+                              height={16}
+                              width={16}
+                            />
+                            <span className="kanit text-[#828282]">
+                              ที่ท่องเที่ยว
+                            </span>
+                          </div>
+                          <div
+                            className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() => setFilterLocationType("ที่พัก")}
+                          >
+                            <Icon
+                              icon="tabler:home"
+                              className="text-lg text-[#828282] mr-3"
+                              height={16}
+                              width={16}
+                            />
+                            <span className="kanit text-[#828282]">ที่พัก</span>
+                          </div>
+                          <div
+                            className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() => setFilterLocationType("ร้านอาหาร")}
+                          >
+                            <Icon
+                              icon="famicons:restaurant"
+                              className="text-lg text-[#828282] mr-3"
+                              height={16}
+                              width={16}
+                            />
+                            <span className="kanit text-[#828282]">
+                              ร้านอาหาร
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col h-full overflow-hidden">
+                  <PerfectScrollbar
+                     ref={scrollbarRef}
+                     onScrollY={handleScroll}
+                    className="flex flex-col gap-y-5 mt-5 w-full max-h-[720px] relative bg-white overflow-hidden">
+                      {attractionScrollList.map((data,index) => {
+                        return (
+                          <div className="flex" key={data._id}>
+                            <ScrollLocationCard onClickLocationInfo={onClick} location={data} locationType="ATTRACTION" index={index} handleClickLocationDetails={handleClickLocationDetails}/>
+                          </div>
+                        );
+                      })}
+                  </PerfectScrollbar>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <PerfectScrollbar
-          className="flex flex-col w-[42%] h-full relative bg-white"
-          style={{
-            overflow: "hidden",
-          }}
-        >
-          <div className="flex flex-col">
+        </>
+        <div className={`flex h-full transition-all w-[50%]`}>
+          <div className="flex flex-col w-[16%] kanit mt-5">
+            <div className="flex w-full justify-center">
+              <div className="flex w-full justify-center rounded-tr-xl rounded-br-xl border border-[#B7B7B7] bg-[#3B3B3B] text-white font-bold mr-3 py-2">
+                ภาพรวม
+              </div>
+            </div>
+            <div className="flex h-[100%] w-full">
+              <div className="flex flex-col w-full items-center mt-40 kanit">
+                <div className="flex bg-[#070707] rounded-full p-[10px]">
+                  <Icon
+                    icon="tdesign:calendar-2"
+                    className="text-lg text-white "
+                    height={32}
+                    width={32}
+                  />
+                </div>
+                <div className="flex flex-col w-full items-center font-bold">
+                  <div className="flex">วางแผน</div>
+                  <div className="flex">การเดินทาง</div>
+                </div>
+                <PerfectScrollbar
+                  className="flex flex-col w-full max-h-72 relative bg-white mt-2"
+                  style={{
+                    overflow: "auto",
+                  }}
+                >
+                  {planDateObject.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`flex border-b border-gray-300 p-2 hover:bg-[#929191] cursor-pointer justify-center items-center transition-all ${
+                        currentIndexDate == index
+                          ? "bg-[#929191]"
+                          : "bg-[#F4F4F4]"
+                      }`}
+                      onClick={() => handleClickChangeDate(index)}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </PerfectScrollbar>
+              </div>
+            </div>
+          </div>
+          <PerfectScrollbar
+            className="flex flex-col w-[84%] h-full relative bg-white"
+            style={{
+              overflow: "hidden",
+            }}
+          >
+            <div className="flex flex-col">
               <div
                 className="flex h-36 w-full relative"
                 id="section-1"
                 style={{
                   backgroundImage: `url(${planData.plan.tripImage})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               >
-              <div
-                className="absolute h-[70%] w-[80%] bottom-[-20%] left-[10%] rounded-2xl"
-                style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
-              >
-                <div className="flex w-full h-full rounded-2xl bg-white">
-                  <div className="flex flex-col w-full h-full p-6">
-                    <div className="flex font-bold text-2xl kanit">
-                      {planData.plan.tripName}
-                    </div>
-                    <div className="flex flex-row mt-3 kanit">
-                      <div className="flex justify-center items-center mr-1">
-                        <Icon
-                          icon="cuida:calendar-outline"
-                          className="text-lg text-[#828282] "
-                          height={21}
-                          width={20}
-                        />
-                      </div>
-                      <div className="flex justify-center items-center text-[#828282] kanit mr-4">
-                        {dateRangeFormatted}
-                      </div>
-                      <div className="flex justify-center items-center mr-1">
-                        <Icon
-                          icon="material-symbols:person"
-                          className="text-lg text-[#828282] "
-                          height={24}
-                          width={23}
-                        />
-                      </div>
-                      <div className="flex justify-center items-center text-[#828282] kanit">
-                        {travelers}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute top-[2%] left-[95%]  justify-center items-center cursor-pointer" onClick={handleClickChangeImage}>
-                <Icon
-                  icon="akar-icons:edit"
-                  className="text-lg text-white"
-                  height={24}
-                  width={23}
-                />
-              </div>
-              {showUploadImageModal && <DropzoneModal tripID={planID} isOpen={showUploadImageModal} setIsOpen={setShowUploadImageModal} />}
-            </div>
-            <div className={`flex flex-col px-5 bg-[#F0F0F0]`} id="section-2">
-              <div className="flex w-full flex-row mt-11 justify-between">
-                <div className="flex">
-                  <div
-                    className="flex cursor-pointer justify-center items-center mr-2"
-                    onClick={() => setShowRecommendPage(!showRecommendPage)}
-                  >
-                    <Icon
-                      icon={
-                        showRecommendPage
-                          ? "icon-park-outline:down"
-                          : "icon-park-outline:right"
-                      }
-                      className="text-lg text-black"
-                      height={24}
-                      width={23}
-                    />
-                  </div>
-                  <div className="flex font-bold kanit justify-center items-center">
-                    สถานที่แนะนำ
-                  </div>
-                </div>
                 <div
-                  className="flex px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer"
+                  className="absolute h-[70%] w-[80%] bottom-[-20%] left-[10%] rounded-2xl"
                   style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
                 >
-                  <Icon
-                    icon="iconamoon:search"
-                    className="text-lg text-[#828282] mr-1"
-                    height={16}
-                    width={16}
-                  />
-                  <div className="flex kanit text-[#828282]"> แสดงทั้งหมด </div>
-                </div>
-              </div>
-              <div
-                className={`flex flex-col  ${
-                  showRecommendPage
-                    ? "max-h-screen transition-all duration-500"
-                    : "max-h-0 transition-all duration-500"
-                } overflow-hidden`}
-              >
-                <div className="flex mt-2">
-                  <Carousel
-                    breakPoints={breakPoints}
-                    pagination={false}
-                    renderArrow={myArrow}
-                  >
-                    {locationRecommend.map((item) => (
-                      <RecommendCard
-                        key={item._id}
-                        id={item._id}
-                        title={item.name}
-                        type={item.type[0]}
-                        img={item.imgPath[0]}
-                        rating={item.rating.score}
-                        ratingCount={item.rating.ratingCount}
-                        clickAddTrip={handleAddLocation}
-                      />
-                    ))}
-                  </Carousel>
-                </div>
-              </div>
-              <div className="flex bg-[#F0F0F0] mb-6" />
-            </div>
-            <div
-              className="flex flex-col bg-white pl-5 py-5 mt-2"
-              id="section-3"
-            >
-              <div className="flex w-full kanit justify-between font-bold pr-10">
-                <div className="flex relative items-center rounded-lg group">
-                  <input
-                    ref={inputTitle}
-                    type="text"
-                    maxLength={30}
-                    className={`flex w-full text-lg kanit justify-start font-bold p-2 focus:outline-none rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] pr-8 ${
-                      inputTitleWidth === 0 ? "min-w-96" : "max-w-[450px]"
-                    }`}
-                    placeholder="เพื่มชื่อทริปของคุณ (เช่น ทริปเดินทางสู่...)"
-                    value={planName[currentIndexDate] ?? ""}
-                    size={inputTitleWidth}
-                    onInput={handleInput}
-                  /> 
-                  <Icon
-                    icon="mdi:pencil"
-                    className="text-lg text-[#666666] absolute right-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity duration-200"
-                    height={16}
-                    width={16}
-                  />
-                </div>
-                <div className="flex items-center justify-center">
-                  <button
-                    className="flex kanit -mt-1 font-normal border border-gray-300 bg-[#fd8433]  text-white rounded-md px-4 py-2 hover:bg-[#f59c60] focus:outline-none transition"
-                    onClick={handleClickAutoPlan}
-                  >
-                    จัดเส้นทางอัติโนมัติ
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col mt-2 h-full">
-                <div className="flex flex-row">
-                  <div
-                    className="flex cursor-pointer justify-center items-center mr-2"
-                    onClick={() => setShowPlanning(!showPlanning)}
-                  >
-                    <Icon
-                      icon={
-                        showPlanning
-                          ? "icon-park-outline:down"
-                          : "icon-park-outline:right"
-                      }
-                      className="text-lg text-black"
-                      height={24}
-                      width={23}
-                    />
-                  </div>
-                  <div className="flex font-bold kanit justify-center items-center">
-                    แผนการเดินทาง
-                  </div>
-                </div>
-                <div
-                  className={`flex flex-col w-full overflow-hidden transition-all duration-500 ${
-                    showPlanning ? "max-h-[10000px]" : "max-h-0"
-                  }`}
-                >
-                  {planningInformationDataList.length >= 0 && locationPlanning.length > 0 && (
-                    <div className="flex flex-col h-full">
-                      <DragDropContext onDragEnd={onDragEnd}>
-                        <Droppable droppableId="locations">
-                          {(provided) => (
-                            <ul
-                              className="characters text-black pt-2 px-3 h-full"
-                              {...provided.droppableProps}
-                              ref={provided.innerRef}
-                            >
-                              {locationPlanning[currentIndexDate].map(
-                                (location, index) => {
-                                  const filteredStayDuration =
-                                    placesStayDurationList[
-                                      currentIndexDate
-                                    ].find(
-                                      (place) => place.uuid === location.uuid
-                                    );
-
-                                  return (
-                                    <Draggable
-                                      key={location.uuid}
-                                      draggableId={location.uuid}
-                                      index={index}
-                                    >
-                                      {(provided) => (
-                                        <li
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          className="p-2 mb-2 bg-white"
-                                        >
-                                          <PlanningCard
-                                            onDelete={onDelete}
-                                            handleClick={onClick}
-                                            handleClickEditDuration={
-                                              handleClickEditDuration
-                                            }
-                                            distance={
-                                              planningInformationDataList[index]
-                                                ?.rangeBetween ?? 0
-                                            }
-                                            duration={
-                                              planningInformationDataList[index]
-                                                ?.timeTravel ?? 0
-                                            }
-                                            stayDuration={
-                                              filteredStayDuration?.time ?? 0
-                                            }
-                                            uuid={location.uuid}
-                                            _id={location._id}
-                                            index={index}
-                                            name={location.name}
-                                            type={location.type}
-                                            rating={location.rating}
-                                            imgPath={location.imgPath}
-                                            latitude={location.latitude}
-                                            longitude={location.longitude}
-                                            openingHour={location.openingHour}
-                                            location={location.location}
-                                            priceRange={
-                                              isRestaurantData(location)
-                                                ? location.priceRange
-                                                : undefined
-                                            }
-                                            description={location.description}
-                                            facility={location.facility}
-                                            phone={location.phone}
-                                            website={location.website}
-                                          />
-                                        </li>
-                                      )}
-                                    </Draggable>
-                                  );
-                                }
-                              )}
-                              {provided.placeholder}
-                            </ul>
-                          )}
-                        </Droppable>
-                      </DragDropContext>
-                    </div>
-                  )}
-                </div>
-                <div
-                  className={`flex flex-col w-full kanit pr-10 pl-5 transition-all duration-500 ${
-                    showPlanning ? "max-h-[500px]" : "max-h-0 overflow-hidden"
-                  }`}
-                >
-                  <div className="relative w-full">
-                    <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
-                      <span className="text-gray-500 mr-2">
-                        <Icon
-                          icon="ri:map-pin-line"
-                          className="text-lg text-[#9B9B9B]"
-                        />
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="ค้นหาเพื่อเพิ่มสถานที่ของคุณ"
-                        className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
-                        onFocus={handleFocus}
-                        value={searchPlace}
-                        onChange={handleSearchChange}
-                      />
-                    </div>
-
-                    <div
-                      className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
-                        isSearchOpen ? "flex w-full flex-col" : "hidden"
-                      }`}
-                      ref={searchPlacesRef}
-                    >
-                      <ul className="divide-y divide-gray-200">
-                        {filteredLocations.slice(0, 5).map((item) => (
-                          <SearchPlaceObjectComponent
-                            key={item._id}
-                            id={item._id}
-                            title={item.name}
-                            address={item.location.address}
-                            onClick={() => handleAddLocation(item._id)}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col mt-5">
-                <div className="flex flex-row">
-                  <div
-                    className="flex cursor-pointer justify-center items-center mr-2"
-                    onClick={() => setShowAccommodation(!showAccommodation)}
-                  >
-                    <Icon
-                      icon={
-                        showAccommodation
-                          ? "icon-park-outline:down"
-                          : "icon-park-outline:right"
-                      }
-                      className="text-lg text-black"
-                      height={24}
-                      width={23}
-                    />
-                  </div>
-                  <div className="flex font-bold kanit justify-center items-center">
-                    ที่พักสำหรับการท่องเที่ยว
-                  </div>
-                </div>
-                <div
-                  className={`flex flex-col w-full ${
-                    showAccommodation
-                      ? "h-full overflow-visible"
-                      : "h-0 overflow-hidden"
-                  } transition-all duration-500`}
-                >
-                  <div className="flex w-full">
-                    {accommodationData[currentIndexDate] ? (
-                      <div className="flex p-5 w-full">
-                        <AccommodationCard
-                          onDelete={onDeleteAccommodation}
-                          data={accommodationData[currentIndexDate]}
-                          distance={
-                            planningInformationDataList[
-                              planningInformationDataList.length - 1
-                            ]?.rangeBetween ?? 0
-                          }
-                          duration={
-                            planningInformationDataList[
-                              planningInformationDataList.length - 1
-                            ]?.timeTravel ?? 0
-                          }
-                        />
+                  <div className="flex w-full h-full rounded-2xl bg-white">
+                    <div className="flex flex-col w-full h-full p-6">
+                      <div className="flex font-bold text-2xl kanit">
+                        {planData.plan.tripName}
                       </div>
-                    ) : (
-                      <div
-                        className={`flex flex-col w-full kanit pr-10 pl-5 mt-2 h-full`}
-                      >
-                        <div
-                          className={`relative h-full w-full ${
-                            isSearchAccommodationOpen
-                              ? "overflow-visible"
-                              : "overflow-hidden"
-                          }`}
-                        >
-                          <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
-                            <span className="text-gray-500 mr-2">
-                              <Icon
-                                icon="ri:map-pin-line"
-                                className="text-lg text-[#9B9B9B]"
-                              />
-                            </span>
-                            <input
-                              type="text"
-                              placeholder="ค้นหาเพื่อเพิ่มสถานที่พักของคุณ"
-                              className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
-                              onFocus={handleAccommodationFocus}
-                              value={searchAccommodation}
-                              onChange={handleSearchAccommodationChange}
-                            />
-                          </div>
-                          <div
-                            className={`absolute top-full left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
-                              isSearchAccommodationOpen
-                                ? "flex w-full flex-col"
-                                : "hidden"
-                            }`}
-                            ref={searchAccommodationRef}
-                          >
-                            <ul className="divide-y divide-gray-200">
-                              {filteredAccomodations.slice(0, 5).map((item) => (
-                                <SearchPlaceObjectComponent
-                                  key={item._id}
-                                  id={item._id}
-                                  title={item.name}
-                                  address={item.location.address}
-                                  onClick={() =>
-                                    handleSetAccommodation(item._id)
-                                  }
-                                />
-                              ))}
-                            </ul>
-                          </div>
+                      <div className="flex flex-row mt-3 kanit">
+                        <div className="flex justify-center items-center mr-1">
+                          <Icon
+                            icon="cuida:calendar-outline"
+                            className="text-lg text-[#828282] "
+                            height={21}
+                            width={20}
+                          />
+                        </div>
+                        <div className="flex justify-center items-center text-[#828282] kanit mr-4">
+                          {dateRangeFormatted}
+                        </div>
+                        <div className="flex justify-center items-center mr-1">
+                          <Icon
+                            icon="material-symbols:person"
+                            className="text-lg text-[#828282] "
+                            height={24}
+                            width={23}
+                          />
+                        </div>
+                        <div className="flex justify-center items-center text-[#828282] kanit">
+                          {travelers}
                         </div>
                       </div>
-                    )}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="absolute top-[5%] left-[94%]  justify-center items-center cursor-pointer"
+                  onClick={handleClickChangeImage}
+                >
+                  <Icon
+                    icon="akar-icons:edit"
+                    className="text-lg text-white"
+                    height={30}
+                    width={30}
+                  />
+                </div>
+                {showUploadImageModal && (
+                  <DropzoneModal
+                    tripID={planID}
+                    isOpen={showUploadImageModal}
+                    setIsOpen={setShowUploadImageModal}
+                  />
+                )}
+              </div>
+              <div className={`flex flex-col px-5 bg-[#F0F0F0]`} id="section-2">
+                <div className="flex w-full flex-row mt-11 justify-between">
+                  <div className="flex">
+                    <div
+                      className="flex cursor-pointer justify-center items-center mr-2"
+                      onClick={() => setShowRecommendPage(!showRecommendPage)}
+                    >
+                      <Icon
+                        icon={
+                          showRecommendPage
+                            ? "icon-park-outline:down"
+                            : "icon-park-outline:right"
+                        }
+                        className="text-lg text-black"
+                        height={24}
+                        width={23}
+                      />
+                    </div>
+                    <div className="flex font-bold kanit justify-center items-center">
+                      สถานที่แนะนำ
+                    </div>
+                  </div>
+                  <div
+                    className="flex px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer"
+                    onClick={handleShowRecommendPage}
+                    style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
+                  >
+                    <Icon
+                      icon="iconamoon:search"
+                      className="text-lg text-[#828282] mr-1"
+                      height={16}
+                      width={16}
+                    />
+                    <div className="flex kanit text-[#828282]">
+                      {" "}
+                      แสดงทั้งหมด{" "}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className={`flex flex-col  ${
+                    showRecommendPage
+                      ? "max-h-screen transition-all duration-500"
+                      : "max-h-0 transition-all duration-500"
+                  } overflow-hidden`}
+                >
+                  <div className="flex mt-2">
+                    <Carousel
+                      breakPoints={breakPoints}
+                      pagination={false}
+                      renderArrow={myArrow}
+                    >
+                      {locationRecommend.map((item) => (
+                        <RecommendCard
+                          key={item._id}
+                          id={item._id}
+                          title={item.name}
+                          type={item.type[0]}
+                          img={item.imgPath[0]}
+                          rating={item.rating.score}
+                          ratingCount={item.rating.ratingCount}
+                          clickAddTrip={handleAddLocation}
+                        />
+                      ))}
+                    </Carousel>
+                  </div>
+                </div>
+                <div className="flex bg-[#F0F0F0] mb-6" />
+              </div>
+              <div
+                className="flex flex-col bg-white pl-5 py-5 mt-2"
+                id="section-3"
+              >
+                <div className="flex w-full kanit justify-between font-bold pr-10">
+                  <div className="flex relative items-center rounded-lg group">
+                    <input
+                      ref={inputTitle}
+                      type="text"
+                      maxLength={30}
+                      className={`flex w-full text-lg kanit justify-start font-bold p-2 focus:outline-none rounded-lg hover:bg-[#F7F7F7] focus:bg-[#F7F7F7] pr-8 ${
+                        inputTitleWidth === 0 ? "min-w-96" : "max-w-[450px]"
+                      }`}
+                      placeholder="เพื่มชื่อทริปของคุณ (เช่น ทริปเดินทางสู่...)"
+                      value={planName[currentIndexDate] ?? ""}
+                      size={inputTitleWidth}
+                      onInput={handleInput}
+                    />
+                    <Icon
+                      icon="mdi:pencil"
+                      className="text-lg text-[#666666] absolute right-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity duration-200"
+                      height={16}
+                      width={16}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <button
+                      className="flex kanit -mt-1 font-normal border border-gray-300 bg-[#fd8433]  text-white rounded-md px-4 py-2 hover:bg-[#f59c60] focus:outline-none transition"
+                      onClick={handleClickAutoPlan}
+                    >
+                      จัดเส้นทางอัติโนมัติ
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-col mt-2 h-full">
+                  <div className="flex flex-row">
+                    <div
+                      className="flex cursor-pointer justify-center items-center mr-2"
+                      onClick={() => setShowPlanning(!showPlanning)}
+                    >
+                      <Icon
+                        icon={
+                          showPlanning
+                            ? "icon-park-outline:down"
+                            : "icon-park-outline:right"
+                        }
+                        className="text-lg text-black"
+                        height={24}
+                        width={23}
+                      />
+                    </div>
+                    <div className="flex font-bold kanit justify-center items-center">
+                      แผนการเดินทาง
+                    </div>
+                  </div>
+                  <div
+                    className={`flex flex-col w-full overflow-hidden transition-all duration-500 ${
+                      showPlanning ? "max-h-[10000px]" : "max-h-0"
+                    }`}
+                  >
+                    {planningInformationDataList.length >= 0 &&
+                      locationPlanning.length > 0 && (
+                        <div className="flex flex-col h-full">
+                          <DragDropContext onDragEnd={onDragEnd}>
+                            <Droppable droppableId="locations">
+                              {(provided) => (
+                                <ul
+                                  className="characters text-black pt-2 px-3 h-full"
+                                  {...provided.droppableProps}
+                                  ref={provided.innerRef}
+                                >
+                                  {locationPlanning[currentIndexDate].map(
+                                    (location, index) => {
+                                      const filteredStayDuration =
+                                        placesStayDurationList[
+                                          currentIndexDate
+                                        ].find(
+                                          (place) =>
+                                            place.uuid === location.uuid
+                                        );
+
+                                      return (
+                                        <Draggable
+                                          key={location.uuid}
+                                          draggableId={location.uuid}
+                                          index={index}
+                                        >
+                                          {(provided) => (
+                                            <li
+                                              ref={provided.innerRef}
+                                              {...provided.draggableProps}
+                                              {...provided.dragHandleProps}
+                                              className="p-2 mb-2 bg-white"
+                                            >
+                                              <PlanningCard
+                                                onDelete={onDelete}
+                                                handleClick={onClick}
+                                                handleClickEditDuration={
+                                                  handleClickEditDuration
+                                                }
+                                                distance={
+                                                  planningInformationDataList[
+                                                    index
+                                                  ]?.rangeBetween ?? 0
+                                                }
+                                                duration={
+                                                  planningInformationDataList[
+                                                    index
+                                                  ]?.timeTravel ?? 0
+                                                }
+                                                stayDuration={
+                                                  filteredStayDuration?.time ??
+                                                  0
+                                                }
+                                                uuid={location.uuid}
+                                                _id={location._id}
+                                                index={index}
+                                                name={location.name}
+                                                type={location.type}
+                                                rating={location.rating}
+                                                imgPath={location.imgPath}
+                                                latitude={location.latitude}
+                                                longitude={location.longitude}
+                                                openingHour={
+                                                  location.openingHour
+                                                }
+                                                location={location.location}
+                                                priceRange={
+                                                  isRestaurantData(location)
+                                                    ? location.priceRange
+                                                    : undefined
+                                                }
+                                                description={
+                                                  location.description
+                                                }
+                                                facility={location.facility}
+                                                phone={location.phone}
+                                                website={location.website}
+                                              />
+                                            </li>
+                                          )}
+                                        </Draggable>
+                                      );
+                                    }
+                                  )}
+                                  {provided.placeholder}
+                                </ul>
+                              )}
+                            </Droppable>
+                          </DragDropContext>
+                        </div>
+                      )}
+                  </div>
+                  <div
+                    className={`flex flex-col w-full kanit pr-10 pl-5 transition-all duration-500 ${
+                      showPlanning ? "max-h-[500px]" : "max-h-0 overflow-hidden"
+                    }`}
+                  >
+                    <div className="relative w-full">
+                      <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
+                        <span className="text-gray-500 mr-2">
+                          <Icon
+                            icon="ri:map-pin-line"
+                            className="text-lg text-[#9B9B9B]"
+                          />
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="ค้นหาเพื่อเพิ่มสถานที่ของคุณ"
+                          className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                          onFocus={handleFocus}
+                          value={searchPlace}
+                          onChange={handleSearchChange}
+                        />
+                      </div>
+
+                      <div
+                        className={`absolute top-full left-0 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
+                          isSearchOpen ? "flex w-full flex-col" : "hidden"
+                        }`}
+                        ref={searchPlacesRef}
+                      >
+                        <ul className="divide-y divide-gray-200">
+                          {filteredLocations.slice(0, 5).map((item) => (
+                            <SearchPlaceObjectComponent
+                              key={item._id}
+                              id={item._id}
+                              title={item.name}
+                              address={item.location.address}
+                              onClick={() => handleAddLocation(item._id)}
+                            />
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col mt-5">
+                  <div className="flex flex-row">
+                    <div
+                      className="flex cursor-pointer justify-center items-center mr-2"
+                      onClick={() => setShowAccommodation(!showAccommodation)}
+                    >
+                      <Icon
+                        icon={
+                          showAccommodation
+                            ? "icon-park-outline:down"
+                            : "icon-park-outline:right"
+                        }
+                        className="text-lg text-black"
+                        height={24}
+                        width={23}
+                      />
+                    </div>
+                    <div className="flex font-bold kanit justify-center items-center">
+                      ที่พักสำหรับการท่องเที่ยว
+                    </div>
+                  </div>
+                  <div
+                    className={`flex flex-col w-full ${
+                      showAccommodation
+                        ? "h-full overflow-visible"
+                        : "h-0 overflow-hidden"
+                    } transition-all duration-500`}
+                  >
+                    <div className="flex w-full">
+                      {accommodationData[currentIndexDate] ? (
+                        <div className="flex p-5 w-full">
+                          <AccommodationCard
+                            onDelete={onDeleteAccommodation}
+                            data={accommodationData[currentIndexDate]}
+                            distance={
+                              planningInformationDataList[
+                                planningInformationDataList.length - 1
+                              ]?.rangeBetween ?? 0
+                            }
+                            duration={
+                              planningInformationDataList[
+                                planningInformationDataList.length - 1
+                              ]?.timeTravel ?? 0
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className={`flex flex-col w-full kanit pr-10 pl-5 mt-2 h-full`}
+                        >
+                          <div
+                            className={`relative h-full w-full ${
+                              isSearchAccommodationOpen
+                                ? "overflow-visible"
+                                : "overflow-hidden"
+                            }`}
+                          >
+                            <div className="flex items-center border border-gray-300 rounded-lg p-2 bg-[#F2F2F2] shadow-sm">
+                              <span className="text-gray-500 mr-2">
+                                <Icon
+                                  icon="ri:map-pin-line"
+                                  className="text-lg text-[#9B9B9B]"
+                                />
+                              </span>
+                              <input
+                                type="text"
+                                placeholder="ค้นหาเพื่อเพิ่มสถานที่พักของคุณ"
+                                className="flex-grow outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                                onFocus={handleAccommodationFocus}
+                                value={searchAccommodation}
+                                onChange={handleSearchAccommodationChange}
+                              />
+                            </div>
+                            <div
+                              className={`absolute top-full left-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 ${
+                                isSearchAccommodationOpen
+                                  ? "flex w-full flex-col"
+                                  : "hidden"
+                              }`}
+                              ref={searchAccommodationRef}
+                            >
+                              <ul className="divide-y divide-gray-200">
+                                {filteredAccomodations
+                                  .slice(0, 5)
+                                  .map((item) => (
+                                    <SearchPlaceObjectComponent
+                                      key={item._id}
+                                      id={item._id}
+                                      title={item.name}
+                                      address={item.location.address}
+                                      onClick={() =>
+                                        handleSetAccommodation(item._id)
+                                      }
+                                    />
+                                  ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </PerfectScrollbar>
-
+          </PerfectScrollbar>
+        </div>
         <div className="flex relative flex-col h-full w-[50%]">
           {selectedLocationInfo && (
             <div
@@ -1551,7 +1795,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {
+            {/*
               <MapContainer
                 center={[7.9843109, 98.3307468]}
                 zoom={11}
@@ -1592,7 +1836,7 @@ export default function Home() {
                   locationPlanning={locationPlanning[currentIndexDate]}
                 />
               </MapContainer>
-            }
+            */}
           </div>
         </div>
       </div>

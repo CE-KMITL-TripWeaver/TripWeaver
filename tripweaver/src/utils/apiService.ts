@@ -258,6 +258,17 @@ export const fetchRecommendAttraction = async (userID: string,ratingLen: number,
 
 }
 
+
+export const fetchAttractionRecommend = async (recommendIDList: string[],currentPage: number) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getWithScroll`, {
+    recommendIDList,
+    currentPage
+  });
+  return data;
+
+}
+
 export const fetchProvince = async () => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/province/listProvince`);
