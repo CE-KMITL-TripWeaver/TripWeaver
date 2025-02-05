@@ -78,9 +78,9 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id: string }).id = token.sub as string;
-        (session.user as { username: string }).username = token.username as string;
+        (session.user as { username?: string }).username = token.username as string;
         session.user.name = token.name as string;
-        (session.user as { role: string }).role = token.role as string;
+        (session.user as { role?: string }).role = token.role as string;
         (session.user as { image?: string }).image = token.imgPath as string | undefined;
       }
       return session;
