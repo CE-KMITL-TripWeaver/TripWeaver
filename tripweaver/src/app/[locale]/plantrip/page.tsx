@@ -13,6 +13,7 @@ import SearchPlaceObjectComponent from "../components/SearchPlaceObjectComponent
 import AccommodationCard from "../components/AccommodationCard";
 import AccommodationData from "../interface/accommodation";
 import EditDurationModal from "../components/modals/EditDurationModals";
+import AddToTripModalOnlyDate from "../components/modals/AddToTripModalOnlyDate";
 import { useTranslations } from "next-intl";
 import ScrollLocationCard from "../components/ScrollLocationCard";
 import { useQuery } from "react-query";
@@ -114,6 +115,7 @@ export default function Home() {
     });
 
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isOpenAddLocationModal, setIsOpenAddLocationModal] = useState<boolean>(false);
   const [travelers, setTravelers] = useState<number>(0);
   const [dateRangeFormatted, setDateRangeFormatted] = useState<string>("");
   const [planDuration, setPlanDuration] = useState<number>(0);
@@ -1130,6 +1132,17 @@ export default function Home() {
     }
   }
   
+  const handleClickAddLocation = (locationID: string,locationType: string) => {
+    console.log("Add ",locationID);
+    setIsOpenAddLocationModal(true);
+  }
+
+  const handleCloseAddLocationModal = () => {
+    setIsOpenAddLocationModal(false);
+  }
+  const handleChangeDate = (indexDate: number) => {
+    console.log("Change to date", indexDate);
+  }
 
 
   if (isPlanLoading || isUserPlansLoading || isAllDataLoading) {
@@ -1139,11 +1152,6 @@ export default function Home() {
   if (isPlanError || isUserPlansError || isAllDataError || !planID) {
     return <div>Error occurred!</div>;
   }
-
-  const mockData = Array.from({ length: 100 }, (_, index) => ({
-    _id: index + 1,
-    name: `Attraction ${index + 1}`,
-  }));
   
 
   return (
@@ -1154,7 +1162,7 @@ export default function Home() {
           <div
             className={`h-full absolute bg-white transition-all duration-700 ${
               isAllLocationPageOpen
-                ? "w-[50%] opacity-100 visibility-visible z-50"
+                ? "w-[50%] opacity-100 visibility-visible z-40"
                 : "w-0 opacity-0 visibility-hidden "
             }`}
           >
@@ -1279,7 +1287,7 @@ export default function Home() {
                       {attractionScrollList.map((data,index) => {
                         return (
                           <div className="flex" key={data._id}>
-                            <ScrollLocationCard onClickLocationInfo={onClick} location={data} locationType="ATTRACTION" index={index} handleClickLocationDetails={handleClickLocationDetails}/>
+                            <ScrollLocationCard onClickLocationInfo={onClick} location={data} locationType="ATTRACTION" index={index} handleClickAddLocationToTrip={handleClickAddLocation} handleClickLocationDetails={handleClickLocationDetails}/>
                           </div>
                         );
                       })}
@@ -1846,6 +1854,17 @@ export default function Home() {
         onSave={handleSaveDuration}
         duration={duration}
       />
+      {
+        planData && (
+          <AddToTripModalOnlyDate
+          isOpen={isOpenAddLocationModal}
+          startDate={planData.plan.startDate}
+          dayDuration={planData.plan.dayDuration}
+          onClose={handleCloseAddLocationModal}
+          onChangeDate={handleChangeDate}
+        />
+        )
+      }
     </div>
   );
 }

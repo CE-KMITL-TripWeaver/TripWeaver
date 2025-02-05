@@ -11,6 +11,7 @@ interface TripCardElementProps {
   locationType: string
   onClickLocationInfo: (location: AttractionData | RestaurantData | AccommodationData) => void;
   handleClickLocationDetails: (locationID: string,locationType: string) => void;
+  handleClickAddLocationToTrip: (locationID: string,locationType: string) => void;
   index: number;
 }
 const ScrollLocationCard: React.FC<TripCardElementProps> = ({
@@ -18,7 +19,8 @@ const ScrollLocationCard: React.FC<TripCardElementProps> = ({
   index,
   locationType,
   handleClickLocationDetails,
-  onClickLocationInfo
+  onClickLocationInfo,
+  handleClickAddLocationToTrip
 }) => {
   return (
     <div className="flex relative pr-7 pl-10 py-2 flex-col w-full h-full cursor-pointer" 
@@ -67,6 +69,25 @@ const ScrollLocationCard: React.FC<TripCardElementProps> = ({
             </div>
             <div className="flex kanit items-center justify-center font-bold text-[#8A8A8A]">
               ({location.rating.ratingCount})
+            </div>
+          </div>
+          <div className="flex mt-5 text-white kanit">
+            <div className="flex flex-row px-3 py-1 rounded-lg bg-[#484848] hover:bg-[#585858] gap-x-2"           
+            onClick={(e) => {
+                e.stopPropagation();
+                handleClickAddLocationToTrip(location._id,locationType)
+            }}>
+                <div className="flex justify-center items-center">
+                    <Icon
+                      icon="ic:baseline-plus"
+                      className="text-lg"
+                      width={20}
+                      height={20}
+                    />
+                </div>
+                <div className="flex justify-center items-center">
+                    เพิ่มที่เที่ยว
+                </div>
             </div>
           </div>
         </div>
