@@ -17,7 +17,7 @@ import { t } from "i18next";
 import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
 import BlogDropzoneModal from "../../components/modals/BlogDropzoneModal";
-
+import { uploadBlogImg } from "@/utils/apiService";
 const tagsList = [
   "แหล่งท่องเที่ยว",
   "ผจญภัย",
@@ -49,22 +49,25 @@ const tagOptions = tagsList.map((tag) => ({ value: tag, label: tag }));
 const formSchema = z.object({
   title: z
     .string()
-    .min(5, { message: "Title must be at least 5 characters long" })
-    .max(100, { message: "Title must be less than 100 characters" }),
+    .min(5, { message: "ชื่อบล็อกต้องมีความยาวกว่า 5 ตัวอักษร" })
+    .max(100, { message: "ชื่อบล็อกต้องมีความยาวไม่เกิน 100 ตัวอักษร" }),
   description: z
     .string()
-    .max(256, { message: "Description must be less than 350 characters" }),
+    .min(10, { message: "รายละเอียดต้องมีความยาวกว่า 10 ตัวอักษร" })
+    .max(256, { message: "รายละเอียดต้องมีความยาวไม่เกิน 350 ตัวอักษร" }),
   tags: z
-    .array(z.string())
-    .nonempty({ message: "At least one tag is required" })
+    .array(z.string(), { message: "ต้องมีอย่างน้อย 1 แท็ก" })
+    .nonempty(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const CreateBlogPost = () => {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState("<p>เนื้อหาบล็อกของคุณ</p>");
   const [tagselect, setTagselect] = useState<string[]>([]);
   const [blogImage, setBlogImage] = useState<string | null>(null);
+  const [showUploadImageModal, setShowUploadImageModal] =
+    useState<boolean>(false);
   const router = useRouter();
 
   const editor = useEditor({
@@ -89,6 +92,15 @@ const CreateBlogPost = () => {
     immediatelyRender: false,
   });
 
+  const handleBlogUploadImage = (reponse: any) => {
+    setBlogImage(reponse);
+  };
+
+  const handleClickChangeImage = () => {
+    console.log("Edit...");
+    setShowUploadImageModal(true);
+  };
+
   // Handle image upload
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -96,52 +108,18 @@ const CreateBlogPost = () => {
     const files = event.target.files;
     if (!files) return;
     const file = files[0];
-
     const formData = new FormData();
-    formData.append("image", file);
-
+    formData.append("imgFile", file);
     try {
-      // const response = await axios.post('http://localhost:5000/api/upload', formData, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //   },
-      // });
-      const imageUrl =
-        "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/1.-%E0%B9%81%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A1%E0%B9%80%E0%B8%97%E0%B8%9E.webp";
+      const response = await uploadBlogImg(formData);
+      const imageUrl = response.uploadedImageUrl;
       if (editor) {
         editor.chain().focus().setImage({ src: imageUrl }).run();
       }
     } catch (error) {
       console.error("Error uploading image", error);
     }
-
-    // Clear the file input value to allow re-uploading the same file
     event.target.value = "";
-  };
-
-  const handleBlogImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
-    if (!files) return;
-    const file = files[0];
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      //   const response = await axios.post('http://localhost:5000/api/upload', formData, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   });
-      //   const imageUrl = response.data.imageUrl;
-      const imageUrl =
-        "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/1.-%E0%B9%81%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A1%E0%B9%80%E0%B8%97%E0%B8%9E.webp";
-      setBlogImage(imageUrl);
-    } catch (error) {
-      console.error("Error uploading blog image", error);
-    }
   };
 
   const {
@@ -158,15 +136,24 @@ const CreateBlogPost = () => {
     console.log("Form Data:", data);
     console.log("Editor Content:", content);
     console.log(blogImage);
-    const blogData = {
+    const blogData: {
+      blogName: string;
+      userID: string;
+      description: string;
+      tags: [string, ...string[]];
+      content: string;
+      blogImage?: string | null;
+    } = {
       blogName: data.title,
-      blogImage:
-        "https://www.paradise-kohyao.com/wp-content/uploads/2024/07/1.-%E0%B9%81%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%AB%E0%B8%A1%E0%B9%80%E0%B8%97%E0%B8%9E.webp",
       userID: "677c5fd1e5428060c8e025c6",
       description: data.description,
       tags: data.tags,
       content: content,
     };
+
+    if (blogImage){
+      blogData.blogImage = blogImage;
+    }
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/blog/create`,
@@ -194,7 +181,7 @@ const CreateBlogPost = () => {
       }
     }
   };
-  
+
   const handleTagRemove = (tagToRemove: string) => {
     const newTags = tagselect.filter((tag) => tag !== tagToRemove);
     setTagselect(newTags);
@@ -228,17 +215,22 @@ const CreateBlogPost = () => {
               htmlFor="blogImage"
               className="block text-lg font-medium mb-2"
             >
-              อัปโหลดรูปภาพหน้าปกบล็อก
+              รูปภาพหน้าปกบล็อก
             </label>
-            <input
-              type="file"
-              id="blogImage"
-              accept="image/*"
-              onChange={handleBlogImageUpload}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-orange-400"
-            />
+            {!blogImage && (
+              <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
+                <Icon icon="uil:image-upload" className="text-[100px] text-gray-500 hover:text-orange-400 transition" />
+              </div>
+            )}
+            {showUploadImageModal && (
+              <BlogDropzoneModal
+                isOpen={showUploadImageModal}
+                setIsOpen={setShowUploadImageModal}
+                OnuploadSuccess={handleBlogUploadImage}
+              />
+            )}
             {blogImage && (
-              <div className="mt-2">
+              <div className="flex mt-2 justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
                 <img
                   src={blogImage}
                   alt="Blog"

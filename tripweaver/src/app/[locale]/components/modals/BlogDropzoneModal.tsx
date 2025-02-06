@@ -3,17 +3,20 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Icon } from "@iconify/react";
-import { uploadImg } from "@/utils/apiService";
+import { uploadBlogImg } from "@/utils/apiService";
 
 export default function DropzoneModal({
   isOpen,
   setIsOpen,
+  OnuploadSuccess,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  OnuploadSuccess: (imageUrl: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false); // Track upload state
+  
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -38,9 +41,11 @@ export default function DropzoneModal({
     formData.append("imgFile", file);
   
     try {
-      const response = await uploadImg(formData); 
+      const response = await uploadBlogImg(formData); 
       setIsUploading(false);
       setIsOpen(false);
+
+      OnuploadSuccess(response.uploadedImageUrl);
   
     //  console.log("Upload success:", response);
     } catch (error) {

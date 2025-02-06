@@ -135,6 +135,16 @@ export const uploadImg = async (formData: FormData) => {
 
 }
 
+export const uploadBlogImg = async (formData: FormData) => {
+  
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/uploadImg`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+}
+
 export const fetchAttractionData = async (locationID: string) => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/attraction/getAttraction/${locationID}`);

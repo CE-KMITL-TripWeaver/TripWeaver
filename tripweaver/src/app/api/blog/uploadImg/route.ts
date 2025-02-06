@@ -22,15 +22,17 @@ export async function POST(req: NextRequest) {
         const randomFilename = generateRandomFilename(fileExtension || 'jpg'); 
 
         const apiKey = process.env.IMGBB_API_KEY;
+        console.log("apiKey:", apiKey);
 
         const uploadFormData = new FormData();
         uploadFormData.append("image", imgFile, randomFilename); 
+        console.log("uploadFormData:", uploadFormData);
 
 
         const response = await axios.post(`https://api.imgbb.com/1/upload?key=${apiKey}`, uploadFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data', 
-            },
+            }
         });
 
         if (response.data.success) {
