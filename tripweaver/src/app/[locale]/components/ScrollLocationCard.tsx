@@ -3,7 +3,6 @@ import AccommodationData from "../interface/accommodation";
 import AttractionData from "../interface/attraction";
 import RestaurantData from "../interface/restaurant";
 import { Icon } from "@iconify/react";
-import FacilityComponent from "./facilityComponent";
 import Image from "next/image";
 
 interface TripCardElementProps {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
-import { PlanObject } from "../../interface/plantripObject";
+import AccommodationData from "../../interface/accommodation";
 import TripDate from "../TripDateComponent";
 
 interface selectedLocationProps {
@@ -14,8 +14,9 @@ interface AddToTripModalProps {
   startDate: Date;
   dayDuration: number;
   selectedLocation: selectedLocationProps;
-  //dayIndex: number;
-  //locationType: string;
+  accommodationData: (AccommodationData| null)[] ;
+  dayIndex: number;
+  locationType: string;
   onClose: () => void;
   onAddTrip: (placeID: string, placeType: string) => void;
   onChangeDate: (index: number) => void;
@@ -27,6 +28,9 @@ const AddToTripModalOnlyDate: React.FC<AddToTripModalProps> = ({
   startDate,
   dayDuration,
   selectedLocation,
+  accommodationData,
+  locationType,
+  dayIndex,
   onClose,
   onAddTrip,
   onChangeDate
@@ -64,8 +68,8 @@ const AddToTripModalOnlyDate: React.FC<AddToTripModalProps> = ({
             <div className="flex w-full mt-5">
               <TripDate startDate={startDate} durationDate={dayDuration} onSelectDay={onChangeDate}/>
             </div>   
-          {/*
-            selectedPlan && locationType == "ACCOMMODATION" && selectedPlan.accommodations && selectedPlan.accommodations.length > 0 && selectedPlan.accommodations[dayIndex] && selectedPlan.accommodations[dayIndex].accommodationID != "" && (
+          {
+            accommodationData && locationType == "ACCOMMODATION" && accommodationData.length > 0 && accommodationData[dayIndex] && accommodationData[dayIndex] != null && (
               <div className="flex flex-row text-red-600 w-full mt-5">
                 <div className="flex justify-center items-center mr-2">
                   <Icon icon="fe:warning" className="text-lg text-red-600" width={24} height={24} />
@@ -75,7 +79,7 @@ const AddToTripModalOnlyDate: React.FC<AddToTripModalProps> = ({
                 </div>
               </div>  
             )
-          */}
+          }
 
           <button
             onClick={() => onAddTrip(selectedLocation.placeID, selectedLocation.placeType)}

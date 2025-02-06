@@ -13,10 +13,11 @@ interface Location {
 interface MapUpdaterProps {
   locationPlanning: Location[];
   selectedLocationDetails: AccommodationData | RestaurantData | AttractionData | null;
+  accommodationData?: (AccommodationData| null) ;
 
 }
 
-export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlanning, selectedLocationDetails }) => {
+export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlanning, selectedLocationDetails,accommodationData }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -37,6 +38,17 @@ export const MapUpdater: React.FC<MapUpdaterProps> = ({ locationPlanning, select
       duration: 1.5, 
     });
   }, [selectedLocationDetails]);
+
+  useEffect(() => {
+    if(!accommodationData) {
+      return;
+    }
+
+    if ((locationPlanning == null || locationPlanning.length === 0)   && accommodationData != null) {
+      map.flyTo([accommodationData.latitude, accommodationData.longitude], 14);
+    }
+
+  }, [accommodationData]);
 
 
   return null;

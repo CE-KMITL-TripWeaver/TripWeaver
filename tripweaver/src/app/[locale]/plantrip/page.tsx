@@ -26,6 +26,8 @@ import {
   fetchUserRating,
   fetchAttractionData,
   fetchAttractionRecommend,
+  fetchRestaurantRecommend,
+  fetchAccommodationRecommend
 } from "@/utils/apiService";
 import { useSearchParams } from "next/navigation";
 import DropzoneModal from "../components/modals/DropzoneModal";
@@ -124,7 +126,8 @@ export default function Home() {
   const [travelers, setTravelers] = useState<number>(0);
   const [dateRangeFormatted, setDateRangeFormatted] = useState<string>("");
   const [planDuration, setPlanDuration] = useState<number>(0);
-  const [scrollPage, setScrollPage] = useState<number>(1);
+  const [scrollPage, setScrollPage] = useState<number[]>([1,1,1]);
+
   const [planDateObject, setPlanDateObject] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<selectedLocationProps>();
   const [currentSelectIndex, setCurrentSelectIndexDate] = useState<number>(0);
@@ -177,6 +180,12 @@ export default function Home() {
   const [searchAccommodation, setSearchAccommodation] = useState<string>("");
   const [attractionScrollList, setAttractionScrollList] = useState<
     AttractionData[]
+  >([]);
+  const [restaurantScrollList, setRestaurantScrollList] = useState<
+  RestaurantData[]
+  >([]);
+  const [accommodationScrollList, setAccommodationScrollList] = useState<
+  AccommodationData[]
   >([]);
 
   const [filteredAccomodations, setFilteredAccommodations] = useState<
@@ -277,16 +286,66 @@ export default function Home() {
     isLoading: isAttractionScrollDataLoading,
     isError: isAttractionScrollDataError,
   } = useQuery(
-    ["attractionScrollData", recommendLocation, scrollPage],
+    ["attractionScrollData", recommendLocation, scrollPage[0]],
     () =>
       fetchAttractionRecommend(
         recommendLocation.res_recommendation,
-        scrollPage
+        scrollPage[0]
       ),
     {
       enabled: !!session?.user?.id && !!recommendLocation && !!scrollPage,
     }
   );
+
+  const {
+    data: accommodationScrollData,
+    isLoading: isAccommodationScrollDataLoading,
+    isError: isAccommodationScrollDataError,
+  } = useQuery(
+    ["accommodationScrollData", scrollPage[1]],
+    () =>
+      fetchAccommodationRecommend(
+        scrollPage[1]
+      ),
+    {
+      enabled: !!session?.user?.id && !!recommendLocation && !!scrollPage,
+    }
+  );
+
+  const {
+    data: restaurantScrollData,
+    isLoading: isRestaurantScrollDataLoading,
+    isError: isRestaurantScrollDataError,
+  } = useQuery(
+    ["restaurantScrollData", scrollPage[2]],
+    () =>
+      fetchRestaurantRecommend(
+        scrollPage[2]
+      ),
+    {
+      enabled: !!session?.user?.id && !!recommendLocation && !!scrollPage,
+    }
+  );
+
+
+  useEffect(() => {
+    if (accommodationScrollData) {
+      setAccommodationScrollList((prevList) => [
+        ...prevList,
+        ...accommodationScrollData.accommodations,
+      ]);
+    }
+  }, [accommodationScrollData]);
+
+  useEffect(() => {
+    if (restaurantScrollData) {
+      //console.log(attractionScrollData);
+      setRestaurantScrollList((prevList) => [
+        ...prevList,
+        ...restaurantScrollData.restaurants,
+      ]);
+    }
+  }, [restaurantScrollData]);
 
   useEffect(() => {
     if (attractionScrollData) {
@@ -881,8 +940,10 @@ export default function Home() {
     };
   }, [searchAccommodationRef]);
 
-  const handleSetAccommodation = (id: string) => {
+  const handleSetAccommodation = (id: string, selectIndex?: number) => {
     //console.log("ID ", id);
+
+    const dateIndex = selectIndex ? selectIndex : currentIndexDate;
 
     const accommodation = accommodationsData.find((item) => item._id === id);
     if (!accommodation) {
@@ -894,7 +955,7 @@ export default function Home() {
       if (!prevData) return prevData;
 
       const updatedData = [...prevData];
-      updatedData[currentIndexDate] = accommodation;
+      updatedData[dateIndex] = accommodation;
       return updatedData;
     });
 
@@ -1136,10 +1197,21 @@ export default function Home() {
   }
 
   const handleScroll = () => {
-    const scrollbar = scrollbarRef.current;
+    const scrollbar = scrollbarRef.current as any;
     if (scrollbar) {
       if(scrollbar._ps.reach.y == "end") {
-        setScrollPage(scrollPage + 1);
+
+        let index = 0;
+        if(filterLocationType == "ที่พัก") {
+          index = 1;
+        } else if(filterLocationType == "ร้านอาหาร") {
+          index = 2;
+        }
+        setScrollPage((prev) => {
+          const currentData = [...prev];
+          currentData[index] = currentData[index]+1;
+          return currentData;
+        });
       }
     }
   };
@@ -1147,8 +1219,9 @@ export default function Home() {
   const handleShowRecommendPage = () => {
     setSelectedLocationInfo(null);
     setIsAllLocationPageOpen(true);
-    setScrollPage(1);
-    const scrollbar = scrollbarRef.current;
+    setFilterLocationType("ที่ท่องเที่ยว");
+    //setScrollPage(1);
+    const scrollbar = scrollbarRef.current as any;
     if (scrollbar) {
       const psInstance = scrollbar._ps;
       if (psInstance && psInstance.element) {
@@ -1169,7 +1242,6 @@ export default function Home() {
   }
   
   const handleClickAddLocation = (locationID: string,locationType: string) => {
-    console.log("Add ",locationID);
     setCurrentSelectIndexDate(0);
     setSelectedLocation({
       placeID: locationID,
@@ -1184,16 +1256,52 @@ export default function Home() {
 
   const handleAddLocationFromModal = (placeID: string, placeType: string) => {
     setIsOpenAddLocationModal(false);
-    console.log(placeID,placeType,currentSelectIndex);
+    //console.log(placeID,placeType,currentSelectIndex);
 
     if(placeType != "ACCOMMODATION") {
       handleAddLocation(placeID,currentSelectIndex);
+    } else {
+      handleSetAccommodation(placeID,currentSelectIndex);
     }
   }
 
   const handleChangeDate = (indexDate: number) => {
    // console.log("Change to date", indexDate);
     setCurrentSelectIndexDate(indexDate);
+  }
+
+  const getScrollList = () => {
+    if (filterLocationType === "ที่พัก") {
+      return accommodationScrollList;
+    } else if (filterLocationType === "ร้านอาหาร") {
+      return restaurantScrollList;
+    } else {
+      return attractionScrollList;
+    }
+  };
+
+  const getLocationTypeByFilter = () => {
+    if (filterLocationType === "ที่พัก") {
+      return "ACCOMMODATION";
+    } else if (filterLocationType === "ร้านอาหาร") {
+      return "RESTAURANT";
+    } else {
+      return "ATTRACTION";
+    }
+  };
+
+  const handleChangeType = (locationType: string) => {
+    const scrollbar = scrollbarRef.current as any;
+    if (scrollbar) {
+      const psInstance = scrollbar._ps;
+      if (psInstance && psInstance.element) {
+        psInstance.element.scrollTop = 0;
+        psInstance.update(); 
+      }
+    }
+
+    setFilterLocationType(locationType)
+
   }
 
 
@@ -1237,23 +1345,7 @@ export default function Home() {
                       จัดการแผนท่องเที่ยว
                     </div>
                   </div>
-                  <div className="flex flex-row mt-5 gap-x-5">
-                    <div className="relative w-60">
-                      <div className="absolute inset-y-0  flex items-center ps-2 pointer-events-none">
-                        <Icon
-                          icon="material-symbols:search"
-                          className="text-2xl text-[#828282]"
-                          width={24}
-                          height={24}
-                        />
-                      </div>
-                      <input
-                        type="text"
-                        id="search-location"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full ps-10 p-2.5 focus:outline-none"
-                        placeholder="Test"
-                      />
-                    </div>
+                  <div className="flex flex-row w-full justify-end mt-5 gap-x-5">
                     <div
                       className="flex relative px-2 py-0.5 flex-row justify-center items-center rounded-lg bg-white cursor-pointer mr-5"
                       style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)" }}
@@ -1287,7 +1379,7 @@ export default function Home() {
                           <div
                             className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
                             onClick={() =>
-                              setFilterLocationType("ที่ท่องเที่ยว")
+                              handleChangeType("ที่ท่องเที่ยว")
                             }
                           >
                             <Icon
@@ -1302,7 +1394,7 @@ export default function Home() {
                           </div>
                           <div
                             className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={() => setFilterLocationType("ที่พัก")}
+                            onClick={() => handleChangeType("ที่พัก")}
                           >
                             <Icon
                               icon="tabler:home"
@@ -1314,7 +1406,7 @@ export default function Home() {
                           </div>
                           <div
                             className="flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={() => setFilterLocationType("ร้านอาหาร")}
+                            onClick={() => handleChangeType("ร้านอาหาร")}
                           >
                             <Icon
                               icon="famicons:restaurant"
@@ -1336,16 +1428,21 @@ export default function Home() {
                      ref={scrollbarRef}
                      onScrollY={handleScroll}
                     className="flex flex-col gap-y-5 mt-5 w-full max-h-[720px] relative bg-white overflow-hidden">
-                      {attractionScrollList.map((data,index) => {
-                        return (
-                          <div className="flex" key={index}>
-                            <ScrollLocationCard onClickLocationInfo={onClick} location={data} locationType="ATTRACTION" index={index} handleClickAddLocationToTrip={handleClickAddLocation} handleClickLocationDetails={handleClickLocationDetails}/>
-                          </div>
-                        );
-                      })}
+                      {getScrollList().map((data, index) => (
+                        <div className="flex" key={index}>
+                          <ScrollLocationCard
+                            onClickLocationInfo={onClick}
+                            location={data}
+                            locationType={getLocationTypeByFilter()}
+                            index={index}
+                            handleClickAddLocationToTrip={handleClickAddLocation}
+                            handleClickLocationDetails={handleClickLocationDetails}
+                          />
+                        </div>
+                      ))}
                   </PerfectScrollbar>
                 </div>
-                <div className={`${isAttractionScrollDataLoading ? 'flex justify-center items-center': 'hidden'} `}>
+                <div className={`${(isAttractionScrollDataLoading||isRestaurantScrollDataLoading||isAccommodationScrollDataLoading) ? 'flex justify-center items-center': 'hidden'} `}>
                    Loading....
                 </div>
               </div>
@@ -1905,6 +2002,7 @@ export default function Home() {
                 <MapUpdater
                   locationPlanning={locationPlanning[currentIndexDate]}
                   selectedLocationDetails={selectedLocationInfo}
+                  accommodationData={accommodationData[currentIndexDate]}
                 />
               </MapContainer>
             }
@@ -1923,10 +2021,13 @@ export default function Home() {
           isOpen={isOpenAddLocationModal}
           selectedLocation={selectedLocation}
           startDate={planData.plan.startDate}
+          locationType={getLocationTypeByFilter()}
+          accommodationData={accommodationData}
           dayDuration={planData.plan.dayDuration}
           onClose={handleCloseAddLocationModal}
           onChangeDate={handleChangeDate}
           onAddTrip={handleAddLocationFromModal}
+          dayIndex={currentSelectIndex}
         />
         )
       }

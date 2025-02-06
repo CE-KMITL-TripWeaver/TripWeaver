@@ -269,6 +269,25 @@ export const fetchAttractionRecommend = async (recommendIDList: string[],current
 
 }
 
+
+export const fetchRestaurantRecommend = async (currentPage: number) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurant/getWithScroll`, {
+    currentPage
+  });
+  return data;
+
+}
+
+export const fetchAccommodationRecommend = async (currentPage: number) => {
+
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/accommodation/getWithScroll`, {
+    currentPage
+  });
+  return data;
+
+}
+
 export const fetchProvince = async () => {
 
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/province/listProvince`);

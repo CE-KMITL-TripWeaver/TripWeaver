@@ -666,6 +666,7 @@ export default function Home() {
                   openIndex != null && tripCardDataList[openIndex] && (
                     <MapUpdater
                       locationPlanning={tripCardDataList[openIndex].location}
+                      selectedLocationDetails={selectedLocationInfo}
                     />
                   )
                 }
