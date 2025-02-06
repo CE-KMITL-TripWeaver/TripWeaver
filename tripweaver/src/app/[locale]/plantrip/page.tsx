@@ -94,6 +94,11 @@ interface modalEditorProps {
   isOpen: boolean;
 }
 
+interface selectedLocationProps {
+  placeID: string;
+  placeType: string;
+}
+
 interface MyArrowProps {
   type: string;
   onClick: () => void;
@@ -121,6 +126,8 @@ export default function Home() {
   const [planDuration, setPlanDuration] = useState<number>(0);
   const [scrollPage, setScrollPage] = useState<number>(1);
   const [planDateObject, setPlanDateObject] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<selectedLocationProps>();
+  const [currentSelectIndex, setCurrentSelectIndexDate] = useState<number>(0);
 
   const [currentIndexDate, setCurrentIndexDate] = useState<number>(0);
   const [isSearchAccommodationOpen, setIsSearchAccommodationOpen] =
@@ -283,7 +290,11 @@ export default function Home() {
 
   useEffect(() => {
     if (attractionScrollData) {
-      setAttractionScrollList(attractionScrollData.attractions);
+      //console.log(attractionScrollData);
+      setAttractionScrollList((prevList) => [
+        ...prevList,
+        ...attractionScrollData.attractions,
+      ]);
     }
   }, [attractionScrollData]);
 
@@ -751,6 +762,10 @@ export default function Home() {
     if (typeof window !== "undefined") {
       const L = require("leaflet");
       const ReactDOMServer = require("react-dom/server");
+  
+      // ตรวจสอบว่า number มากกว่าจำนวน locationPlanning[currentIndexDate].length หรือไม่
+      const isExtraMarker = number > locationPlanning[currentIndexDate].length;
+  
       const iconHtml = isAccommodation ? (
         <div>
           <svg
@@ -764,6 +779,23 @@ export default function Home() {
               d="M1 19V4h2v10h8V6h8q1.65 0 2.825 1.175T23 10v9h-2v-3H3v3zm6-6q-1.25 0-2.125-.875T4 10t.875-2.125T7 7t2.125.875T10 10t-.875 2.125T7 13"
             />
           </svg>
+        </div>
+      ) : isExtraMarker ? (
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="40"
+            viewBox="0 0 256 256"
+          >
+            <path
+              fill="red"
+              d="M128 60a44 44 0 1 0 44 44a44.05 44.05 0 0 0-44-44m0 64a20 20 0 1 1 20-20a20 20 0 0 1-20 20m0-112a92.1 92.1 0 0 0-92 92c0 77.36 81.64 135.4 85.12 137.83a12 12 0 0 0 13.76 0a259 259 0 0 0 42.18-39C205.15 170.57 220 136.37 220 104a92.1 92.1 0 0 0-92-92m31.3 174.71a249.4 249.4 0 0 1-31.3 30.18a249.4 249.4 0 0 1-31.3-30.18C80 167.37 60 137.31 60 104a68 68 0 0 1 136 0c0 33.31-20 63.37-36.7 82.71"
+            />
+          </svg>
+          <span className="absolute top-[5px] left-[20px] transform -translate-x-1/2 bg-white text-black rounded-full px-2 py-1 text-xs font-bold border border-black z-20">
+            {number}
+          </span>
         </div>
       ) : (
         <div>
@@ -783,9 +815,9 @@ export default function Home() {
           </span>
         </div>
       );
-
+  
       return L.divIcon({
-        className: "custom icon",
+        className: "custom-icon",
         html: ReactDOMServer.renderToString(iconHtml),
         iconSize: [32, 32],
         iconAnchor: [16, 32],
@@ -793,6 +825,7 @@ export default function Home() {
       });
     }
   };
+  
 
   const handleClickSelectInfo = () => {
     setSelectedLocationInfo(null);
@@ -979,13 +1012,15 @@ export default function Home() {
     return (location as AttractionData).attractionTag !== undefined;
   }
 
-  const handleAddLocation = (id: string) => {
+  const handleAddLocation = (id: string,selectIndex?: number) => {
     const location = placesData.find((item) => item._id === id);
 
     if (!location) {
       console.log("Location not found");
       return;
     }
+
+    const dateIndex = selectIndex ? selectIndex : currentIndexDate;
 
     const newLocation = { ...location, uuid: uuidv4() };
     let updatedLocation: AttractionData | RestaurantData;
@@ -1031,8 +1066,8 @@ export default function Home() {
     setLocationPlanning((prev) => {
       const updatedLocationPlanning = [...prev];
 
-      updatedLocationPlanning[currentIndexDate] = [
-        ...updatedLocationPlanning[currentIndexDate],
+      updatedLocationPlanning[dateIndex] = [
+        ...updatedLocationPlanning[dateIndex],
         updatedLocation,
       ];
 
@@ -1041,8 +1076,8 @@ export default function Home() {
 
     setPlacesStayDurationList((prev) => {
       const currentPlacesStayDuration = [...prev];
-      currentPlacesStayDuration[currentIndexDate] = [
-        ...currentPlacesStayDuration[currentIndexDate],
+      currentPlacesStayDuration[dateIndex] = [
+        ...currentPlacesStayDuration[dateIndex],
         { uuid: newLocation.uuid, time: 0 },
       ];
       return currentPlacesStayDuration;
@@ -1110,6 +1145,7 @@ export default function Home() {
   };
 
   const handleShowRecommendPage = () => {
+    setSelectedLocationInfo(null);
     setIsAllLocationPageOpen(true);
     setScrollPage(1);
     const scrollbar = scrollbarRef.current;
@@ -1134,14 +1170,30 @@ export default function Home() {
   
   const handleClickAddLocation = (locationID: string,locationType: string) => {
     console.log("Add ",locationID);
+    setCurrentSelectIndexDate(0);
+    setSelectedLocation({
+      placeID: locationID,
+      placeType: locationType
+    })
     setIsOpenAddLocationModal(true);
   }
 
   const handleCloseAddLocationModal = () => {
     setIsOpenAddLocationModal(false);
   }
+
+  const handleAddLocationFromModal = (placeID: string, placeType: string) => {
+    setIsOpenAddLocationModal(false);
+    console.log(placeID,placeType,currentSelectIndex);
+
+    if(placeType != "ACCOMMODATION") {
+      handleAddLocation(placeID,currentSelectIndex);
+    }
+  }
+
   const handleChangeDate = (indexDate: number) => {
-    console.log("Change to date", indexDate);
+   // console.log("Change to date", indexDate);
+    setCurrentSelectIndexDate(indexDate);
   }
 
 
@@ -1286,12 +1338,15 @@ export default function Home() {
                     className="flex flex-col gap-y-5 mt-5 w-full max-h-[720px] relative bg-white overflow-hidden">
                       {attractionScrollList.map((data,index) => {
                         return (
-                          <div className="flex" key={data._id}>
+                          <div className="flex" key={index}>
                             <ScrollLocationCard onClickLocationInfo={onClick} location={data} locationType="ATTRACTION" index={index} handleClickAddLocationToTrip={handleClickAddLocation} handleClickLocationDetails={handleClickLocationDetails}/>
                           </div>
                         );
                       })}
                   </PerfectScrollbar>
+                </div>
+                <div className={`${isAttractionScrollDataLoading ? 'flex justify-center items-center': 'hidden'} `}>
+                   Loading....
                 </div>
               </div>
             </div>
@@ -1803,7 +1858,7 @@ export default function Home() {
             </div>
           )}
           <div className="flex" style={{ zIndex: 0 }}>
-            {/*
+            {
               <MapContainer
                 center={[7.9843109, 98.3307468]}
                 zoom={11}
@@ -1840,11 +1895,19 @@ export default function Home() {
                     </Marker>
                   );
                 })}
+                {
+                  selectedLocationInfo && isAllLocationPageOpen && (
+                    <Marker position={[selectedLocationInfo.latitude, selectedLocationInfo.longitude]} icon={createCustomIcon(locationPlanning[currentIndexDate].length+1, false)}>
+                      <Popup>📍 {selectedLocationInfo.name}</Popup>
+                    </Marker>
+                  )
+                }
                 <MapUpdater
                   locationPlanning={locationPlanning[currentIndexDate]}
+                  selectedLocationDetails={selectedLocationInfo}
                 />
               </MapContainer>
-            */}
+            }
           </div>
         </div>
       </div>
@@ -1855,13 +1918,15 @@ export default function Home() {
         duration={duration}
       />
       {
-        planData && (
+        planData && selectedLocation && (
           <AddToTripModalOnlyDate
           isOpen={isOpenAddLocationModal}
+          selectedLocation={selectedLocation}
           startDate={planData.plan.startDate}
           dayDuration={planData.plan.dayDuration}
           onClose={handleCloseAddLocationModal}
           onChangeDate={handleChangeDate}
+          onAddTrip={handleAddLocationFromModal}
         />
         )
       }

@@ -8,10 +8,11 @@ export async function POST(req: NextRequest) {
     const { recommendIDList, currentPage } = await req.json();
 
     const pageSize = 10;
-    const limitData = pageSize * currentPage;
+    const skipData = pageSize * (currentPage - 1);
+    //const limitData = pageSize * currentPage;
     await connectMongoDB();
 
-    const slicedRecommendIDList = recommendIDList.slice(0, limitData);
+    const slicedRecommendIDList = recommendIDList.slice(skipData, pageSize);
 
     const idList = slicedRecommendIDList.map((id: string) => {
         if (!ObjectId.isValid(id)) {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
         return new ObjectId(id);
     });
 
-    if (limitData <= recommendIDList.length) {
+    if (skipData <= recommendIDList.length) {
         const attractions = await Attraction.find({
             _id: { $in: idList }
         });
@@ -32,9 +33,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ attractions: sortedAttractions }, { status: 200 });
     }
 
-    const attractionsRecommend = await Attraction.find({
+    /*const attractionsRecommend = await Attraction.find({
         _id: { $in: idList }
-    });
+    });*/
 
     const attractions = await Attraction.aggregate([
         {
@@ -43,17 +44,20 @@ export async function POST(req: NextRequest) {
           },
         },
         {
-          $limit: limitData - attractionsRecommend.length,
+          $skip: skipData,
+        },
+        {
+          $limit: pageSize,
         }
     ]);
     
-    const sortedAttractions = attractionsRecommend.sort((a, b) => {
+    /*const sortedAttractions = attractionsRecommend.sort((a, b) => {
         return slicedRecommendIDList.indexOf(a._id.toString()) - slicedRecommendIDList.indexOf(b._id.toString());
     });
 
-    sortedAttractions.push(...attractions);
+    sortedAttractions.push(...attractions);*/
 
-    return NextResponse.json({ attractions: attractionsRecommend }, { status: 200 });
+    return NextResponse.json({ attractions }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: `An error occurred while getting data: ${error}` }, { status: 500 });
   }

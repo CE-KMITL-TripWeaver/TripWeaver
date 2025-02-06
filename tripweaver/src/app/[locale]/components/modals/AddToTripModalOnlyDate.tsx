@@ -3,23 +3,32 @@ import { Icon } from "@iconify/react";
 import { PlanObject } from "../../interface/plantripObject";
 import TripDate from "../TripDateComponent";
 
+interface selectedLocationProps {
+  placeID: string;
+  placeType: string;
+}
+
+
 interface AddToTripModalProps {
   isOpen: boolean;
   startDate: Date;
   dayDuration: number;
-  //selectedLocation: string;
+  selectedLocation: selectedLocationProps;
   //dayIndex: number;
   //locationType: string;
   onClose: () => void;
-  //onAddTrip: (planID: string, locationID: string) => void;
+  onAddTrip: (placeID: string, placeType: string) => void;
   onChangeDate: (index: number) => void;
 }
+
 
 const AddToTripModalOnlyDate: React.FC<AddToTripModalProps> = ({
   isOpen,
   startDate,
   dayDuration,
+  selectedLocation,
   onClose,
+  onAddTrip,
   onChangeDate
 }) => {
 
@@ -69,7 +78,7 @@ const AddToTripModalOnlyDate: React.FC<AddToTripModalProps> = ({
           */}
 
           <button
-            //onClick={() => selectedPlan && onAddTrip(selectedPlan._id, selectedLocation)}
+            onClick={() => onAddTrip(selectedLocation.placeID, selectedLocation.placeType)}
             className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
             //disabled={!selectedPlan}
           >
