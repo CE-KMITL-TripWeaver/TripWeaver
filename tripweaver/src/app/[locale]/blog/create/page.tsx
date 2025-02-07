@@ -15,9 +15,11 @@ import Select from "react-select";
 import ImageResize from "tiptap-extension-resize-image";
 import { t } from "i18next";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import NavBar from "../../components/NavBar";
 import BlogDropzoneModal from "../../components/modals/BlogDropzoneModal";
-import { uploadBlogImg } from "@/utils/apiService";
+import { uploadBlogImg} from "@/utils/apiService";
+import { redirect } from "next/navigation";
 const tagsList = [
   "แหล่งท่องเที่ยว",
   "ผจญภัย",
@@ -66,9 +68,14 @@ const CreateBlogPost = () => {
   const [content, setContent] = useState("<p>เนื้อหาบล็อกของคุณ</p>");
   const [tagselect, setTagselect] = useState<string[]>([]);
   const [blogImage, setBlogImage] = useState<string | null>(null);
+  const { data: session, status } = useSession();
   const [showUploadImageModal, setShowUploadImageModal] =
     useState<boolean>(false);
   const router = useRouter();
+
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
 
   const editor = useEditor({
     extensions: [
@@ -145,7 +152,7 @@ const CreateBlogPost = () => {
       blogImage?: string | null;
     } = {
       blogName: data.title,
-      userID: "677c5fd1e5428060c8e025c6",
+      userID: session?.user?.id as string,
       description: data.description,
       tags: data.tags,
       content: content,

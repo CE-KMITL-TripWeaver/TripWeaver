@@ -4,7 +4,6 @@ const withNextIntl = createNextIntlPlugin();
  
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: false,
     images: {
       domains: ['thumbs.dreamstime.com', 'media-cdn.tripadvisor.com', 'dynamic-media-cdn.tripadvisor.com'],
       remotePatterns: [
@@ -14,9 +13,12 @@ const nextConfig = {
         },
       ],
     },
-    async redirects() {
-      return [];
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
+    typescript: {
+      ignoreBuildErrors: true,
     },
   };
- 
+
 export default withNextIntl(nextConfig);

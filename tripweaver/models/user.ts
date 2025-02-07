@@ -17,6 +17,7 @@ const UserSchema: Schema = new Schema({
   favoritePlaces: { type: [String], default: [] },
   planList: { type: [String], default: [] },
   likePlanList: { type: [String], default: [] },
+  likeBlogList: { type: [String], default: [] },
   attractionTagScore: { type: attractionTagSchema, default: () => ({})},
   createdAt: { type: Date, default: Date.now },
 });

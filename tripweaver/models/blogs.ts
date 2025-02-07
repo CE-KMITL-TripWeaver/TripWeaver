@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, {Schema} from "mongoose";
 
 const blogsSchema = new Schema({
     blogName: {type: String, required: true},
     blogImage: {type: String, default: "https://i.ibb.co/fdqgHhPV/no-img.png"},
-    blogCreator: {type: String, required: true},
+    blogCreator: {type: Schema.Types.ObjectId, ref: "User", required: true},
     description: {type: String, required: true},
     tags: {type: [String], required: true},
     content: {type: String, required: true},

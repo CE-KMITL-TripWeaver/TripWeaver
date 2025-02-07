@@ -31,8 +31,9 @@ export async function POST(req: NextRequest) {
 
         const response = await axios.post(`https://api.imgbb.com/1/upload?key=${apiKey}`, uploadFormData, {
             headers: {
-                'Content-Type': 'multipart/form-data', 
-            }
+                'Content-Type': 'multipart/form-data',
+            },
+            timeout: 120000,
         });
 
         if (response.data.success) {

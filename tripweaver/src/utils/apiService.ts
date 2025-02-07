@@ -45,11 +45,30 @@ export const updatePlanLike = async (planID: string,userID: string,statusType: s
   return data;
 };
 
+export const updateBLogLike = async (blogID: string,userID: string,statusType: string) => {
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/blog/addLike`,
+    {
+      blogID: blogID,
+      statusType: statusType,
+      userID: userID
+    }
+  );
+  return data;
+}
+
 export const fetchUserPlans = async (userID: string) => {
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${userID}`
   );
   return data.planList;
+};
+
+export const fetchBlogData = async (blogID : string) => {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog/${blogID}`
+    );
+    return data.blog;
 };
 
 export const fetchUserData = async (userID: string) => {

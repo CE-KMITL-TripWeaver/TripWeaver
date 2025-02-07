@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb';
 import Blogs from "../../../../../models/blogs";
+import { updateBLogLike } from "@/utils/apiService";
 
 export async function POST(req: NextRequest) {
     try {
@@ -33,6 +34,36 @@ export async function POST(req: NextRequest) {
         aggregationPipeline.push({
             $sort: { createdAt: -1 },
           });
+
+          aggregationPipeline.push({
+            $lookup: {
+                from: 'users', 
+                localField: 'blogCreator', 
+                foreignField: '_id', 
+                as: 'blogCreator', 
+            }
+        });
+
+        aggregationPipeline.push({
+            $unwind: {
+                path: '$blogCreator',
+                preserveNullAndEmptyArrays: true, 
+            }
+        });
+
+        aggregationPipeline.push({
+            $project: {
+                blogName: 1,
+                blogImage: 1,
+                description: 1,
+                content: 1,
+                createdAt: 1,
+                tags: 1,
+                blogViews: 1,
+                blogLikes:1,
+                blogCreator: '$blogCreator.displayName',
+            }
+        });
 
         aggregationPipeline.push(
             {
