@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         const { id } = params;
         await connectMongoDB();
 
-        const blog = await Blogs.findById(id).populate("blogCreator", "displayName");
+        const blog = await Blogs.findById(id).populate("blogCreator", "displayName imgPath");
 
         if (!blog) {
             return NextResponse.json({ message: `Blog with id ${id} not found` }, { status: 404 });

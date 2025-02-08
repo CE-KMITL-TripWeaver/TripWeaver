@@ -45,7 +45,7 @@ export const updatePlanLike = async (planID: string,userID: string,statusType: s
   return data;
 };
 
-export const updateBLogLike = async (blogID: string,userID: string,statusType: string) => {
+export const updateBlogLike = async (blogID: string,userID: string,statusType: string) => {
   const { data } = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/blog/addLike`,
     {

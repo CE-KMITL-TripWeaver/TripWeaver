@@ -44,12 +44,12 @@ export async function POST(req: NextRequest) {
 
         const updatedBlogs = await Blogs.findByIdAndUpdate(
             blogID, 
-            { $inc: { blogLike: incrementValue } },
+            { $inc: { blogLikes: incrementValue } },
             { new: true, runValidators: true }
         );
 
         if (!updatedBlogs) {
-            return NextResponse.json({ message: `Blan with id ${blogID} not found` }, { status: 404 });
+            return NextResponse.json({ message: `Blog with id ${blogID} not found` }, { status: 404 });
         }
 
         if (statusType === "ADD") {

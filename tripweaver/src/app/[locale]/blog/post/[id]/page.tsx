@@ -7,14 +7,19 @@ import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useQuery } from "react-query";
-import { fetchUserData, fetchBlogData } from "../../../../../utils/apiService";
+import { fetchUserData, fetchBlogData, updateBlogLike } from "../../../../../utils/apiService";
 import { format } from "date-fns";
+import { set } from "mongoose";
+
+
 export default function BlogPost() {
   const { id } = useParams();
   const blogID = id as string;
   const { data: session, status } = useSession();
   const [blogCreateAt, setBlogCreateAt] = useState("");
+  const [isLikeBlog, setIsLikeBlog] = useState<boolean>(false);
   const [blogCreator, setBlogCreator] = useState("");
+  const [CreatorImg, setCreatorImg] = useState("https://i.ibb.co/fdqgHhPV/no-img.png");
   const t = useTranslations();
   interface BlogData {
     blogName: string;
@@ -69,6 +74,19 @@ export default function BlogPost() {
     }
   };
 
+  const handleClickLike = async () => {
+  
+      if(userData?.likeBlogList?.includes(blogID)) {
+        await updateBlogLike(blogID,session?.user?.id!,"DEC");
+        setIsLikeBlog(false);
+      } else {
+        await updateBlogLike(blogID,session?.user?.id!,"ADD");
+        setIsLikeBlog(true);
+      }
+      refetchBlogData();
+      refetchUserData();
+    };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("th-TH", {
       day: "numeric",
@@ -90,11 +108,17 @@ export default function BlogPost() {
   // };
 
   useEffect(() => {
-    console.log("blogData", blogData);
     if (blogData && userData) {
       setBlogCreateAt(formatDate(new Date(blogData.createdAt)));
-      setBlogCreator(blogData.blogCreator.username);
+      setBlogCreator(blogData.blogCreator.displayName);
+      console.log(blogData.blogCreator.imgPath);
+      if (blogData.blogCreator.imgPath){
+      setCreatorImg(blogData.blogCreator.imgPath);
+      }
+      console.log(CreatorImg);
       updateBlogView();
+      const isLiked = userData?.likeBlogList?.includes(blogID) ?? false;
+      setIsLikeBlog(isLiked);
     }
   }, [blogData, userData]);
 
@@ -125,9 +149,51 @@ export default function BlogPost() {
               </span>
             ))}
           </div>
-          <div className="pt-4 flex flex-row items-center space-x-2">
-            <Icon icon="mdi:calendar" className="text-gray-500 mr-1" />
-            {blogCreateAt} โดย {blogCreator}
+          <div className="flex items-center pt-2">
+          <img
+              src={CreatorImg}
+              alt="Creator"
+              className="w-12 h-12 rounded-full object-cover mr-4"
+            />
+            <div className="w-full">
+            <div className="text-md pt-2">{blogCreator}</div>
+            <div className="text-md flex items-center">
+              {blogCreateAt}
+              <Icon
+                icon="mdi:eye-outline"
+                className="text-gray-500 ml-8 mr-1 text-lg"
+              />
+              {blogData.blogViews}
+              <Icon
+                icon="mdi:heart-outline"
+                className="text-gray-500 ml-4 mr-1 text-lg"
+              />
+              {blogData.blogLikes}
+              {isLikeBlog ? (
+                  <button
+                    className="bg-red-500 text-white px-4 py-1 rounded-lg ml-auto mr-2 flex items-center transition duration-300 ease-in-out"
+                    onClick={handleClickLike}
+                  >
+                    <Icon
+                      icon="mdi:heart"
+                      className="text-white text-lg mt-1 mr-2"
+                    />
+                    เลิกถูกใจบล็อก
+                  </button>
+                ) : (
+                  <button
+                    className="bg-orange-500 text-white px-4 py-1 rounded-lg ml-auto mr-2 flex items-center transition duration-300 ease-in-out"
+                    onClick={handleClickLike}
+                  >
+                    <Icon
+                      icon="mdi:heart-outline"
+                      className="text-white text-lg mt-1 mr-2"
+                    />
+                    ถูกใจบล็อก
+                  </button>
+                )}
+            </div>
+          </div>
           </div>
           <div className="pt-8">{blogData.description}</div>
           <div>
