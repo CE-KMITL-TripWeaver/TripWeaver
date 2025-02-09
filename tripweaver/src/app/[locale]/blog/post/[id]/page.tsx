@@ -1,5 +1,5 @@
 "use client";
-import { useParams, redirect } from "next/navigation";
+import { useParams, redirect, useRouter } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import NavBar from "@/app/[locale]/components/NavBar";
@@ -16,9 +16,11 @@ export default function BlogPost() {
   const { id } = useParams();
   const blogID = id as string;
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [blogCreateAt, setBlogCreateAt] = useState("");
   const [isLikeBlog, setIsLikeBlog] = useState<boolean>(false);
   const [blogCreator, setBlogCreator] = useState("");
+  const [isCreator, setIsCreator] = useState(false);
   const [CreatorImg, setCreatorImg] = useState("https://i.ibb.co/fdqgHhPV/no-img.png");
   const t = useTranslations();
   interface BlogData {
@@ -115,10 +117,12 @@ export default function BlogPost() {
       if (blogData.blogCreator.imgPath){
       setCreatorImg(blogData.blogCreator.imgPath);
       }
-      console.log(CreatorImg);
       updateBlogView();
       const isLiked = userData?.likeBlogList?.includes(blogID) ?? false;
       setIsLikeBlog(isLiked);
+      if (session?.user?.id === blogData.blogCreator._id) {
+        setIsCreator(true);
+      }
     }
   }, [blogData, userData]);
 
@@ -169,9 +173,18 @@ export default function BlogPost() {
                 className="text-gray-500 ml-4 mr-1 text-lg"
               />
               {blogData.blogLikes}
+              <div className="flex items-center ml-auto">
+              {isCreator && (
+                  <button
+                    className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
+                    onClick={() => router.push(`/blog/edit/${blogID}`)}
+                  >
+                    แก้ไขบล็อก
+                  </button> 
+              )}
               {isLikeBlog ? (
                   <button
-                    className="bg-red-500 text-white px-4 py-1 rounded-lg ml-auto mr-2 flex items-center transition duration-300 ease-in-out"
+                    className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
                     onClick={handleClickLike}
                   >
                     <Icon
@@ -192,6 +205,7 @@ export default function BlogPost() {
                     ถูกใจบล็อก
                   </button>
                 )}
+                </div>
             </div>
           </div>
           </div>

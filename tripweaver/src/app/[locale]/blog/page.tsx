@@ -15,10 +15,11 @@ import { useQuery } from "react-query";
 import { fetchBlog } from "@/utils/apiService";
 import { useSession } from "next-auth/react";
 import { fetchUserData } from "@/utils/apiService";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function Home() {
   const t = useTranslations();
+  const router = useRouter();
 
   interface BlogData {
     _id: string;
@@ -206,8 +207,8 @@ export default function Home() {
         </div>
         <div className="flex flex-col px-20">
           <div className="flex justify-end pt-4">
-            <button className="kanit bg-orange-500 text-white text-bold p-2 rounded-lg hover:bg-orange-600 duration-200">
-              <a href="http://localhost:3000/th/blog/create">สร้างบล็อก</a>
+            <button className="kanit bg-orange-500 text-white text-bold p-2 rounded-lg hover:bg-orange-600 duration-200" onClick={() => router.push("/th/blog/create")}>
+              สร้างบล็อก
             </button>
           </div>
           <h1 className="kanit text-2xl font-bold mb-2 ">บล็อกยอดนิยม</h1>
@@ -216,8 +217,8 @@ export default function Home() {
               <div
                 key={post._id}
                 className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+                onClick={() => router.push(`/blog/post/${post._id}`)}
               >
-                <a href={`/blog/post/${post._id}`}>
                   <Image
                     src={post.blogImage}
                     alt={post.blogName}
@@ -271,7 +272,6 @@ export default function Home() {
                       </span>
                     </div>
                   </div>
-                </a>
               </div>
             ))}
           </div>
@@ -297,8 +297,8 @@ export default function Home() {
                   <div
                     key={post._id}
                     className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200 h-[193px] "
+                    onClick={() => router.push(`/blog/post/${post._id}`)}
                   >
-                    <a href={`/blog/post/${post._id}`}>
                       <div className="flex">
                         <Image
                           src={post.blogImage}
@@ -365,7 +365,6 @@ export default function Home() {
                           </div>
                         </div>
                       </div>
-                    </a>
                   </div>
                 ))}
               </div>
