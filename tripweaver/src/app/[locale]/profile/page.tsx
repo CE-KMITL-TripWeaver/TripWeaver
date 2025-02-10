@@ -8,11 +8,12 @@ import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { fetchUserBlog } from "@/utils/apiService";
+import { fetchUserBlog, fetchUserTrip } from "@/utils/apiService";
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import PaginationComponent from "../components/PaginationComponent";
 import BlogCard from "../components/BlogCard";
+import ProfileTripCard from "../components/ProfileTripCard";
 import { set } from "mongoose";
 
 interface BlogData {
@@ -24,6 +25,17 @@ interface BlogData {
   blogLikes: number;
   description: string;
   tags: string[];
+  createdAt: string;
+}
+
+interface TripData {
+  _id: string;
+  tripName: string;
+  tripImage: string;
+  tripCreator: string;
+  tripViews: number;
+  tripLikes: number;
+  description: string;
   createdAt: string;
 }
 
@@ -217,7 +229,7 @@ const Sidebar = ({
   setSelectedContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
-    <div className="sidebar w-20 h-[calc(100vh-68px)] bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300">
+    <div className="sidebar w-20 h-[calc(100vh-68px)] bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300 z-50">
       <ul className="space-y-2 h-screen">
         <li className="relative group">
           <div
@@ -422,50 +434,52 @@ const ProfileContent = () => (
 );
 
 const TripContent = ({
-  tagsList,
-  handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  tripList,
+  handleTripSearch,
 }: {
-  tagsList: CheckboxElement[];
-  handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  tripList: TripData[];
+  handleTripSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-      <TagCheckBoxComponent
-        maxHeight={320}
-        element={tagsList}
-        translationTagTitle={"AttractionPages.title_tags"}
-        onCheckBoxSelect={handleTag}
-        translationPrefix={"Tags."}
-      />
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex h-[750px]">
+      <div className="flex flex-col w-[100%]">
+        <div className="flex justify-between items-end ">
+          <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+          <input
+            type="text"
+            placeholder="ค้นหาทริปของฉัน"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleTripSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4 ml-8 -z-9">
+          {tripList.map((trip, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 h-52"
+              key={index}
+            >
+              <ProfileTripCard
+                tripImage={trip.tripImage}
+                tripID={trip._id}
+                tripName={trip.tripName}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
-        <input
-          type="text"
-          placeholder="ค้นหาทริปของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
-        />
-      </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {recentTrip.map((trip, index) => (
-          <a
-            key={index}
-            href={`#/trip/${trip.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={trip.image}
-              alt={trip.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{trip.name}</div>
-          </a>
-        ))}
-      </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -655,12 +669,15 @@ export default function Profile() {
 
   const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
   const [blogList, setBlogList] = useState<BlogData[]>([]);
+  const [tripList, setTripList] = useState<TripData[]>([]);
   const [blogCurrentPage, setBlogCurrentPage] = useState<number>(1);
   const [blogMaxPage, setBlogMaxPage] = useState<number>(1);
+  const [tripCurrentPage, setTripCurrentPage] = useState<number>(1);
+  const [tripMaxPage, setTripMaxPage] = useState<number>(1);
   const [blogSearchText, setBlogSearchText] = useState<string>("");
+  const [tripSearchText, setTripSearchText] = useState<string>("");
   const { data: session, status } = useSession();
   const userID = session?.user?.id || "";
-  const [tripTagsList, setTripTagList] = useState<CheckboxElement[]>([]);
   const [blogTagsList, setBlogTagList] = useState<CheckboxElement[]>([]);
   const [favoriteTagsList, setFavoriteTagList] = useState<CheckboxElement[]>(
     []
@@ -698,9 +715,28 @@ export default function Profile() {
     }
   );
 
-  const handleTripTag = (tags: CheckboxElement[]) => {
-    setTripTagList(tags);
-  };
+  const {
+    data: tripDataFromFilter,
+    isLoading: istripDataFromFilterLoading,
+    isError: istripDataFromFilterError,
+  } = useQuery(
+    [
+      "tripDataFromFilter",
+      tripCurrentPage,
+      session?.user?.id,
+      tripSearchText,
+    ],
+    () =>
+      fetchUserTrip(
+        tripCurrentPage,
+        userID,
+        tripSearchText
+      ),
+    {
+      retry: 0,
+    }
+  );
+
   const handleBlogTag = (tags: CheckboxElement[]) => {
     setBlogTagList(tags);
   };
@@ -728,6 +764,25 @@ export default function Profile() {
     setBlogCurrentPage(page);
   };
 
+  const handleTripSearch = (text: string) => {
+    setTripSearchText(text);
+  };
+
+  const handleTripSelectPage = (page: number) => {
+    if (page == tripCurrentPage) {
+      return;
+    }
+    if (page > tripMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setTripCurrentPage(page);
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("th-TH", {
       day: "numeric",
@@ -750,7 +805,6 @@ export default function Profile() {
           })
         );
 
-        setTripTagList(tagWithDefaultSelected);
         setBlogTagList(tagWithDefaultSelected);
         setFavoriteTagList(tagWithDefaultSelected);
       } catch (error) {
@@ -762,7 +816,6 @@ export default function Profile() {
 
   useEffect(() => {
     if (blogDataFromFilter) {
-      console.log(blogDataFromFilter);
       setBlogList(
         blogDataFromFilter.blogs.map((blog: BlogData) => ({
           _id: blog._id,
@@ -781,6 +834,23 @@ export default function Profile() {
   }, [blogDataFromFilter]);
 
   useEffect(() => {
+    if (tripDataFromFilter) {
+      setTripList(
+        tripDataFromFilter.trips.map((trip : TripData) => ({
+          _id: trip._id,
+          tripName: trip.tripName,
+          tripImage: trip.tripImage,
+          tripCreator: trip.tripCreator,
+          tripViews: trip.tripViews,
+          tripLikes: trip.tripLikes,
+          description: trip.description,
+        }))
+      );
+      setTripMaxPage(tripDataFromFilter.totalPages);
+    }
+  }, [tripDataFromFilter]);
+
+  useEffect(() => {
     console.log("blogList", blogList);
   }, [blogList]);
 
@@ -792,7 +862,13 @@ export default function Profile() {
         return <ProfileContent />;
       case "trip":
         return (
-          <TripContent tagsList={tripTagsList} handleTag={handleTripTag} />
+          <TripContent
+            currentPage={tripCurrentPage}
+            maxPage={tripMaxPage}
+            handleSelectPage={handleTripSelectPage}
+            tripList={tripList}
+            handleTripSearch={handleTripSearch}
+          />
         );
       case "blog":
         return (
