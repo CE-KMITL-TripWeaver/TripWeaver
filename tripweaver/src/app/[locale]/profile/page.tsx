@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import NavBar from "../components/NavBar";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -7,8 +7,25 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
-import { url } from "inspector";
-import { t } from "i18next";
+import { useQuery } from "react-query";
+import { fetchUserBlog } from "@/utils/apiService";
+import { useSession } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
+import PaginationComponent from "../components/PaginationComponent";
+import BlogCard from "../components/BlogCard";
+import { set } from "mongoose";
+
+interface BlogData {
+  _id: string;
+  blogName: string;
+  blogImage: string;
+  blogCreator: string;
+  blogViews: number;
+  blogLikes: number;
+  description: string;
+  tags: string[];
+  createdAt: string;
+}
 
 const profile = {
   name: "Panat Inwza007",
@@ -141,6 +158,42 @@ const recentBlog = [
       "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 8,
   },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
 ];
 
 const favoritePlace = [
@@ -230,7 +283,7 @@ const Sidebar = ({
             </span>
           </div>
         </li>
-        
+
         <li className="relative group">
           <div
             onClick={() => setSelectedContent("places")}
@@ -377,7 +430,13 @@ const TripContent = ({
 }) => (
   <div className="flex kanit rounded-md mt-8 ml-4">
     <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
+      <TagCheckBoxComponent
+        maxHeight={320}
+        element={tagsList}
+        translationTagTitle={"AttractionPages.title_tags"}
+        onCheckBoxSelect={handleTag}
+        translationPrefix={"Tags."}
+      />
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
@@ -414,42 +473,63 @@ const TripContent = ({
 const BlogContent = ({
   tagsList,
   handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  blogList,
+  handleBlogSearch,
 }: {
   tagsList: CheckboxElement[];
   handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  blogList: BlogData[];
+  handleBlogSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
-    </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
-        <input
-          type="text"
-          placeholder="ค้นหาบล็อกของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex">
+      <div className="flex mb-5 mt-[19px] h-fit">
+        <TagCheckBoxComponent
+          maxHeight={680}
+          element={tagsList}
+          translationTagTitle={"AttractionPages.title_tags"}
+          onCheckBoxSelect={handleTag}
+          translationPrefix={"Tags."}
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {recentBlog.map((blog, index) => (
-          <a
-            key={index}
-            href={`#/trip/${blog.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={blog.image}
-              alt={blog.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{blog.name}</div>
-          </a>
-        ))}
+      <div className="flex flex-col w-[90%]">
+        <div className="flex justify-between items-end ">
+          <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
+          <input
+            type="text"
+            placeholder="ค้นหาบล็อกของฉัน"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleBlogSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4">
+          {blogList.map((blog, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 h-52 "
+              key={index}
+            >
+              <BlogCard
+                blogImage={blog.blogImage}
+                blogID={blog._id}
+                blogName={blog.blogName}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+    </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -463,11 +543,19 @@ const FavoriteContent = ({
 }) => (
   <div className="flex kanit rounded-md mt-8 ml-4">
     <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
+      <TagCheckBoxComponent
+        maxHeight={320}
+        element={tagsList}
+        translationTagTitle={"AttractionPages.title_tags"}
+        onCheckBoxSelect={handleTag}
+        translationPrefix={"Tags."}
+      />
     </div>
     <div className="flex flex-col">
       <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
+        <div className="flex kanit font-bold text-2xl ml-5">
+          สถานที่ที่ชื่นชอบ
+        </div>
         <input
           type="text"
           placeholder="ค้นหาบล็อกของฉัน"
@@ -563,13 +651,89 @@ const InterestsContent = () => (
 
 export default function Profile() {
   const t = useTranslations();
+  const router = useRouter();
+
+  const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
+  const [blogList, setBlogList] = useState<BlogData[]>([]);
+  const [blogCurrentPage, setBlogCurrentPage] = useState<number>(1);
+  const [blogMaxPage, setBlogMaxPage] = useState<number>(1);
+  const [blogSearchText, setBlogSearchText] = useState<string>("");
+  const { data: session, status } = useSession();
+  const userID = session?.user?.id || "";
   const [tripTagsList, setTripTagList] = useState<CheckboxElement[]>([]);
   const [blogTagsList, setBlogTagList] = useState<CheckboxElement[]>([]);
+  const [favoriteTagsList, setFavoriteTagList] = useState<CheckboxElement[]>(
+    []
+  );
+
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
+
+  const {
+    data: blogDataFromFilter,
+    isLoading: isblogDataFromFilterLoading,
+    isError: isblogDataFromFilterError,
+  } = useQuery(
+    [
+      "blogDataFromFilter",
+      selectedProvince,
+      blogTagsList,
+      blogCurrentPage,
+      session?.user?.id,
+      blogSearchText,
+    ],
+    () =>
+      fetchUserBlog(
+        selectedProvince,
+        blogTagsList
+          .filter((tag) => tag.selected)
+          .map((tag) => t(`Tags.${tag.name}`)),
+        blogCurrentPage,
+        userID,
+        blogSearchText
+      ),
+    {
+      retry: 0,
+    }
+  );
+
   const handleTripTag = (tags: CheckboxElement[]) => {
     setTripTagList(tags);
   };
   const handleBlogTag = (tags: CheckboxElement[]) => {
     setBlogTagList(tags);
+  };
+
+  const handleFavoriteTag = (tags: CheckboxElement[]) => {
+    setFavoriteTagList(tags);
+  };
+
+  const handleBlogSearch = (text: string) => {
+    setBlogSearchText(text);
+  };
+
+  const handleBlogSelectPage = (page: number) => {
+    if (page == blogCurrentPage) {
+      return;
+    }
+    if (page > blogMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setBlogCurrentPage(page);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    }).format(date);
   };
 
   useEffect(() => {
@@ -588,12 +752,37 @@ export default function Profile() {
 
         setTripTagList(tagWithDefaultSelected);
         setBlogTagList(tagWithDefaultSelected);
+        setFavoriteTagList(tagWithDefaultSelected);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (blogDataFromFilter) {
+      console.log(blogDataFromFilter);
+      setBlogList(
+        blogDataFromFilter.blogs.map((blog: BlogData) => ({
+          _id: blog._id,
+          blogName: blog.blogName,
+          blogImage: blog.blogImage,
+          blogCreator: blog.blogCreator,
+          blogViews: blog.blogViews,
+          blogLikes: blog.blogLikes,
+          description: blog.description,
+          tags: blog.tags,
+          createdAt: formatDate(new Date(blog.createdAt)),
+        }))
+      );
+      setBlogMaxPage(blogDataFromFilter.totalPages);
+    }
+  }, [blogDataFromFilter]);
+
+  useEffect(() => {
+    console.log("blogList", blogList);
+  }, [blogList]);
 
   const [selectedContent, setSelectedContent] = useState("profile");
 
@@ -607,10 +796,23 @@ export default function Profile() {
         );
       case "blog":
         return (
-          <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />
+          <BlogContent
+            tagsList={blogTagsList}
+            handleTag={handleBlogTag}
+            currentPage={blogCurrentPage}
+            maxPage={blogMaxPage}
+            handleSelectPage={handleBlogSelectPage}
+            blogList={blogList}
+            handleBlogSearch={handleBlogSearch}
+          />
         );
       case "favorite":
-        return <FavoriteContent tagsList={blogTagsList} handleTag={handleBlogTag} />;
+        return (
+          <FavoriteContent
+            tagsList={favoriteTagsList}
+            handleTag={handleFavoriteTag}
+          />
+        );
       case "places":
         return <PlacesContent />;
       case "interests":
@@ -626,7 +828,7 @@ export default function Profile() {
         <NavBar />
         <div className="flex flex-row">
           <Sidebar setSelectedContent={setSelectedContent} />
-          <div className="p-4 h-full">{renderContent()}</div>
+          <div className="p-4 h-full w-full">{renderContent()}</div>
         </div>
       </div>
     </>

@@ -271,6 +271,20 @@ export const fetchBlog = async (provinceName: string,
 
 }
 
+export const fetchUserBlog = async (provinceName: string, tagLists: string[], page: number, creator: string, blogSearchText: string) => {
+  const requestBody: Record<string, any> = {
+    provinceName,
+    tagLists,
+    page,
+    creator,
+    blogSearchText  
+  };
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/getUserBlog`
+    , requestBody
+  );
+  return data;
+}
+
 export const fetchRestaurant = async (provinceName: string, districtList: string[],
   typeLists: string[],facilityList: string[], rating: number[], page: number,
   radius?: number, centerLatitude?: number, centerLongitude?: number
