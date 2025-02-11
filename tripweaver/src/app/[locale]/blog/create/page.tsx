@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Heading from "@tiptap/extension-heading";
+import BulletList from "@tiptap/extension-bullet-list";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -20,6 +22,8 @@ import NavBar from "../../components/NavBar";
 import BlogDropzoneModal from "../../components/modals/BlogDropzoneModal";
 import { uploadBlogImg} from "@/utils/apiService";
 import { redirect } from "next/navigation";
+import "../toolbar.css";
+
 const tagsList = [
   "แหล่งท่องเที่ยว",
   "ผจญภัย",
@@ -88,6 +92,10 @@ const CreateBlogPost = () => {
           height: "auto",
         },
       }),
+      Heading.configure({
+        levels: [1, 2, 3, 4],
+      }),
+      BulletList,
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
@@ -378,6 +386,55 @@ const CreateBlogPost = () => {
                     <Icon icon="iconoir:align-justify" className="text-lg" />
                   </button>
                 </div>
+
+                {/* Heading Buttons */}
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 1 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 2 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H2
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 3 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H3
+                </button>
+
+                {/* List Buttons */}
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  className={`p-2 rounded ${
+                    editor.isActive("bulletList")
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  <Icon icon="mdi:format-list-bulleted" className="text-lg" />
+                </button>
+
                 {/* Undo Button */}
                 <button
                   type="button"

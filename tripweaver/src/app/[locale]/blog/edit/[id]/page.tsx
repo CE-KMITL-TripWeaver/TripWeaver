@@ -18,12 +18,15 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import NavBar from "../../../components/NavBar";
 import BlogDropzoneModal from "../../../components/modals/BlogDropzoneModal";
-import { uploadBlogImg} from "@/utils/apiService";
+import { uploadBlogImg } from "@/utils/apiService";
 import { redirect } from "next/navigation";
 import { useQuery } from "react-query";
 import { fetchUserData, fetchBlogData } from "@/utils/apiService";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
+import "../../toolbar.css";
+import Heading from "@tiptap/extension-heading";
+import BulletList from "@tiptap/extension-bullet-list";
 
 const tagsList = [
   "แหล่งท่องเที่ยว",
@@ -62,9 +65,7 @@ const formSchema = z.object({
     .string()
     .min(10, { message: "รายละเอียดต้องมีความยาวกว่า 10 ตัวอักษร" })
     .max(256, { message: "รายละเอียดต้องมีความยาวไม่เกิน 350 ตัวอักษร" }),
-  tags: z
-    .array(z.string(), { message: "ต้องมีอย่างน้อย 1 แท็ก" })
-    .nonempty(),
+  tags: z.array(z.string(), { message: "ต้องมีอย่างน้อย 1 แท็ก" }).nonempty(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -86,66 +87,70 @@ const EditBlogPost = () => {
   }
 
   const {
-      data: userData,
-      isLoading: isUserDataLoading,
-      isError: isUserDataError,
-      refetch: refetchUserData,
-    } = useQuery(
-      ["userData", session?.user?.id],
-      () => fetchUserData(session?.user?.id!),
-      {
-        enabled: !!session?.user?.id,
-      }
-    );
-  
-    const {
-      data: blogData,
-      isLoading: isBlogDataLoading,
-      isError: isBlogDataError,
-      refetch: refetchBlogData,
-    } = useQuery(["blogData", blogID], () => fetchBlogData(blogID), {
-      enabled: !!blogID,
-      retry: 0,
-    });
-    
-    const editor = useEditor({
-        extensions: [
-          StarterKit,
-          ImageResize,
-          Image.configure({
-            inline: true,
-            HTMLAttributes: {
-              width: "600px",
-              height: "auto",
-            },
-          }),
-          TextAlign.configure({
-            types: ["heading", "paragraph"],
-          }),
-        ],
-        content: content,
-        onUpdate: ({ editor }) => {
-          setContent(editor.getHTML());
-        },
-        immediatelyRender: false,
-      });
+    data: userData,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+    refetch: refetchUserData,
+  } = useQuery(
+    ["userData", session?.user?.id],
+    () => fetchUserData(session?.user?.id!),
+    {
+      enabled: !!session?.user?.id,
+    }
+  );
 
-      useEffect(() => {
-        if (blogData && userData) {
-          if (session?.user?.id !== blogData?.blogCreator?._id) {
-              redirect("/blog");
-          }
-          setValue("title", blogData.blogName);
-          setValue("description", blogData.description);
-          setValue("tags", blogData.tags);
-          setTagselect(blogData.tags);
-          setContent(blogData.content);
-          setBlogImage(blogData.blogImage);
-          if (editor) {
-            editor.commands.setContent(blogData.content);
-          }
-        }
-      }, [blogData, userData]);
+  const {
+    data: blogData,
+    isLoading: isBlogDataLoading,
+    isError: isBlogDataError,
+    refetch: refetchBlogData,
+  } = useQuery(["blogData", blogID], () => fetchBlogData(blogID), {
+    enabled: !!blogID,
+    retry: 0,
+  });
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      ImageResize,
+      Image.configure({
+        inline: true,
+        HTMLAttributes: {
+          width: "600px",
+          height: "auto",
+        },
+      }),
+      Heading.configure({
+        levels: [1, 2, 3, 4],
+      }),
+      BulletList,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+    ],
+    content: content,
+    onUpdate: ({ editor }) => {
+      setContent(editor.getHTML());
+    },
+    immediatelyRender: false,
+  });
+
+  useEffect(() => {
+    if (blogData && userData) {
+      if (session?.user?.id !== blogData?.blogCreator?._id) {
+        redirect("/blog");
+      }
+      setValue("title", blogData.blogName);
+      setValue("description", blogData.description);
+      setValue("tags", blogData.tags);
+      setTagselect(blogData.tags);
+      setContent(blogData.content);
+      setBlogImage(blogData.blogImage);
+      if (editor) {
+        editor.commands.setContent(blogData.content);
+      }
+    }
+  }, [blogData, userData, editor]);
 
   const handleBlogUploadImage = (reponse: any) => {
     setBlogImage(reponse);
@@ -203,7 +208,7 @@ const EditBlogPost = () => {
       content: content,
     };
 
-    if (blogImage){
+    if (blogImage) {
       blogData.blogImage = blogImage;
     }
     try {
@@ -240,9 +245,9 @@ const EditBlogPost = () => {
     setValue("tags", newTags as [string, ...string[]]);
   };
 
-//   const debug = () => {
-//     console.log("Content:", content);
-//   }
+  //   const debug = () => {
+  //     console.log("Content:", content);
+  //   }
 
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
@@ -274,8 +279,14 @@ const EditBlogPost = () => {
               รูปภาพหน้าปกบล็อก
             </label>
             {!blogImage && (
-              <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
-                <Icon icon="uil:image-upload" className="text-[100px] text-gray-500 hover:text-orange-400 transition" />
+              <div
+                className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition"
+                onClick={handleClickChangeImage}
+              >
+                <Icon
+                  icon="uil:image-upload"
+                  className="text-[100px] text-gray-500 hover:text-orange-400 transition"
+                />
               </div>
             )}
             {showUploadImageModal && (
@@ -286,7 +297,10 @@ const EditBlogPost = () => {
               />
             )}
             {blogImage && (
-              <div className="flex mt-2 justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
+              <div
+                className="flex mt-2 justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition"
+                onClick={handleClickChangeImage}
+              >
                 <img
                   src={blogImage}
                   alt="Blog"
@@ -427,6 +441,63 @@ const EditBlogPost = () => {
                     <Icon icon="iconoir:align-justify" className="text-lg" />
                   </button>
                 </div>
+
+                {/* Heading Buttons */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 1 }).run()
+                  }
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 1 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H1
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 2 }).run()
+                  }
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 2 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H2
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 3 }).run()
+                  }
+                  className={`p-2 rounded ${
+                    editor.isActive("heading", { level: 3 })
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  H3
+                </button>
+
+                {/* List Buttons */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus().toggleBulletList().run()
+                  }
+                  className={`p-2 rounded ${
+                    editor.isActive("bulletList")
+                      ? "bg-orange-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  <Icon icon="mdi:format-list-bulleted" className="text-lg" />
+                </button>
+
                 {/* Undo Button */}
                 <button
                   type="button"

@@ -9,8 +9,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useQuery } from "react-query";
 import { fetchUserData, fetchBlogData, updateBlogLike } from "../../../../../utils/apiService";
 import { format } from "date-fns";
-import { set } from "mongoose";
-
+import "../../toolbar.css";
 
 export default function BlogPost() {
   const { id } = useParams();
@@ -23,14 +22,21 @@ export default function BlogPost() {
   const [isCreator, setIsCreator] = useState(false);
   const [CreatorImg, setCreatorImg] = useState("https://i.ibb.co/fdqgHhPV/no-img.png");
   const t = useTranslations();
+
   interface BlogData {
     blogName: string;
     blogImage: string;
-    blogCreator: string;
+    blogCreator: {
+      displayName: string;
+      imgPath: string;
+      _id: string;
+    };
     description: string;
     content: string;
     createdAt: string;
     tags: string[];
+    blogViews: number;
+    blogLikes: number;
   }
 
   const {
@@ -77,17 +83,16 @@ export default function BlogPost() {
   };
 
   const handleClickLike = async () => {
-  
-      if(userData?.likeBlogList?.includes(blogID)) {
-        await updateBlogLike(blogID,session?.user?.id!,"DEC");
-        setIsLikeBlog(false);
-      } else {
-        await updateBlogLike(blogID,session?.user?.id!,"ADD");
-        setIsLikeBlog(true);
-      }
-      refetchBlogData();
-      refetchUserData();
-    };
+    if (userData?.likeBlogList?.includes(blogID)) {
+      await updateBlogLike(blogID, session?.user?.id!, "DEC");
+      setIsLikeBlog(false);
+    } else {
+      await updateBlogLike(blogID, session?.user?.id!, "ADD");
+      setIsLikeBlog(true);
+    }
+    refetchBlogData();
+    refetchUserData();
+  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("th-TH", {
@@ -97,25 +102,12 @@ export default function BlogPost() {
     }).format(date);
   };
 
-  // const fetchBlogData = async () => {
-  //   try {
-  //     const { data } = await axios.post(
-  //       `${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog/${id}`
-  //     );
-  //     (data.blog.createdAt = formatDate(new Date(data.blog.createdAt))),
-  //       setBlogData(data.blog);
-  //   } catch (error) {
-  //     console.error("Error fetching blog data:", error);
-  //   }
-  // };
-
   useEffect(() => {
     if (blogData && userData) {
       setBlogCreateAt(formatDate(new Date(blogData.createdAt)));
       setBlogCreator(blogData.blogCreator.displayName);
-      console.log(blogData.blogCreator.imgPath);
-      if (blogData.blogCreator.imgPath){
-      setCreatorImg(blogData.blogCreator.imgPath);
+      if (blogData.blogCreator.imgPath) {
+        setCreatorImg(blogData.blogCreator.imgPath);
       }
       updateBlogView();
       const isLiked = userData?.likeBlogList?.includes(blogID) ?? false;
@@ -154,60 +146,60 @@ export default function BlogPost() {
             ))}
           </div>
           <div className="flex items-center pt-2">
-          <img
+            <img
               src={CreatorImg}
               alt="Creator"
               className="w-12 h-12 rounded-full object-cover mr-4"
             />
             <div className="w-full">
-            <div className="text-md pt-2">{blogCreator}</div>
-            <div className="text-md flex items-center">
-              {blogCreateAt}
-              <Icon
-                icon="mdi:eye-outline"
-                className="text-gray-500 ml-8 mr-1 text-lg"
-              />
-              {blogData.blogViews}
-              <Icon
-                icon="mdi:heart-outline"
-                className="text-gray-500 ml-4 mr-1 text-lg"
-              />
-              {blogData.blogLikes}
-              <div className="flex items-center ml-auto">
-              {isCreator && (
-                  <button
-                    className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
-                    onClick={() => router.push(`/blog/edit/${blogID}`)}
-                  >
-                    แก้ไขบล็อก
-                  </button> 
-              )}
-              {isLikeBlog ? (
-                  <button
-                    className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
-                    onClick={handleClickLike}
-                  >
-                    <Icon
-                      icon="mdi:heart"
-                      className="text-white text-lg mt-1 mr-2"
-                    />
-                    เลิกถูกใจบล็อก
-                  </button>
-                ) : (
-                  <button
-                    className="bg-orange-500 text-white px-4 py-1 rounded-lg ml-auto mr-2 flex items-center transition duration-300 ease-in-out"
-                    onClick={handleClickLike}
-                  >
-                    <Icon
-                      icon="mdi:heart-outline"
-                      className="text-white text-lg mt-1 mr-2"
-                    />
-                    ถูกใจบล็อก
-                  </button>
-                )}
+              <div className="text-md pt-2">{blogCreator}</div>
+              <div className="text-md flex items-center">
+                {blogCreateAt}
+                <Icon
+                  icon="mdi:eye-outline"
+                  className="text-gray-500 ml-8 mr-1 text-lg"
+                />
+                {blogData.blogViews}
+                <Icon
+                  icon="mdi:heart-outline"
+                  className="text-gray-500 ml-4 mr-1 text-lg"
+                />
+                {blogData.blogLikes}
+                <div className="flex items-center ml-auto">
+                  {isCreator && (
+                    <button
+                      className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
+                      onClick={() => router.push(`/blog/edit/${blogID}`)}
+                    >
+                      แก้ไขบล็อก
+                    </button>
+                  )}
+                  {isLikeBlog ? (
+                    <button
+                      className="bg-red-500 text-white px-4 py-1 rounded-lg mr-2 flex items-center transition duration-300 ease-in-out"
+                      onClick={handleClickLike}
+                    >
+                      <Icon
+                        icon="mdi:heart"
+                        className="text-white text-lg mt-1 mr-2"
+                      />
+                      เลิกถูกใจบล็อก
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-orange-500 text-white px-4 py-1 rounded-lg ml-auto mr-2 flex items-center transition duration-300 ease-in-out"
+                      onClick={handleClickLike}
+                    >
+                      <Icon
+                        icon="mdi:heart-outline"
+                        className="text-white text-lg mt-1 mr-2"
+                      />
+                      ถูกใจบล็อก
+                    </button>
+                  )}
                 </div>
+              </div>
             </div>
-          </div>
           </div>
           <div className="pt-8">{blogData.description}</div>
           <div>
@@ -218,7 +210,7 @@ export default function BlogPost() {
             />
           </div>
           <div
-            className="pt-4 text-xl"
+            className="pt-4 text-xl tiptap"
             dangerouslySetInnerHTML={{ __html: blogData.content }}
           />
         </div>
