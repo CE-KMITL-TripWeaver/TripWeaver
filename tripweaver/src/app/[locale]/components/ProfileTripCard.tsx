@@ -1,22 +1,25 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 import { redirect } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
-interface LocationCard {
+interface BlogCard {
   tripID: string;
   tripName: string;
   tripImage: string;
 }
 
-export default function LocationCard({
+export default function BlogCard({
     tripID,
     tripName,
     tripImage,
-  }: LocationCard) {
+  }: BlogCard) {
 
     const handleClickViewDetails = (tripID: string) => {
         console.log("Navigate to",tripID);
     }
+
+    const router = useRouter();
 
 
     return (
@@ -24,7 +27,8 @@ export default function LocationCard({
             <div className="flex relative w-full h-full flex-col justify-end cursor-pointer overflow-hidden rounded-xl group select-none " onClick={
                 (e) => {
                   e.stopPropagation();
-                  handleClickViewDetails(tripID)}}
+                  handleClickViewDetails(tripID)
+                  router.push(`/trip/${tripID}`)}}
             >
                 <div 
                 className={`flex absolute bg-cover bg-center w-full h-full rounded-xl group-hover:scale-110 transition-all duration-300`} 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -8,35 +8,31 @@ import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { fetchUserBlog, fetchUserTrip } from "@/utils/apiService";
+import { fetchUserBlog, fetchUserTrip, fetchUserFavoritePlace, fetchUserData } from "@/utils/apiService";
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import PaginationComponent from "../components/PaginationComponent";
 import BlogCard from "../components/BlogCard";
 import ProfileTripCard from "../components/ProfileTripCard";
+import FavoritePlaceCard from "../components/FavoritePlaceCard";
 import { set } from "mongoose";
 
 interface BlogData {
   _id: string;
   blogName: string;
   blogImage: string;
-  blogCreator: string;
-  blogViews: number;
-  blogLikes: number;
-  description: string;
-  tags: string[];
-  createdAt: string;
 }
 
 interface TripData {
   _id: string;
   tripName: string;
   tripImage: string;
-  tripCreator: string;
-  tripViews: number;
-  tripLikes: number;
-  description: string;
-  createdAt: string;
+}
+
+interface FavoritePlaceData {
+  _id: string;
+  name: string;
+  imgPath: string;
 }
 
 const profile = {
@@ -503,9 +499,9 @@ const BlogContent = ({
 }) => (
   <div className="flex flex-col kanit rounded-md mt-8 ml-4">
     <div className="flex">
-      <div className="flex mb-5 mt-[19px] h-fit">
+      <div className="flex mb-5 mt-[59px] h-fit">
         <TagCheckBoxComponent
-          maxHeight={680}
+          maxHeight={610}
           element={tagsList}
           translationTagTitle={"AttractionPages.title_tags"}
           onCheckBoxSelect={handleTag}
@@ -551,50 +547,63 @@ const BlogContent = ({
 const FavoriteContent = ({
   tagsList,
   handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  favoritePlaceList,
+  handleFavoriteSearch,
 }: {
   tagsList: CheckboxElement[];
   handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  favoritePlaceList: FavoritePlaceData[];
+  handleFavoriteSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-      <TagCheckBoxComponent
-        maxHeight={320}
-        element={tagsList}
-        translationTagTitle={"AttractionPages.title_tags"}
-        onCheckBoxSelect={handleTag}
-        translationPrefix={"Tags."}
-      />
-    </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">
-          สถานที่ที่ชื่นชอบ
-        </div>
-        <input
-          type="text"
-          placeholder="ค้นหาบล็อกของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex">
+      <div className="flex mb-5 mt-[59px] h-fit">
+        <TagCheckBoxComponent
+          maxHeight={610}
+          element={tagsList}
+          translationTagTitle={"AttractionPages.title_tags"}
+          onCheckBoxSelect={handleTag}
+          translationPrefix={"Tags."}
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {favoritePlace.map((favorite, index) => (
-          <a
-            key={index}
-            href={`#/trip/${favorite.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={favorite.image}
-              alt={favorite.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{favorite.name}</div>
-          </a>
-        ))}
+      <div className="flex flex-col w-[90%]">
+        <div className="flex justify-between items-end ">
+          <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
+          <input
+            type="text"
+            placeholder="ค้นหาสถานที่ที่ชื่นชอบ"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleFavoriteSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4">
+          {favoritePlaceList.map((attraction, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 h-52 "
+              key={index}
+            >
+              <FavoritePlaceCard
+                attractionImage={attraction.imgPath}
+                attractionID={attraction._id}
+                attractionName={attraction.name}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+    </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -670,12 +679,17 @@ export default function Profile() {
   const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
   const [blogList, setBlogList] = useState<BlogData[]>([]);
   const [tripList, setTripList] = useState<TripData[]>([]);
+  const [favoritePlace, setFavoritePlace] = useState<string[]>([]);
+  const [favoritePlaceList, setFavoritePlaceList] = useState<FavoritePlaceData[]>([]);
   const [blogCurrentPage, setBlogCurrentPage] = useState<number>(1);
   const [blogMaxPage, setBlogMaxPage] = useState<number>(1);
   const [tripCurrentPage, setTripCurrentPage] = useState<number>(1);
   const [tripMaxPage, setTripMaxPage] = useState<number>(1);
+  const [favoriteCurrentPage, setFavoriteCurrentPage] = useState<number>(1);
+  const [favoriteMaxPage, setFavoriteMaxPage] = useState<number>(1);
   const [blogSearchText, setBlogSearchText] = useState<string>("");
   const [tripSearchText, setTripSearchText] = useState<string>("");
+  const [favoriteSearchText, setfavoriteSearchText] = useState<string>("");
   const { data: session, status } = useSession();
   const userID = session?.user?.id || "";
   const [blogTagsList, setBlogTagList] = useState<CheckboxElement[]>([]);
@@ -720,17 +734,33 @@ export default function Profile() {
     isLoading: istripDataFromFilterLoading,
     isError: istripDataFromFilterError,
   } = useQuery(
+    ["tripDataFromFilter", tripCurrentPage, session?.user?.id, tripSearchText],
+    () => fetchUserTrip(tripCurrentPage, userID, tripSearchText),
+    {
+      retry: 0,
+    }
+  );
+
+  const {
+    data: favoriteDataFromFilter,
+    isLoading: isfavoriteDataFromFilterLoading,
+    isError: isfavoriteDataFromFilterError,
+  } = useQuery(
     [
-      "tripDataFromFilter",
-      tripCurrentPage,
-      session?.user?.id,
-      tripSearchText,
+      "favoriteDataFromFilter",
+      favoriteTagsList,
+      favoriteCurrentPage,
+      favoritePlace,
+      favoriteSearchText,
     ],
     () =>
-      fetchUserTrip(
-        tripCurrentPage,
-        userID,
-        tripSearchText
+      fetchUserFavoritePlace(
+        favoriteTagsList
+          .filter((tag) => tag.selected)
+          .map((tag) => tag.name),
+        blogCurrentPage,
+        favoritePlace,
+        favoriteSearchText
       ),
     {
       retry: 0,
@@ -783,13 +813,25 @@ export default function Profile() {
     setTripCurrentPage(page);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "2-digit",
-    }).format(date);
+  const handleFavoriteSearch = (text: string) => {
+    setfavoriteSearchText(text);
   };
+
+  const handleFavoriteSelectPage = (page: number) => {
+    if (page == favoriteCurrentPage) {
+      return;
+    }
+    if (page > favoriteMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setFavoriteCurrentPage(page);
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -814,6 +856,19 @@ export default function Profile() {
     fetchData();
   }, []);
 
+  const {
+      data: userData,
+      isLoading: isUserDataLoading,
+      isError: isUserDataError,
+      refetch: refetchUserData,
+    } = useQuery(
+      ["userData", session?.user?.id],
+      () => fetchUserData(session?.user?.id!),
+      {
+        enabled: !!session?.user?.id,
+      }
+    );
+
   useEffect(() => {
     if (blogDataFromFilter) {
       setBlogList(
@@ -821,12 +876,6 @@ export default function Profile() {
           _id: blog._id,
           blogName: blog.blogName,
           blogImage: blog.blogImage,
-          blogCreator: blog.blogCreator,
-          blogViews: blog.blogViews,
-          blogLikes: blog.blogLikes,
-          description: blog.description,
-          tags: blog.tags,
-          createdAt: formatDate(new Date(blog.createdAt)),
         }))
       );
       setBlogMaxPage(blogDataFromFilter.totalPages);
@@ -836,14 +885,10 @@ export default function Profile() {
   useEffect(() => {
     if (tripDataFromFilter) {
       setTripList(
-        tripDataFromFilter.trips.map((trip : TripData) => ({
+        tripDataFromFilter.trips.map((trip: TripData) => ({
           _id: trip._id,
           tripName: trip.tripName,
           tripImage: trip.tripImage,
-          tripCreator: trip.tripCreator,
-          tripViews: trip.tripViews,
-          tripLikes: trip.tripLikes,
-          description: trip.description,
         }))
       );
       setTripMaxPage(tripDataFromFilter.totalPages);
@@ -851,8 +896,28 @@ export default function Profile() {
   }, [tripDataFromFilter]);
 
   useEffect(() => {
-    console.log("blogList", blogList);
-  }, [blogList]);
+    if (userData) {
+      setFavoritePlace(userData.favoritePlaces);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (favoriteDataFromFilter) {
+      setFavoritePlaceList(
+        favoriteDataFromFilter.attractions.map((attraction: FavoritePlaceData) => ({
+          _id: attraction._id,
+          name: attraction.name,
+          imgPath: attraction.imgPath[0],
+        }))
+      );
+      setFavoriteMaxPage(favoriteDataFromFilter.totalPages);
+    }
+  }, [favoriteDataFromFilter]);
+
+  // useEffect(() => {
+  //   console.log("blogList", blogList);
+  //   console.log("favoritePlaceList", favoritePlaceList);
+  // }, [blogList, favoritePlaceList]);
 
   const [selectedContent, setSelectedContent] = useState("profile");
 
@@ -885,8 +950,13 @@ export default function Profile() {
       case "favorite":
         return (
           <FavoriteContent
-            tagsList={favoriteTagsList}
-            handleTag={handleFavoriteTag}
+          tagsList={favoriteTagsList}
+          handleTag={handleFavoriteTag}
+          currentPage={favoriteCurrentPage}
+          maxPage={favoriteMaxPage}
+          handleSelectPage={handleFavoriteSelectPage}
+          favoritePlaceList={favoritePlaceList}
+          handleFavoriteSearch={handleFavoriteSearch}
           />
         );
       case "places":

@@ -24,8 +24,6 @@ export async function POST(req: NextRequest) {
                     'blogCreator': new mongoose.Types.ObjectId(creator),
                 },
             });
-        } else {
-            return NextResponse.json({ message: "Invalid creator ID format" }, { status: 400 });
         }
 
         if (blogSearchText) {
