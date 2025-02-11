@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb';
 import Attraction from "../../../../../models/attraction";
+import mongoose from "mongoose";
 
 
 export async function POST(req: NextRequest) {
@@ -27,10 +28,11 @@ export async function POST(req: NextRequest) {
 
         let aggregationPipeline: any[] = [];
 
-        if (favoritePlaces) {
+        if (favoritePlaces && favoritePlaces.length > 0) {
+            const favoritePlaceIds = favoritePlaces.map((place: string) => new mongoose.Types.ObjectId(place));
             aggregationPipeline.push({
                 $match: {
-                    _id: { $in: favoritePlaces },
+                    '_id': { $in: favoritePlaceIds },
                 },
             });
         }

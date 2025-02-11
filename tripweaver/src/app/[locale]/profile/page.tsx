@@ -454,10 +454,10 @@ const TripContent = ({
             onChange={(e) => handleTripSearch(e.target.value)}
           />
         </div>
-        <div className="flex flex-wrap pl-8 h-full pt-4 ml-8 -z-9">
+        <div className="flex flex-wrap pl-8 h-full pt-4 ml-8 -z-9 content-start">
           {tripList.map((trip, index) => (
             <div
-              className="flex w-1/4 justify-end items-end px-2 h-52"
+              className="flex w-1/4 justify-end items-end px-2 h-52 my-2"
               key={index}
             >
               <ProfileTripCard
@@ -518,10 +518,10 @@ const BlogContent = ({
             onChange={(e) => handleBlogSearch(e.target.value)}
           />
         </div>
-        <div className="flex flex-wrap pl-8 h-full pt-4">
+        <div className="flex flex-wrap pl-8 h-full pt-4 content-start">
           {blogList.map((blog, index) => (
             <div
-              className="flex w-1/4 justify-end items-end px-2 h-52 "
+              className="flex w-1/4 justify-end items-end px-2 h-52 my-2"
               key={index}
             >
               <BlogCard
@@ -573,7 +573,7 @@ const FavoriteContent = ({
         />
       </div>
       <div className="flex flex-col w-[90%]">
-        <div className="flex justify-between items-end ">
+        <div className="flex justify-between items-end">
           <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
           <input
             type="text"
@@ -582,10 +582,10 @@ const FavoriteContent = ({
             onChange={(e) => handleFavoriteSearch(e.target.value)}
           />
         </div>
-        <div className="flex flex-wrap pl-8 h-full pt-4">
+        <div className="flex flex-wrap pl-8 h-full pt-4 content-start">
           {favoritePlaceList.map((attraction, index) => (
             <div
-              className="flex w-1/4 justify-end items-end px-2 h-52 "
+              className="flex w-1/4 justify-end items-end px-2 my-2 h-52 "
               key={index}
             >
               <FavoritePlaceCard
@@ -758,7 +758,7 @@ export default function Profile() {
         favoriteTagsList
           .filter((tag) => tag.selected)
           .map((tag) => tag.name),
-        blogCurrentPage,
+        favoriteCurrentPage,
         favoritePlace,
         favoriteSearchText
       ),
@@ -830,6 +830,7 @@ export default function Profile() {
     }
 
     setFavoriteCurrentPage(page);
+    console.log("favoriteCurrentPage", favoriteCurrentPage);
   };
 
 
