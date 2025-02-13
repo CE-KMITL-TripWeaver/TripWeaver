@@ -2,7 +2,7 @@
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import NavBar from "../components/NavBar";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Icon } from "@iconify/react";
 import Carousel from "react-elastic-carousel";
 import RecommendCard from "../components/RecommendCard";
