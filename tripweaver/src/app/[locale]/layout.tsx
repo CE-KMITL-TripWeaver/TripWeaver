@@ -5,6 +5,7 @@ import ClientSessionProvider from "./provider/ClientSessionProvider";
 import QueryProvider from "./provider/ReactQueryProvider";
 import './globals.css';
 import { Kanit } from 'next/font/google';
+import { UserProvider } from "./provider/UserProvider";
 
 const kanit = Kanit({
   subsets: ["latin"],
@@ -27,7 +28,9 @@ export default async function RootLayout({
         <ClientSessionProvider>
           <QueryProvider>
             <NextIntlClientProvider messages={messages}>
-              {children}
+              <UserProvider>
+                {children}
+              </UserProvider>
             </NextIntlClientProvider>
           </QueryProvider>
         </ClientSessionProvider>
