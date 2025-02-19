@@ -9,23 +9,38 @@ export async function PUT(
   await connectMongoDB();
 
   const { id } = params;
-  const { rating } = await request.json();
+  const { attractionId, rating_score } = await request.json();
 
-  if (!id || !Array.isArray(rating)) {
+  if (!id || !attractionId || rating_score === undefined) {
     return NextResponse.json(
-      { message: "User ID and a valid rating array are required." },
+      { message: "User ID, attraction ID, and a valid rating score are required." },
       { status: 400 }
     );
   }
 
   try {
-    const updatedUserRating = await UserRating.findOneAndUpdate(
-      { userId: id },
-      { userId: id, rating },
-      { new: true, upsert: true }
+    const userRating = await UserRating.findOne({ userId: id });
+
+    if (!userRating) {
+      return NextResponse.json({ message: "User rating entry not found." }, { status: 404 });
+    }
+
+    const existingRatingIndex = userRating.rating.findIndex(
+      (r: { attractionId: string} ) => r.attractionId === attractionId
     );
 
-    return NextResponse.json(updatedUserRating, { status: 200 });
+    if (existingRatingIndex !== -1) {
+      userRating.rating[existingRatingIndex].rating_score = rating_score;
+    } else {
+      return NextResponse.json(
+        { message: "User has not rated this attraction yet." },
+        { status: 400 }
+      );
+    }
+
+    await userRating.save();
+
+    return NextResponse.json(userRating, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message || "An unknown error occurred." },
