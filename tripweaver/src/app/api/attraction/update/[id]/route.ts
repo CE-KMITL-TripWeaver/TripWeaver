@@ -18,6 +18,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ message: `Attraction with id ${id} not found` }, { status: 404 });
         }
 
+        await fetch(`${process.env.NEXT_PUBLIC_REC_API_URL}/retrain-model-content-based`, { method: "POST" });
+        await fetch(`${process.env.NEXT_PUBLIC_REC_API_URL}/retrain-model-collaborative`, { method: "POST" });
+        
         return NextResponse.json(
             { message: "Attraction updated successfully", updatedAttraction },
             { status: 200 }
