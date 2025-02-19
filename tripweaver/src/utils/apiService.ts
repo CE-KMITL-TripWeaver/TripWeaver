@@ -390,12 +390,12 @@ export const fetchUserTrip = async (page: number, creator: string, tripSearchTex
   return data;
 }
 
-export const fetchUserFavoritePlace = async (tagLists: string[], page: number, favoritePlaces: string[], blogSearchText: string) => {
+export const fetchUserFavoritePlace = async (tagLists: string[], page: number, favoritePlaces: string[], favoriteSearchText: string) => {
   const requestBody: Record<string, any> = {
     tagLists,
     page,
     favoritePlaces,
-    blogSearchText
+    favoriteSearchText
   };
   const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/getUserFavoritePlace`
     , requestBody

@@ -1,14 +1,14 @@
 {
   "Navbar": {
     "createTrip": "สร้างทริป",
-    "myTrip": "ทริปของฉัน",
+    "blog": "บล็อก",
     "login": "เข้าสู่ระบบ"
   },
   "MainPage": {
     "attraction": "ที่เที่ยว",
     "accommodation": "ที่พัก",
     "restaurant": "ร้านอาหาร",
-    "blog": "บทความ",
+    "blog": "บล็อก",
     "recommendAttraction": "ที่เที่ยวแนะนำ",
     "recommendAccommodation": "ที่พักแนะนำ",
     "recommendRestaurant": "ร้านอาหารแนะนำ",
