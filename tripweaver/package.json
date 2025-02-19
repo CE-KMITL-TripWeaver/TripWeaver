@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@hello-pangea/dnd": "^18.0.1",
     "@iconify/react": "^5.0.2",
     "@mapbox/polyline": "^1.2.1",
     "@tiptap/core": "^2.11.2",
@@ -32,7 +33,6 @@
     "next-i18next": "^15.3.1",
     "next-intl": "^3.19.1",
     "react": "^18",
-    "react-beautiful-dnd": "^13.1.1",
     "react-date-range": "^2.0.1",
     "react-dom": "^18",
     "react-dropzone": "^14.3.5",
@@ -55,7 +55,6 @@
     "@types/mapbox__polyline": "^1.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
-    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-date-range": "^1.4.9",
     "@types/react-dom": "^18",
     "eslint": "^8",
