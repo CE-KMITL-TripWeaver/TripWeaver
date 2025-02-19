@@ -1962,7 +1962,7 @@ export default function Home() {
                 className="h-[calc(100vh-84px)]"
                 style={{ width: "100%" }}
               >
-                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png" />
+                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {polyline.length > 0 && (
                   <Polyline
                     positions={polyline}

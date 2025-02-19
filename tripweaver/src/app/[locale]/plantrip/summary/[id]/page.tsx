@@ -557,12 +557,12 @@ export default function Home() {
           </div>
           <div className="flex flex-row w-full justify-end px-5 mt-5 gap-x-3">
             {session?.user?.id! == planData.plan.tripCreator && (
-              <div className="flex text-white text-sm font-bold justify-center items-center bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
+              <div className="flex text-white text-sm font-bold justify-center kanit items-center bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
                 onClick={handleEditTrip}>
                 แก้ไขทริป
               </div>
             )}
-            <div className="flex text-white justify-center items-center text-sm font-bold bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
+            <div className="flex text-white justify-center items-center kanit text-sm font-bold bg-[#636363] bg-opacity-90 px-2 py-1 rounded-2xl cursor-pointer"
               onClick={handleCopyTrip}>
               คัดลอกทริป
             </div>
@@ -631,7 +631,7 @@ export default function Home() {
                 className="h-[calc(100vh-84px)]"
                 style={{ width: "100%" }}
               >
-                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}{r}.png" />
+                <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {openIndex != null && polyline[openIndex] && polyline[openIndex].length > 0 && (
                   <Polyline
                     positions={polyline[openIndex]}
