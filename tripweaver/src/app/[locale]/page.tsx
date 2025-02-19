@@ -23,7 +23,7 @@ interface Place {
 
 export default function Main() {
   const t = useTranslations();
-  const { data: session } = useSession();
+  const { data: session , status } = useSession();
   const userId = session?.user?.id;
 
   const [selectedProvince, setSelectedProvince] = useState<string>("ภูเก็ต");
@@ -37,69 +37,79 @@ export default function Main() {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!userId) return;
       try {
-        const ratingRes = await fetch(`/api/userrating/get/${userId}`);
-        if (!ratingRes.ok) throw new Error("Failed to fetch user ratings");
-        const ratingData = await ratingRes.json();
-        const ratingAmount = ratingData?.rating?.length ?? 0;
-
-        const userRes = await fetch(`/api/user/getUser/${userId}`);
-        if (!userRes.ok) throw new Error("Failed to fetch user details");
-        const userData = await userRes.json();
-        const attractionTagScore = userData?.attractionTagScore ?? {};
-
-        const recommendRes = await fetch(
-          `${process.env.NEXT_PUBLIC_REC_API_URL}/recommend-hybrid`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              _id: userId,
-              rating_amount: ratingAmount,
-              attractionTagScore,
-            }),
-          }
-        );
-
-        if (!recommendRes.ok) throw new Error("Failed to fetch recommendations");
-        const recommendData = await recommendRes.json();
-
-        const recommendations: string[] = Array.isArray(recommendData.res_recommendation)
-          ? recommendData.res_recommendation
-          : [];
-
-        const shuffledRecommendations = recommendations
-          .slice(0, 15)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 5);
-
-        const fetchedAttractions = await Promise.all(
-          shuffledRecommendations.map(async (placeId: string) => {
-            const res = await fetch(`/api/attraction/getAttraction/${placeId}`, {
+        if (userId && status === "authenticated") {
+          const ratingRes = await fetch(`/api/userrating/get/${userId}`);
+          if (!ratingRes.ok) throw new Error("Failed to fetch user ratings");
+          const ratingData = await ratingRes.json();
+          const ratingAmount = ratingData?.rating?.length ?? 0;
+  
+          const userRes = await fetch(`/api/user/getUser/${userId}`);
+          if (!userRes.ok) throw new Error("Failed to fetch user details");
+          const userData = await userRes.json();
+          const attractionTagScore = userData?.attractionTagScore ?? {};
+  
+          const recommendRes = await fetch(
+            `${process.env.NEXT_PUBLIC_REC_API_URL}/recommend-hybrid`,
+            {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-            });
-            if (!res.ok) {
-              console.error(`Failed to fetch attraction with id: ${placeId}`);
-              return null;
+              body: JSON.stringify({
+                _id: userId,
+                rating_amount: ratingAmount,
+                attractionTagScore,
+              }),
             }
-            const data = await res.json();
-            return data?.attraction ?? null;
-          })
-        );
-
-        const validAttractions = fetchedAttractions.filter(
-          (item): item is Place => item !== null
-        );
-        setRecommendedAttractions(validAttractions);
+          );
+  
+          if (!recommendRes.ok)
+            throw new Error("Failed to fetch personalized recommendations");
+          const recommendData = await recommendRes.json();
+  
+          const recommendations: string[] = Array.isArray(
+            recommendData.res_recommendation
+          )
+            ? recommendData.res_recommendation
+            : [];
+  
+          const shuffledRecommendations = recommendations
+            .slice(0, 15)
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 5);
+  
+          const fetchedAttractions = await Promise.all(
+            shuffledRecommendations.map(async (placeId: string) => {
+              const res = await fetch(`/api/attraction/getAttraction/${placeId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+              });
+              if (!res.ok) {
+                console.error(`Failed to fetch attraction with id: ${placeId}`);
+                return null;
+              }
+              const data = await res.json();
+              return data?.attraction ?? null;
+            })
+          );
+  
+          const validAttractions = fetchedAttractions.filter(
+            (item): item is Place => item !== null
+          );
+          setRecommendedAttractions(validAttractions);
+        } else {
+          const randomRes = await fetch("/api/attraction/getRandom");
+          if (!randomRes.ok)
+            throw new Error("Failed to fetch random attractions");
+          const randomData = await randomRes.json();
+          setRecommendedAttractions(randomData);
+        }
       } catch (error) {
         console.error("Error fetching recommendations:", error);
       }
     };
-
+  
     fetchRecommendations();
-  }, [userId]);
+  }, [userId]);  
 
   useEffect(() => {
     const fetchData = async <T,>(
