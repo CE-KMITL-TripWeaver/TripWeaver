@@ -119,7 +119,7 @@ export default function NavBar() {
                   className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
                 >
                   <img
-                    src={item.thumbnail && item.thumbnail.trim() !== "" ? item.thumbnail : "images/no-img.png"} 
+                    src={item.thumbnail && item.thumbnail.trim() !== "" ? item.thumbnail : "images/no-img.png"}
                     alt={item.name}
                     width={50}
                     height={50}
@@ -141,9 +141,12 @@ export default function NavBar() {
               {t("Navbar.createTrip")}
             </button>
           </Link>
-          <button className="kanit font-bold text-black py-2 px-4">
-            {t("Navbar.myTrip")}
-          </button>
+          <Link href="/blog">
+            <button className="kanit font-bold text-black py-2 px-4">
+              {t("Navbar.blog")}
+            </button>
+          </Link>
+
 
           {session ? (
             <div className="relative" ref={profileDropdownRef}>
