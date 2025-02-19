@@ -7,8 +7,33 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import CheckboxElement from "../interface/checkboxElement";
 import TagCheckBoxComponent from "../components/TagCheckBoxComponent";
 import axios from "axios";
-import { url } from "inspector";
-import { t } from "i18next";
+import { useQuery } from "react-query";
+import { fetchUserBlog, fetchUserTrip, fetchUserFavoritePlace, fetchUserData } from "@/utils/apiService";
+import { useSession } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
+import PaginationComponent from "../components/PaginationComponent";
+import BlogCard from "../components/BlogCard";
+import ProfileTripCard from "../components/ProfileTripCard";
+import FavoritePlaceCard from "../components/FavoritePlaceCard";
+import { set } from "mongoose";
+
+interface BlogData {
+  _id: string;
+  blogName: string;
+  blogImage: string;
+}
+
+interface TripData {
+  _id: string;
+  tripName: string;
+  tripImage: string;
+}
+
+interface FavoritePlaceData {
+  _id: string;
+  name: string;
+  imgPath: string;
+}
 
 const profile = {
   name: "Panat Inwza007",
@@ -141,6 +166,42 @@ const recentBlog = [
       "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
     id: 8,
   },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
+  {
+    name: "ไต๋พาเที่ยว 8",
+    image:
+      "https://roijang.com/wp-content/uploads/2023/04/%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%A0%E0%B8%B9%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%95-2.jpg",
+    id: 8,
+  },
 ];
 
 const favoritePlace = [
@@ -164,7 +225,7 @@ const Sidebar = ({
   setSelectedContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   return (
-    <div className="sidebar w-20 h-[calc(100vh-68px)] bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300">
+    <div className="sidebar w-20 h-[calc(100vh-68px)] bg-gray-200 text-gray-800 flex flex-col p-4 transition-all duration-300 z-50">
       <ul className="space-y-2 h-screen">
         <li className="relative group">
           <div
@@ -230,7 +291,7 @@ const Sidebar = ({
             </span>
           </div>
         </li>
-        
+
         <li className="relative group">
           <div
             onClick={() => setSelectedContent("places")}
@@ -369,44 +430,52 @@ const ProfileContent = () => (
 );
 
 const TripContent = ({
-  tagsList,
-  handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  tripList,
+  handleTripSearch,
 }: {
-  tagsList: CheckboxElement[];
-  handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  tripList: TripData[];
+  handleTripSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex h-[750px]">
+      <div className="flex flex-col w-[100%]">
+        <div className="flex justify-between items-end ">
+          <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
+          <input
+            type="text"
+            placeholder="ค้นหาทริปของฉัน"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleTripSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4 ml-8 -z-9 content-start">
+          {tripList.map((trip, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 h-52 my-2"
+              key={index}
+            >
+              <ProfileTripCard
+                tripImage={trip.tripImage}
+                tripID={trip._id}
+                tripName={trip.tripName}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">ทริปของฉัน</div>
-        <input
-          type="text"
-          placeholder="ค้นหาทริปของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
-        />
-      </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {recentTrip.map((trip, index) => (
-          <a
-            key={index}
-            href={`#/trip/${trip.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={trip.image}
-              alt={trip.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{trip.name}</div>
-          </a>
-        ))}
-      </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -414,42 +483,63 @@ const TripContent = ({
 const BlogContent = ({
   tagsList,
   handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  blogList,
+  handleBlogSearch,
 }: {
   tagsList: CheckboxElement[];
   handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  blogList: BlogData[];
+  handleBlogSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
-    </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
-        <input
-          type="text"
-          placeholder="ค้นหาบล็อกของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex">
+      <div className="flex mb-5 mt-[59px] h-fit">
+        <TagCheckBoxComponent
+          maxHeight={610}
+          element={tagsList}
+          translationTagTitle={"AttractionPages.title_tags"}
+          onCheckBoxSelect={handleTag}
+          translationPrefix={"Tags."}
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {recentBlog.map((blog, index) => (
-          <a
-            key={index}
-            href={`#/trip/${blog.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={blog.image}
-              alt={blog.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{blog.name}</div>
-          </a>
-        ))}
+      <div className="flex flex-col w-[90%]">
+        <div className="flex justify-between items-end ">
+          <div className="flex kanit font-bold text-2xl ml-5">บล็อกของฉัน</div>
+          <input
+            type="text"
+            placeholder="ค้นหาบล็อกของฉัน"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleBlogSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4 content-start">
+          {blogList.map((blog, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 h-52 my-2"
+              key={index}
+            >
+              <BlogCard
+                blogImage={blog.blogImage}
+                blogID={blog._id}
+                blogName={blog.blogName}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+    </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -457,42 +547,63 @@ const BlogContent = ({
 const FavoriteContent = ({
   tagsList,
   handleTag,
+  currentPage,
+  maxPage,
+  handleSelectPage,
+  favoritePlaceList,
+  handleFavoriteSearch,
 }: {
   tagsList: CheckboxElement[];
   handleTag: (tags: CheckboxElement[]) => void;
+  currentPage: number;
+  maxPage: number;
+  handleSelectPage: (page: number) => void;
+  favoritePlaceList: FavoritePlaceData[];
+  handleFavoriteSearch: (searchText: string) => void;
 }) => (
-  <div className="flex kanit rounded-md mt-8 ml-4">
-    <div className="flex mb-5 mt-[19px] h-fit">
-    <TagCheckBoxComponent maxHeight={320} element={tagsList} translationTagTitle={"AttractionPages.title_tags"} onCheckBoxSelect={handleTag} translationPrefix={"Tags."}/>
-    </div>
-    <div className="flex flex-col">
-      <div className="flex justify-between items-end">
-        <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
-        <input
-          type="text"
-          placeholder="ค้นหาบล็อกของฉัน"
-          className="p-2 border-2 border-gray-200 rounded-md mr-5"
+  <div className="flex flex-col kanit rounded-md mt-8 ml-4">
+    <div className="flex">
+      <div className="flex mb-5 mt-[59px] h-fit">
+        <TagCheckBoxComponent
+          maxHeight={610}
+          element={tagsList}
+          translationTagTitle={"AttractionPages.title_tags"}
+          onCheckBoxSelect={handleTag}
+          translationPrefix={"Tags."}
         />
       </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 ml-8">
-        {favoritePlace.map((favorite, index) => (
-          <a
-            key={index}
-            href={`#/trip/${favorite.id}`}
-            className="m-3 p-3 shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
-          >
-            <Image
-              src={favorite.image}
-              alt={favorite.name}
-              width={256}
-              height={256}
-              unoptimized
-              className="h-36 rounded-lg"
-            />
-            <div className="flex kanit text-lg mt-3">{favorite.name}</div>
-          </a>
-        ))}
+      <div className="flex flex-col w-[90%]">
+        <div className="flex justify-between items-end">
+          <div className="flex kanit font-bold text-2xl ml-5">สถานที่ที่ชื่นชอบ</div>
+          <input
+            type="text"
+            placeholder="ค้นหาสถานที่ที่ชื่นชอบ"
+            className="p-2 border-2 border-gray-200 rounded-md mr-5 ml-auto"
+            onChange={(e) => handleFavoriteSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap pl-8 h-full pt-4 content-start">
+          {favoritePlaceList.map((attraction, index) => (
+            <div
+              className="flex w-1/4 justify-end items-end px-2 my-2 h-52 "
+              key={index}
+            >
+              <FavoritePlaceCard
+                attractionImage={attraction.imgPath}
+                attractionID={attraction._id}
+                attractionName={attraction.name}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+    </div>
+    <div className="flex justify-end w-full h-full mb-5 px-4">
+      <PaginationComponent
+        currentPage={currentPage}
+        maxPage={maxPage}
+        onSelectPage={handleSelectPage}
+      />
     </div>
   </div>
 );
@@ -563,14 +674,165 @@ const InterestsContent = () => (
 
 export default function Profile() {
   const t = useTranslations();
-  const [tripTagsList, setTripTagList] = useState<CheckboxElement[]>([]);
+  const router = useRouter();
+
+  const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
+  const [blogList, setBlogList] = useState<BlogData[]>([]);
+  const [tripList, setTripList] = useState<TripData[]>([]);
+  const [favoritePlace, setFavoritePlace] = useState<string[]>([]);
+  const [favoritePlaceList, setFavoritePlaceList] = useState<FavoritePlaceData[]>([]);
+  const [blogCurrentPage, setBlogCurrentPage] = useState<number>(1);
+  const [blogMaxPage, setBlogMaxPage] = useState<number>(1);
+  const [tripCurrentPage, setTripCurrentPage] = useState<number>(1);
+  const [tripMaxPage, setTripMaxPage] = useState<number>(1);
+  const [favoriteCurrentPage, setFavoriteCurrentPage] = useState<number>(1);
+  const [favoriteMaxPage, setFavoriteMaxPage] = useState<number>(1);
+  const [blogSearchText, setBlogSearchText] = useState<string>("");
+  const [tripSearchText, setTripSearchText] = useState<string>("");
+  const [favoriteSearchText, setfavoriteSearchText] = useState<string>("");
+  const { data: session, status } = useSession();
+  const userID = session?.user?.id || "";
   const [blogTagsList, setBlogTagList] = useState<CheckboxElement[]>([]);
-  const handleTripTag = (tags: CheckboxElement[]) => {
-    setTripTagList(tags);
-  };
+  const [favoriteTagsList, setFavoriteTagList] = useState<CheckboxElement[]>(
+    []
+  );
+
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
+
+  const {
+    data: blogDataFromFilter,
+    isLoading: isblogDataFromFilterLoading,
+    isError: isblogDataFromFilterError,
+  } = useQuery(
+    [
+      "blogDataFromFilter",
+      selectedProvince,
+      blogTagsList,
+      blogCurrentPage,
+      session?.user?.id,
+      blogSearchText,
+    ],
+    () =>
+      fetchUserBlog(
+        selectedProvince,
+        blogTagsList
+          .filter((tag) => tag.selected)
+          .map((tag) => t(`Tags.${tag.name}`)),
+        blogCurrentPage,
+        userID,
+        blogSearchText
+      ),
+    {
+      retry: 0,
+    }
+  );
+
+  const {
+    data: tripDataFromFilter,
+    isLoading: istripDataFromFilterLoading,
+    isError: istripDataFromFilterError,
+  } = useQuery(
+    ["tripDataFromFilter", tripCurrentPage, session?.user?.id, tripSearchText],
+    () => fetchUserTrip(tripCurrentPage, userID, tripSearchText),
+    {
+      retry: 0,
+    }
+  );
+
+  const {
+    data: favoriteDataFromFilter,
+    isLoading: isfavoriteDataFromFilterLoading,
+    isError: isfavoriteDataFromFilterError,
+  } = useQuery(
+    [
+      "favoriteDataFromFilter",
+      favoriteTagsList,
+      favoriteCurrentPage,
+      favoritePlace,
+      favoriteSearchText,
+    ],
+    () =>
+      fetchUserFavoritePlace(
+        favoriteTagsList
+          .filter((tag) => tag.selected)
+          .map((tag) => tag.name),
+        favoriteCurrentPage,
+        favoritePlace,
+        favoriteSearchText
+      ),
+    {
+      retry: 0,
+    }
+  );
+
   const handleBlogTag = (tags: CheckboxElement[]) => {
     setBlogTagList(tags);
   };
+
+  const handleFavoriteTag = (tags: CheckboxElement[]) => {
+    setFavoriteTagList(tags);
+  };
+
+  const handleBlogSearch = (text: string) => {
+    setBlogSearchText(text);
+  };
+
+  const handleBlogSelectPage = (page: number) => {
+    if (page == blogCurrentPage) {
+      return;
+    }
+    if (page > blogMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setBlogCurrentPage(page);
+  };
+
+  const handleTripSearch = (text: string) => {
+    setTripSearchText(text);
+  };
+
+  const handleTripSelectPage = (page: number) => {
+    if (page == tripCurrentPage) {
+      return;
+    }
+    if (page > tripMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setTripCurrentPage(page);
+  };
+
+  const handleFavoriteSearch = (text: string) => {
+    setfavoriteSearchText(text);
+  };
+
+  const handleFavoriteSelectPage = (page: number) => {
+    if (page == favoriteCurrentPage) {
+      return;
+    }
+    if (page > favoriteMaxPage) {
+      return;
+    }
+
+    if (page <= 0) {
+      return;
+    }
+
+    setFavoriteCurrentPage(page);
+    console.log("favoriteCurrentPage", favoriteCurrentPage);
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -586,14 +848,77 @@ export default function Profile() {
           })
         );
 
-        setTripTagList(tagWithDefaultSelected);
         setBlogTagList(tagWithDefaultSelected);
+        setFavoriteTagList(tagWithDefaultSelected);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+
+  const {
+      data: userData,
+      isLoading: isUserDataLoading,
+      isError: isUserDataError,
+      refetch: refetchUserData,
+    } = useQuery(
+      ["userData", session?.user?.id],
+      () => fetchUserData(session?.user?.id!),
+      {
+        enabled: !!session?.user?.id,
+      }
+    );
+
+  useEffect(() => {
+    if (blogDataFromFilter) {
+      setBlogList(
+        blogDataFromFilter.blogs.map((blog: BlogData) => ({
+          _id: blog._id,
+          blogName: blog.blogName,
+          blogImage: blog.blogImage,
+        }))
+      );
+      setBlogMaxPage(blogDataFromFilter.totalPages);
+    }
+  }, [blogDataFromFilter]);
+
+  useEffect(() => {
+    if (tripDataFromFilter) {
+      setTripList(
+        tripDataFromFilter.trips.map((trip: TripData) => ({
+          _id: trip._id,
+          tripName: trip.tripName,
+          tripImage: trip.tripImage,
+        }))
+      );
+      setTripMaxPage(tripDataFromFilter.totalPages);
+    }
+  }, [tripDataFromFilter]);
+
+  useEffect(() => {
+    if (userData) {
+      setFavoritePlace(userData.favoritePlaces);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (favoriteDataFromFilter) {
+      setFavoritePlaceList(
+        favoriteDataFromFilter.attractions.map((attraction: FavoritePlaceData) => ({
+          _id: attraction._id,
+          name: attraction.name,
+          imgPath: attraction.imgPath[0],
+        }))
+      );
+      setFavoriteMaxPage(favoriteDataFromFilter.totalPages);
+    }
+  }, [favoriteDataFromFilter]);
+
+  // useEffect(() => {
+  //   console.log("blogList", blogList);
+  //   console.log("favoritePlaceList", favoritePlaceList);
+  // }, [blogList, favoritePlaceList]);
 
   const [selectedContent, setSelectedContent] = useState("profile");
 
@@ -603,14 +928,38 @@ export default function Profile() {
         return <ProfileContent />;
       case "trip":
         return (
-          <TripContent tagsList={tripTagsList} handleTag={handleTripTag} />
+          <TripContent
+            currentPage={tripCurrentPage}
+            maxPage={tripMaxPage}
+            handleSelectPage={handleTripSelectPage}
+            tripList={tripList}
+            handleTripSearch={handleTripSearch}
+          />
         );
       case "blog":
         return (
-          <BlogContent tagsList={blogTagsList} handleTag={handleBlogTag} />
+          <BlogContent
+            tagsList={blogTagsList}
+            handleTag={handleBlogTag}
+            currentPage={blogCurrentPage}
+            maxPage={blogMaxPage}
+            handleSelectPage={handleBlogSelectPage}
+            blogList={blogList}
+            handleBlogSearch={handleBlogSearch}
+          />
         );
       case "favorite":
-        return <FavoriteContent tagsList={blogTagsList} handleTag={handleBlogTag} />;
+        return (
+          <FavoriteContent
+          tagsList={favoriteTagsList}
+          handleTag={handleFavoriteTag}
+          currentPage={favoriteCurrentPage}
+          maxPage={favoriteMaxPage}
+          handleSelectPage={handleFavoriteSelectPage}
+          favoritePlaceList={favoritePlaceList}
+          handleFavoriteSearch={handleFavoriteSearch}
+          />
+        );
       case "places":
         return <PlacesContent />;
       case "interests":
@@ -626,7 +975,7 @@ export default function Profile() {
         <NavBar />
         <div className="flex flex-row">
           <Sidebar setSelectedContent={setSelectedContent} />
-          <div className="p-4 h-full">{renderContent()}</div>
+          <div className="p-4 h-full w-full">{renderContent()}</div>
         </div>
       </div>
     </>

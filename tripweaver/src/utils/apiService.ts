@@ -86,11 +86,30 @@ export const updatePlanLike = async (planID: string,userID: string,statusType: s
   return data;
 };
 
+export const updateBlogLike = async (blogID: string,userID: string,statusType: string) => {
+  const { data } = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/blog/addLike`,
+    {
+      blogID: blogID,
+      statusType: statusType,
+      userID: userID
+    }
+  );
+  return data;
+}
+
 export const fetchUserPlans = async (userID: string) => {
   const { data } = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/user/getUser/${userID}`
   );
   return data.planList;
+};
+
+export const fetchBlogData = async (blogID : string) => {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/blog/getBlog/${blogID}`
+    );
+    return data.blog;
 };
 
 export const fetchUserData = async (userID: string) => {
@@ -174,6 +193,16 @@ export const uploadImg = async (formData: FormData) => {
   });
   return data;
 
+}
+
+export const uploadBlogImg = async (formData: FormData) => {
+  
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/blog/uploadImg`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
 }
 
 export const fetchAttractionData = async (locationID: string) => {
@@ -333,6 +362,45 @@ export const fetchBlog = async (provinceName: string,
   );
   return data;
 
+}
+
+export const fetchUserBlog = async (provinceName: string, tagLists: string[], page: number, creator: string, blogSearchText: string) => {
+  const requestBody: Record<string, any> = {
+    provinceName,
+    tagLists,
+    page,
+    creator,
+    blogSearchText  
+  };
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/getUserBlog`
+    , requestBody
+  );
+  return data;
+}
+
+export const fetchUserTrip = async (page: number, creator: string, tripSearchText: string) => {
+  const requestBody: Record<string, any> = {
+    page,
+    creator,
+    tripSearchText
+  };
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/getUserTrip`
+    , requestBody
+  );
+  return data;
+}
+
+export const fetchUserFavoritePlace = async (tagLists: string[], page: number, favoritePlaces: string[], blogSearchText: string) => {
+  const requestBody: Record<string, any> = {
+    tagLists,
+    page,
+    favoritePlaces,
+    blogSearchText
+  };
+  const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/getUserFavoritePlace`
+    , requestBody
+  );
+  return data;
 }
 
 export const fetchRestaurant = async (provinceName: string, districtList: string[],

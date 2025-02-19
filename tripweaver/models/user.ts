@@ -17,6 +17,7 @@ const UserSchema: Schema = new Schema({
   favoritePlaces: { type: [String], default: [] },
   planList: { type: [String], default: [] },
   likePlanList: { type: [String], default: [] },
+  likeBlogList: { type: [String], default: [] },
   ratingPlaces: [
     {
       placeId: { type: String, required: true },

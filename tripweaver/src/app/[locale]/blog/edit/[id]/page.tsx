@@ -6,8 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Heading from "@tiptap/extension-heading";
-import BulletList from "@tiptap/extension-bullet-list";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -18,11 +16,17 @@ import ImageResize from "tiptap-extension-resize-image";
 import { t } from "i18next";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import NavBar from "../../components/NavBar";
-import BlogDropzoneModal from "../../components/modals/BlogDropzoneModal";
-import { uploadBlogImg} from "@/utils/apiService";
+import NavBar from "../../../components/NavBar";
+import BlogDropzoneModal from "../../../components/modals/BlogDropzoneModal";
+import { uploadBlogImg } from "@/utils/apiService";
 import { redirect } from "next/navigation";
-import "../toolbar.css";
+import { useQuery } from "react-query";
+import { fetchUserData, fetchBlogData } from "@/utils/apiService";
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import "../../toolbar.css";
+import Heading from "@tiptap/extension-heading";
+import BulletList from "@tiptap/extension-bullet-list";
 
 const tagsList = [
   "แหล่งท่องเที่ยว",
@@ -61,15 +65,13 @@ const formSchema = z.object({
     .string()
     .min(10, { message: "รายละเอียดต้องมีความยาวกว่า 10 ตัวอักษร" })
     .max(256, { message: "รายละเอียดต้องมีความยาวไม่เกิน 350 ตัวอักษร" }),
-  tags: z
-    .array(z.string(), { message: "ต้องมีอย่างน้อย 1 แท็ก" })
-    .nonempty(),
+  tags: z.array(z.string(), { message: "ต้องมีอย่างน้อย 1 แท็ก" }).nonempty(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const CreateBlogPost = () => {
-  const [content, setContent] = useState("<p>เนื้อหาบล็อกของคุณ</p>");
+const EditBlogPost = () => {
+  const [content, setContent] = useState("");
   const [tagselect, setTagselect] = useState<string[]>([]);
   const [blogImage, setBlogImage] = useState<string | null>(null);
   const { data: session, status } = useSession();
@@ -77,9 +79,35 @@ const CreateBlogPost = () => {
     useState<boolean>(false);
   const router = useRouter();
 
+  const { id } = useParams();
+  const blogID = id as string;
+
   if (status === "unauthenticated") {
     redirect("/login");
   }
+
+  const {
+    data: userData,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+    refetch: refetchUserData,
+  } = useQuery(
+    ["userData", session?.user?.id],
+    () => fetchUserData(session?.user?.id!),
+    {
+      enabled: !!session?.user?.id,
+    }
+  );
+
+  const {
+    data: blogData,
+    isLoading: isBlogDataLoading,
+    isError: isBlogDataError,
+    refetch: refetchBlogData,
+  } = useQuery(["blogData", blogID], () => fetchBlogData(blogID), {
+    enabled: !!blogID,
+    retry: 0,
+  });
 
   const editor = useEditor({
     extensions: [
@@ -100,12 +128,29 @@ const CreateBlogPost = () => {
         types: ["heading", "paragraph"],
       }),
     ],
-    content: "<p>เนื้อหาบล็อกของคุณ</p>",
+    content: content,
     onUpdate: ({ editor }) => {
       setContent(editor.getHTML());
     },
     immediatelyRender: false,
   });
+
+  useEffect(() => {
+    if (blogData && userData) {
+      if (session?.user?.id !== blogData?.blogCreator?._id) {
+        redirect("/blog");
+      }
+      setValue("title", blogData.blogName);
+      setValue("description", blogData.description);
+      setValue("tags", blogData.tags);
+      setTagselect(blogData.tags);
+      setContent(blogData.content);
+      setBlogImage(blogData.blogImage);
+      if (editor) {
+        editor.commands.setContent(blogData.content);
+      }
+    }
+  }, [blogData, userData, editor]);
 
   const handleBlogUploadImage = (reponse: any) => {
     setBlogImage(reponse);
@@ -148,9 +193,6 @@ const CreateBlogPost = () => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log("Form Data:", data);
-    console.log("Editor Content:", content);
-    console.log(blogImage);
     const blogData: {
       blogName: string;
       userID: string;
@@ -166,19 +208,19 @@ const CreateBlogPost = () => {
       content: content,
     };
 
-    if (blogImage){
+    if (blogImage) {
       blogData.blogImage = blogImage;
     }
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/blog/create`,
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/blog/update/${blogID}`,
         blogData
       );
       const responseData = response.data;
 
-      if (response.status === 201) {
-        console.log("Blog post created:", responseData);
-        router.push(`/blog/post/${responseData.BlogID}`);
+      if (response.status === 200) {
+        console.log("Blog post edited:", responseData);
+        router.push(`/blog/post/${blogID}`);
       }
     } catch (error) {
       console.error("Error creating blog post:", error);
@@ -203,11 +245,15 @@ const CreateBlogPost = () => {
     setValue("tags", newTags as [string, ...string[]]);
   };
 
+  //   const debug = () => {
+  //     console.log("Content:", content);
+  //   }
+
   return (
     <div className="flex flex-col bg-[#F4F4F4] w-full h-full">
       <NavBar />
       <div className="kanit w-3/4 mx-auto p-6 bg-white rounded-lg shadow-lg mt-10 mb-20">
-        <h1 className="text-3xl font-bold mb-6">สร้างบล็อกของคุณ</h1>
+        <h1 className="text-3xl font-bold mb-6">แก้ไขบล็อกของคุณ</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-lg font-medium mb-2">
@@ -233,8 +279,14 @@ const CreateBlogPost = () => {
               รูปภาพหน้าปกบล็อก
             </label>
             {!blogImage && (
-              <div className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
-                <Icon icon="uil:image-upload" className="text-[100px] text-gray-500 hover:text-orange-400 transition" />
+              <div
+                className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition"
+                onClick={handleClickChangeImage}
+              >
+                <Icon
+                  icon="uil:image-upload"
+                  className="text-[100px] text-gray-500 hover:text-orange-400 transition"
+                />
               </div>
             )}
             {showUploadImageModal && (
@@ -245,7 +297,10 @@ const CreateBlogPost = () => {
               />
             )}
             {blogImage && (
-              <div className="flex mt-2 justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition" onClick={handleClickChangeImage}>
+              <div
+                className="flex mt-2 justify-center p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-orange-400 transition"
+                onClick={handleClickChangeImage}
+              >
                 <img
                   src={blogImage}
                   alt="Blog"
@@ -390,7 +445,9 @@ const CreateBlogPost = () => {
                 {/* Heading Buttons */}
                 <button
                   type="button"
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 1 }).run()
+                  }
                   className={`p-2 rounded ${
                     editor.isActive("heading", { level: 1 })
                       ? "bg-orange-500 text-white"
@@ -401,7 +458,9 @@ const CreateBlogPost = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 2 }).run()
+                  }
                   className={`p-2 rounded ${
                     editor.isActive("heading", { level: 2 })
                       ? "bg-orange-500 text-white"
@@ -412,7 +471,9 @@ const CreateBlogPost = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                  onClick={() =>
+                    editor.chain().focus().toggleHeading({ level: 3 }).run()
+                  }
                   className={`p-2 rounded ${
                     editor.isActive("heading", { level: 3 })
                       ? "bg-orange-500 text-white"
@@ -425,7 +486,9 @@ const CreateBlogPost = () => {
                 {/* List Buttons */}
                 <button
                   type="button"
-                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  onClick={() =>
+                    editor.chain().focus().toggleBulletList().run()
+                  }
                   className={`p-2 rounded ${
                     editor.isActive("bulletList")
                       ? "bg-orange-500 text-white"
@@ -514,7 +577,7 @@ const CreateBlogPost = () => {
               type="submit"
               className="bg-orange-500 text-white px-6 py-2 rounded-md hover:bg-orange-600 transition duration-200 "
             >
-              เผยแพร่บล็อก
+              แก้ไขบล็อก
             </button>
           </div>
         </form>
@@ -523,4 +586,4 @@ const CreateBlogPost = () => {
   );
 };
 
-export default CreateBlogPost;
+export default EditBlogPost;

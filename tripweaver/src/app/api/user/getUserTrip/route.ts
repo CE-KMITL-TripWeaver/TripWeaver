@@ -1,14 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb';
-import Blogs from "../../../../../models/blogs";
-import { updateBLogLike } from "@/utils/apiService";
+import PlanTrips from "../../../../../models/plans";
+import { ta } from "date-fns/locale";
+import { t } from "i18next";
 
 export async function POST(req: NextRequest) {
     try {
-        const { provinceName, tagLists, page } = await req.json();
+        const { page, creator ,tripSearchText } = await req.json();
         await connectMongoDB();
 
-        const pageSize = 4;
+        const pageSize = 12;
         const skip = (page - 1) * pageSize;
 
         if (!page) {
@@ -17,18 +18,20 @@ export async function POST(req: NextRequest) {
 
         let aggregationPipeline: any[] = [];
 
-        if (tagLists && tagLists.length > 0) {
+        if (creator) {
             aggregationPipeline.push({
                 $match: {
-                    tags: { $in: tagLists },
+                   tripCreator: creator,
                 },
-            },
-            {
-                $sort: {
-                    createdAt: -1,
-                }
-            },
-        );
+            });
+        }
+
+        if (tripSearchText) {
+            aggregationPipeline.push({
+                $match: {
+                    tripName: { $regex: tripSearchText, $options: 'i' },
+                },
+            });
         }
 
         aggregationPipeline.push({
@@ -38,30 +41,23 @@ export async function POST(req: NextRequest) {
           aggregationPipeline.push({
             $lookup: {
                 from: 'users', 
-                localField: 'blogCreator', 
+                localField: 'tripCreator', 
                 foreignField: '_id', 
-                as: 'blogCreator', 
+                as: 'tripCreator', 
             }
         });
 
         aggregationPipeline.push({
             $unwind: {
-                path: '$blogCreator',
+                path: '$tripCreator',
                 preserveNullAndEmptyArrays: true, 
             }
         });
 
         aggregationPipeline.push({
             $project: {
-                blogName: 1,
-                blogImage: 1,
-                description: 1,
-                content: 1,
-                createdAt: 1,
-                tags: 1,
-                blogViews: 1,
-                blogLikes:1,
-                blogCreator: '$blogCreator.displayName',
+                tripName: 1,
+                tripImage: 1,
             }
         });
 
@@ -79,13 +75,14 @@ export async function POST(req: NextRequest) {
             }
         );
 
-        const aggregationResult = await Blogs.aggregate(aggregationPipeline);
+
+        const aggregationResult = await PlanTrips.aggregate(aggregationPipeline);
         const paginatedResults = aggregationResult[0]?.paginatedResults || [];
         const totalCount = aggregationResult[0]?.totalCount[0]?.count || 0;
         const totalPages = Math.ceil(totalCount / pageSize);
-        return NextResponse.json({ blogs: paginatedResults, totalCount, totalPages, currentPage: page, pageSize }, { status: 200 });
+        return NextResponse.json({ trips: paginatedResults, totalCount, totalPages, currentPage: page, pageSize }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching blogs:", error);
+        console.error("Error fetching trips:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }

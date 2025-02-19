@@ -1,14 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb';
 import Blogs from "../../../../../models/blogs";
-import { updateBLogLike } from "@/utils/apiService";
+import { ta } from "date-fns/locale";
+import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
     try {
-        const { provinceName, tagLists, page } = await req.json();
+        const { provinceName, tagLists, page, creator ,blogSearchText } = await req.json();
         await connectMongoDB();
 
-        const pageSize = 4;
+        const pageSize = 12;
         const skip = (page - 1) * pageSize;
 
         if (!page) {
@@ -16,6 +17,22 @@ export async function POST(req: NextRequest) {
         }
 
         let aggregationPipeline: any[] = [];
+
+        if (creator && mongoose.Types.ObjectId.isValid(creator)) {
+            aggregationPipeline.push({
+                $match: {
+                    'blogCreator': new mongoose.Types.ObjectId(creator),
+                },
+            });
+        }
+
+        if (blogSearchText) {
+            aggregationPipeline.push({
+                $match: {
+                    blogName: { $regex: blogSearchText, $options: 'i' },
+                },
+            });
+        }
 
         if (tagLists && tagLists.length > 0) {
             aggregationPipeline.push({
@@ -78,6 +95,7 @@ export async function POST(req: NextRequest) {
                 },
             }
         );
+
 
         const aggregationResult = await Blogs.aggregate(aggregationPipeline);
         const paginatedResults = aggregationResult[0]?.paginatedResults || [];

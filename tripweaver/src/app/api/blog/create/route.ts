@@ -17,11 +17,6 @@ export async function POST(req: NextRequest) {
             content
         });
 
-        // await User.findOneAndUpdate(
-        //     { _id: userID },
-        //     { $push: { planList: createdPlan._id.toString() } }
-        // );
-
         return NextResponse.json(
             {
                 message: "Create Data Blog",
