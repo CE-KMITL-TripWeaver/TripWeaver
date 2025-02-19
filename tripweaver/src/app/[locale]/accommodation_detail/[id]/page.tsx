@@ -245,7 +245,7 @@ export default function AccommodationDetailPage() {
               <div className="flex justify-between items-center">
                 <div className="kanit font-bold text-5xl">{accommodation.name}</div>
                 <div className="flex gap-x-2 mr-2">
-                  <FavoriteButton userId={userId!} placeId={id!} />
+                  {/* <FavoriteButton userId={userId!} placeId={id!} /> */}
                   <button
                     className="kanit bg-[#DDDDDD] hover:bg-[#484848] hover:text-white text-black text-xl px-4 rounded-full font-regular h-10 flex items-center space-x-2"
                     onClick={() => setShowModal(true)}
