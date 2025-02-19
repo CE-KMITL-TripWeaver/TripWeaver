@@ -28,7 +28,7 @@ export default function FavoritePlaceCard({
                 (e) => {
                   e.stopPropagation();
                   handleClickViewDetails(attractionID)
-                  router.push(`/attraction`)}}
+                  router.push(`/attraction_detail/${attractionID}`)}}
                 
             >
                 <div 
