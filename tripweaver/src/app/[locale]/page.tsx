@@ -1,215 +1,248 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import NavBar from './components/NavBar';
-import MainCarousel from './components/MainCarousel';
-import MainCategoryComponent from './components/MainCategoryComponent';
-import MainPlaceCard from './components/MainPlaceCard';
-import SearchComponent from './components/SearchComponent';
-import { useTranslations } from 'next-intl';
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import NavBar from "./components/NavBar";
+import MainCarousel from "./components/MainCarousel";
+import MainCategoryComponent from "./components/MainCategoryComponent";
+import MainPlaceCard from "./components/MainPlaceCard";
+import SearchComponent from "./components/SearchComponent";
+import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
+
+interface Rating {
+  score: number;
+  ratingCount: number;
+}
 
 interface Place {
-  id: string;
-  imageUrl: string;
+  _id: string;
   name: string;
-  score: number;
-  view: number;
+  rating?: Rating;
+  imgPath: string[];
 }
 
 export default function Main() {
   const t = useTranslations();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-  const [selectedProvince, setSelectedProvince] = useState("ภูเก็ต");
+  const [selectedProvince, setSelectedProvince] = useState<string>("ภูเก็ต");
+  const [recommendedAttractions, setRecommendedAttractions] = useState<Place[]>([]);
+  const [accommodationPlaces, setAccommodationPlaces] = useState<Place[]>([]);
+  const [restaurantPlaces, setRestaurantPlaces] = useState<Place[]>([]);
 
   const handleProvinceSelect = (province: string) => {
     setSelectedProvince(province);
   };
 
-  const attractionPlaces: Place[] = [
-    {
-      id: '1',
-      imageUrl: 'https://files.thailandtourismdirectory.go.th/assets/upload/2018/01/03/20180103c72865b428a1a47ecab1a44354314f8c094338.jpg',
-      name: 'แหลมพรหมเทพ',
-      score: 4.9,
-      view: 1246
-    },
-    {
-      id: '2',
-      imageUrl: 'https://mediaim.expedia.com/destination/1/994bb2772e7d1be0b47de209f96028ee.jpg',
-      name: 'หาดกล้วย',
-      score: 4.8,
-      view: 324
-    },
-    {
-      id: '3',
-      imageUrl: 'https://www.chillpainai.com/src/wewakeup/scoop/images/ed06306e77a6d8420c9d3884516a257b3b8e98a1.jpg',
-      name: 'สวนน้ำอันดามันดา',
-      score: 4.7,
-      view: 224
-    },
-    {
-      id: '4',
-      imageUrl: 'https://f.tpkcdn.com/images-source/829fa45fa1ac7f2a802a57ea248baf76.jpg',
-      name: 'วัดพระทอง',
-      score: 4.6,
-      view: 124
-    },
-    {
-      id: '5',
-      imageUrl: 'https://teawlay.com/wp-content/uploads/wat-chalong.jpg',
-      name: 'วัดฉลอง',
-      score: 4.6,
-      view: 89
-    },
-  ];
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!userId) return;
+      try {
+        const ratingRes = await fetch(`/api/userrating/get/${userId}`);
+        if (!ratingRes.ok) throw new Error("Failed to fetch user ratings");
+        const ratingData = await ratingRes.json();
+        const ratingAmount = ratingData?.rating?.length ?? 0;
 
-  const accommodationPlaces: Place[] = [
-    {
-      id: '1',
-      imageUrl: 'https://mpics.mgronline.com/pics/Images/563000009952202.JPEG',
-      name: 'โรงแรมศรีพันวา',
-      score: 4.8,
-      view: 322
-    },
-    {
-      id: '2',
-      imageUrl: 'https://cdn-5e2feaf4f911c80ca0df483b.closte.com/wp-content/uploads/2020/03/Crescent-Pool-24.jpg',
-      name: 'เดอะ ซิส กะตะ รีสอร์ท',
-      score: 4.6,
-      view: 241
-    },
-    {
-      id: '3',
-      imageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/07/fb/fc/panoramic-seaview-at.jpg?w=700&h=-1&s=1',
-      name: 'มายบีช รีสอร์ท',
-      score: 4.6,
-      view: 142
-    },
-    {
-      id: '4',
-      imageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/28/b9/2c/26/bandara-phuket-beach.jpg?w=700&h=-1&s=1',
-      name: 'บัญดาราบีชภูเก็ต',
-      score: 4.5,
-      view: 113
-    },
-    {
-      id: '5',
-      imageUrl: 'https://pix10.agoda.net/hotelImages/108/108844/108844_14041014050019030205.jpg?ca=2&ce=1&s=414x232',
-      name: 'ไตรตรังบีช รีสอร์ท',
-      score: 4.4,
-      view: 94
-    },
-  ];
+        const userRes = await fetch(`/api/user/getUser/${userId}`);
+        if (!userRes.ok) throw new Error("Failed to fetch user details");
+        const userData = await userRes.json();
+        const attractionTagScore = userData?.attractionTagScore ?? {};
 
-  const restaurantPlaces: Place[] = [
-    {
-      id: '1',
-      imageUrl: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/21/70/9f/bc/1.jpg?w=1200&h=-1&s=1',
-      name: 'Mainmorn Forest',
-      score: 5.0,
-      view: 748
-    },
-    {
-      id: '2',
-      imageUrl: 'https://img.wongnai.com/p/1920x0/2021/09/05/edcc391a02ea4d3c9e8ce5ad3984d524.jpg',
-      name: 'ร้านวันจันทร์',
-      score: 4.9,
-      view: 544
-    },
-    {
-      id: '3',
-      imageUrl: 'https://www.oopsdelish.com/wp-content/uploads/2022/07/Tukabkhao2-1024x684.jpg',
-      name: 'ตู้กับข้าว',
-      score: 4.8,
-      view: 452
-    },
-    {
-      id: '4',
-      imageUrl: 'https://condotiddoi.com/condocontentimg2/4457/119141254_3410495802345412_2151552607858609083_n.jpg',
-      name: 'หมี่ต้นโพธิ์',
-      score: 4.6,
-      view: 346
-    },
-    {
-      id: '5',
-      imageUrl: 'https://www.ryoiireview.com/upload/article/202201/1642067440_4daf823969c8c721d5ddc79c495e9069.jpg',
-      name: 'แหลมหินซีฟู้ด',
-      score: 4.5,
-      view: 230
-    },
-  ];
+        const recommendRes = await fetch(
+          `${process.env.NEXT_PUBLIC_REC_API_URL}/recommend-hybrid`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              _id: userId,
+              rating_amount: ratingAmount,
+              attractionTagScore,
+            }),
+          }
+        );
+
+        if (!recommendRes.ok) throw new Error("Failed to fetch recommendations");
+        const recommendData = await recommendRes.json();
+
+        const recommendations: string[] = Array.isArray(recommendData.res_recommendation)
+          ? recommendData.res_recommendation
+          : [];
+
+        const shuffledRecommendations = recommendations
+          .slice(0, 15)
+          .sort(() => 0.5 - Math.random())
+          .slice(0, 5);
+
+        const fetchedAttractions = await Promise.all(
+          shuffledRecommendations.map(async (placeId: string) => {
+            const res = await fetch(`/api/attraction/getAttraction/${placeId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            });
+            if (!res.ok) {
+              console.error(`Failed to fetch attraction with id: ${placeId}`);
+              return null;
+            }
+            const data = await res.json();
+            return data?.attraction ?? null;
+          })
+        );
+
+        const validAttractions = fetchedAttractions.filter(
+          (item): item is Place => item !== null
+        );
+        setRecommendedAttractions(validAttractions);
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    };
+
+    fetchRecommendations();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchData = async <T,>(
+      url: string,
+      setter: React.Dispatch<React.SetStateAction<T>>
+    ) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Failed to fetch data from ${url}`);
+        const data = await res.json();
+        setter(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData<Place[]>("/api/accommodation/getRandom", setAccommodationPlaces);
+    fetchData<Place[]>("/api/restaurant/getRandom", setRestaurantPlaces);
+  }, []);
 
   return (
-    <>
-      <main className="bg-[#F4F4F4]">
-        <NavBar />
-        <MainCarousel />
-        <MainCategoryComponent />
+    <main className="bg-[#F4F4F4]">
+      <NavBar />
+      <MainCarousel />
+      <MainCategoryComponent />
 
-        <div className="container mx-auto">
-          <div className="mb-4">
-            <SearchComponent defaultValue={selectedProvince} onProvinceSelect={handleProvinceSelect} />
+      <div className="container mx-auto">
+        <div className="mb-4">
+          <SearchComponent
+            defaultValue={selectedProvince}
+            onProvinceSelect={handleProvinceSelect}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-16">
+        {/* Recommended Attractions */}
+        <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
+          <h2 className="kanit text-xl font-bold mb-4">
+            {t("MainPage.recommendAttraction")}
+          </h2>
+          {selectedProvince === "ภูเก็ต" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {recommendedAttractions.map((place, index) => (
+                <MainPlaceCard
+                  key={index}
+                  place={{
+                    id: place._id,
+                    imageUrl: place.imgPath?.[0] || "/images/no-img.png",
+                    name: place.name,
+                    score: place.rating?.score || 0,
+                    view: place.rating?.ratingCount || 0,
+                  }}
+                  basePath="attraction_detail"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-24">
+              <p className="kanit text-xl text-center">ไม่พบข้อมูล</p>
+            </div>
+          )}
+          <div className="text-right mt-4">
+            <Link href="/attraction_list" passHref>
+              <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
+                {t("MainPage.see_more")}
+              </button>
+            </Link>
           </div>
         </div>
 
-        <div className="space-y-16">
-
-          {/* ที่เที่ยวแนะนำ */}
-          <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
-            <h2 className="kanit text-xl font-bold mb-4">{t('MainPage.recommendAttraction')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {attractionPlaces.slice(0, 5).map((place, index) => (
-                <MainPlaceCard key={index} place={place} basePath="attraction_detail" />
-              ))}
-            </div>
-            <div className="text-right mt-4">
-              <Link href="/attraction_list" passHref>
-                <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
-                  {t('MainPage.see_more')}
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          {/* ที่พักแนะนำ */}
-          <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
-            <h2 className="kanit text-xl font-bold mb-4">{t('MainPage.recommendAccommodation')}</h2>
+        {/* Recommended Accommodations */}
+        <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
+          <h2 className="kanit text-xl font-bold mb-4">
+            {t("MainPage.recommendAccommodation")}
+          </h2>
+          {selectedProvince === "ภูเก็ต" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {accommodationPlaces.slice(0, 5).map((place, index) => (
-                <MainPlaceCard key={index} place={place} basePath="accommodation_detail" />
+                <MainPlaceCard
+                  key={index}
+                  place={{
+                    id: place._id,
+                    imageUrl: place.imgPath?.[0] || "/images/no-img.png",
+                    name: place.name,
+                    score: place.rating?.score || 0,
+                    view: place.rating?.ratingCount || 0,
+                  }}
+                  basePath="accommodation_detail"
+                />
               ))}
             </div>
-            <div className="text-right mt-4">
-              <Link href="/accommodation_list" passHref>
-                <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
-                  {t('MainPage.see_more')}
-                </button>
-              </Link>
+          ) : (
+            <div className="flex justify-center items-center h-24">
+              <p className="kanit text-xl text-center">ไม่พบข้อมูล</p>
             </div>
-          </div>
-
-          {/* ร้านอาหารแนะนำ */}
-          <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
-            <h2 className="kanit text-xl font-bold mb-4">{t('MainPage.recommendRestaurant')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {restaurantPlaces.slice(0, 5).map((place, index) => (
-                <MainPlaceCard key={index} place={place} basePath="restaurant_detail" />
-              ))}
-            </div>
-            <div className="text-right mt-4">
-              <Link href="/restaurant_list" passHref>
-                <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
-                  {t('MainPage.see_more')}
-                </button>
-              </Link>
-            </div>
+          )}
+          <div className="text-right mt-4">
+            <Link href="/accommodation_list" passHref>
+              <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
+                {t("MainPage.see_more")}
+              </button>
+            </Link>
           </div>
         </div>
 
-        <div className="h-32"></div>
-      </main>
-    </>
-  );
+        {/* Recommended Restaurants */}
+        <div className="container mx-auto px-6 py-4 rounded-2xl shadow-lg bg-white">
+          <h2 className="kanit text-xl font-bold mb-4">
+            {t("MainPage.recommendRestaurant")}
+          </h2>
+          {selectedProvince === "ภูเก็ต" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {restaurantPlaces.slice(0, 5).map((place, index) => (
+                <MainPlaceCard
+                  key={index}
+                  place={{
+                    id: place._id,
+                    imageUrl: place.imgPath?.[0] || "/images/no-img.png",
+                    name: place.name,
+                    score: place.rating?.score || 0,
+                    view: place.rating?.ratingCount || 0,
+                  }}
+                  basePath="restaurant_detail"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-24">
+              <p className="kanit text-xl text-center">ไม่พบข้อมูล</p>
+            </div>
+          )}
+          <div className="text-right mt-4">
+            <Link href="/restaurant_list" passHref>
+              <button className="bg-[#F4F4F4] kanit font-semibold text-[#181818] shadow-md px-4 py-2 rounded-md">
+                {t("MainPage.see_more")}
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
 
+      <div className="h-32"></div>
+    </main>
+  );
 }
