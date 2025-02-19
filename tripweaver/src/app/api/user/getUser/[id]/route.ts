@@ -29,6 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 planList: user.planList,
                 likePlanList: user.likePlanList,
                 favoritePlaces: user.favoritePlaces,
+                ratingPlaces: user.ratingPlaces,
                 attractionTagScore: user.attractionTagScore,
                 createdAt: user.createdAt,
             });
@@ -68,6 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             planList: user.planList,
             likePlanList: user.likePlanList,
             favoritePlaces: user.favoritePlaces,
+            ratingPlaces: user.ratingPlaces,
             attractionTagScore: user.attractionTagScore,
             createdAt: user.createdAt,
         });
