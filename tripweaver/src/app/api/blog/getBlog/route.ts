@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connectMongoDB } from '../../../../../lib/mongodb';
 import Blogs from "../../../../../models/blogs";
-import { updateBLogLike } from "@/utils/apiService";
 
 export async function POST(req: NextRequest) {
     try {
