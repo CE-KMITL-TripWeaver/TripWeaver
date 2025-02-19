@@ -39,7 +39,7 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
 
   const modalRef = useRef<HTMLDivElement>(null);
   const filteredTrips = planList.filter((trip) =>
-    trip.tripName.toLowerCase().startsWith(searchPlan.toLowerCase())
+    trip.tripName?.toLowerCase().startsWith(searchPlan.toLowerCase())
   );
   
   useEffect(() => {
