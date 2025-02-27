@@ -202,7 +202,7 @@ const RatingModal: React.FC<RatingModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-10">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] text-center">
         <h2 className="kanit text-xl font-bold mb-4">
           {existingRating ? t("Rating.EditReview") : t("Rating.Title")}

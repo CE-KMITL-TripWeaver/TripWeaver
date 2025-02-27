@@ -578,7 +578,7 @@ export default function Home() {
                 height={26}
                 width={26}
               />
-              <div className="flex text-black justify-center items-center text-lg ml-1 font-bold">
+              <div className="kanit flex text-black justify-center items-center text-lg ml-1 font-bold">
                 {planData.plan.tripLike}
               </div>
             </div>

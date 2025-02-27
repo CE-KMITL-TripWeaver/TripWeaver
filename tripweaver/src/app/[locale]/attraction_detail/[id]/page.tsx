@@ -8,12 +8,13 @@ import PlaceMap from "../../components/PlaceMap";
 import RecommendedAttractions from "../../components/RecommendAttractions";
 import { useSession } from "next-auth/react";
 import { PlanObject } from "../../interface/plantripObject";
-import { addLocationToTrip, fetchUserPlans } from "@/utils/apiService";
+import { addLocationToTrip, fetchPlanAllData, fetchUserPlans } from "@/utils/apiService";
 import Swal from "sweetalert2";
 import AddToTripModal from "../../components/modals/AddToTripModals";
 import RequestModal from "../../components/modals/RequestModal";
 import RatingModal from "../../components/modals/RatingModal";
 import FavoriteButton from "../../components/FavoriteButton";
+import { useQuery } from "react-query";
 
 interface OpeningHour {
   day: string;
@@ -69,6 +70,41 @@ export default function AttractionDetailPage() {
   const userId: string | undefined = session?.user?.id;
   const placeId: string | undefined = id;
 
+  const {
+      data: userPlans,
+      isLoading: isUserPlansLoading,
+      isError: isUserPlansError,
+  } = useQuery(
+      ["userPlans", session?.user?.id],
+      () => fetchUserPlans(session?.user?.id!),
+      {
+      enabled: !!session?.user?.id,
+      }
+  );
+
+  const {
+      data: planListData,
+      isLoading: isPlanListLoading,
+      isError: isPlanListError,
+  } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
+      enabled: !!userPlans,
+      retry: 0
+  });
+
+  useEffect(() => {
+      if (planListData) {
+          const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
+              _id: plan._id,
+              startDate: plan.startDate,
+              dayDuration: plan.dayDuration,
+              accommodations: plan.accommodations,
+              tripName: plan.tripName
+          }));
+  
+          setPlantripList(mappedPlans);
+      }
+  }, [planListData]);
+
   useEffect(() => {
     const fetchAttraction = async () => {
       try {
@@ -83,7 +119,7 @@ export default function AttractionDetailPage() {
 
         const data = await response.json();
         if (!data || !data.attraction) {
-          router.push("/"); // Redirect to homepage if attraction is not found
+          router.push("/");
         } else {
           setAttraction(data.attraction);
         }
@@ -97,21 +133,6 @@ export default function AttractionDetailPage() {
 
     fetchAttraction();
   }, [id, router]);
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      if (!session?.user?.id) return;
-
-      try {
-        const userPlans = await fetchUserPlans(session.user.id);
-        setPlantripList(userPlans || []);
-      } catch (error) {
-        console.error("Error fetching user plans:", error);
-      }
-    };
-
-    fetchPlans();
-  }, [session]);
 
   useEffect(() => {
     if (!userId || !id) return;
@@ -153,7 +174,7 @@ export default function AttractionDetailPage() {
   }
 
   const handleAddTrip = (locationID: string) => {
-    if (plantripList.length === 0) {
+    if (planListData.length === 0) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -197,6 +218,18 @@ export default function AttractionDetailPage() {
     }
     setIndexDate(0);
   };
+
+  const handleSetSearchPlan = (planName: string) => {
+    setSearchPlan(planName);
+  }
+
+  const handleChangeDropdown = (isOpen: boolean) => {
+  setIsDropdownPlanOpen(isOpen);
+  }
+
+  const handleChangeDateIndex= (dateIndex: number) => {
+    setIndexDate(dateIndex);
+  }
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -382,17 +415,17 @@ export default function AttractionDetailPage() {
           isOpen={isModalOpen}
           searchPlan={searchPlan}
           selectedPlan={selectedPlan}
-          locationType="ATTRACTION"
+          locationType={"ATTRACTION"}
           onClose={() => setIsModalOpen(false)}
           onAddTrip={handleAddTripToPlan}
           dayIndex={indexDate}
           onSelectPlan={handleSetPlanID}
-          onInputPlanName={setSearchPlan}
+          onInputPlanName={handleSetSearchPlan}
           selectedLocation={selectedLocation}
           planList={plantripList}
           isDropdownPlanOpen={isDropdownPlanOpen}
-          onChangeDropdown={setIsDropdownPlanOpen}
-          onChangeDate={setIndexDate}
+          onChangeDropdown={handleChangeDropdown}
+          onChangeDate={handleChangeDateIndex}
         />
 
       </div >

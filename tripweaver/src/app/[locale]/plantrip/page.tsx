@@ -225,20 +225,7 @@ export default function Home() {
     isError: isPlanError,
   } = useQuery(["planData", planID], () => fetchPlanData(planID!), {
     enabled: !!planID,
-    retry: 0,
   });
-
-  /*const {
-    data: userPlans,
-    isLoading: isUserPlansLoading,
-    isError: isUserPlansError,
-  } = useQuery(
-    ["userPlans", session?.user?.id],
-    () => fetchUserPlans(session?.user?.id!),
-    {
-      enabled: !!session?.user?.id,
-    }
-  );*/
 
   const {
     data: userPlans,
@@ -408,9 +395,8 @@ export default function Home() {
   }, [allData]);
 
   useEffect(() => {
-    if (planData && userPlans) {
+    if (planData && userPlans && placesData.length > 0) {
       setTravelers(planData.plan.travelers);
-
       const startDate = new Date(planData.plan.startDate);
       const durationInDay = planData.plan.dayDuration + 1;
       const endDate = new Date(startDate);
@@ -451,8 +437,9 @@ export default function Home() {
           //const type = place.type;
           const duration = place.duration;
           const placeData = placesData.find((place) => place._id === placeID);
-
+         // console.log("Place ", place);
           if (placeData) {
+            //console.log()
             const uuid = uuidv4();
             const placeWithUUID = { ...placeData, uuid: uuid };
             const placeDurationWithUUID = { uuid: uuid, time: duration };
@@ -491,8 +478,12 @@ export default function Home() {
         allAccommodationPlanningData.push(
           ...Array(lengthToFillAccommodation).fill(null)
         );
-      }
 
+      }/*
+      console.log("-----------------");
+      console.log("All data ---> ");
+      console.log(allLocationPlanningData);
+      console.log("-----------------");*/
       /*console.log(allLocationPlanningData);
       console.log("-----------------");
       console.log(planPlacesDurationData);
@@ -504,7 +495,7 @@ export default function Home() {
       setAccommodationData(allAccommodationPlanningData);
       setPlanName(planNameListData);
     }
-  }, [planData, userPlans]);
+  }, [planData, userPlans, placesData]);
 
   useEffect(() => {
     if (status === "authenticated" && planID) {
@@ -531,9 +522,13 @@ export default function Home() {
 
           setIsDataSaved(true);
 
-          if (accommodations.length == 0 && plans.length == 0) {
+          /*if (accommodations.length == 0 && plans.length == 0) {
             return;
-          }
+          } else {
+            console.log(accommodations);
+            console.log("------------------------");
+            console.log(plans);
+          }*/
 
           const plantripDataPayload = {
             accommodations,
@@ -541,6 +536,7 @@ export default function Home() {
           };
 
           updateUserPlans(planID, plantripDataPayload);
+          //console.log("Save....");
         } else {
           //console.log("HERE....");
         }
@@ -925,7 +921,7 @@ export default function Home() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
+      if ( 
         searchAccommodationRef.current &&
         !searchAccommodationRef.current.contains(event.target as Node)
       ) {

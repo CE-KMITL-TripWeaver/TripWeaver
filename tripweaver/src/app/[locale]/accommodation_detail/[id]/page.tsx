@@ -12,6 +12,9 @@ import RatingModal from "../../components/modals/RatingModal";
 import FavoriteButton from "../../components/FavoriteButton";
 import PlaceMap from "../../components/PlaceMap";
 import RandomPlaceCard from "../../components/RandomPlaceCard";
+import { fetchUserPlans, fetchPlanAllData } from "@/utils/apiService";
+import { useQuery } from "react-query";
+import { PlanObject } from "../../interface/plantripObject";
 
 interface Rating {
   score: number;
@@ -63,6 +66,42 @@ export default function AccommodationDetailPage() {
 
   const userId: string | undefined = session?.user?.id;
 
+  const {
+      data: userPlans,
+      isLoading: isUserPlansLoading,
+      isError: isUserPlansError,
+  } = useQuery(
+      ["userPlans", session?.user?.id],
+      () => fetchUserPlans(session?.user?.id!),
+      {
+      enabled: !!session?.user?.id,
+      }
+  );
+
+  const {
+      data: planListData,
+      isLoading: isPlanListLoading,
+      isError: isPlanListError,
+  } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
+      enabled: !!userPlans,
+      retry: 0
+  });
+
+  useEffect(() => {
+        if (planListData) {
+            const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
+                _id: plan._id,
+                startDate: plan.startDate,
+                dayDuration: plan.dayDuration,
+                accommodations: plan.accommodations,
+                tripName: plan.tripName
+            }));
+    
+            setPlantripList(mappedPlans);
+        }
+    }, [planListData]);
+  
+  
   useEffect(() => {
     const fetchAccommodation = async () => {
       try {
@@ -87,21 +126,6 @@ export default function AccommodationDetailPage() {
 
     fetchAccommodation();
   }, [id, router]);
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      if (!session?.user?.id) return;
-      try {
-        const response = await fetch(`/api/userplans/get/${session.user.id}`);
-        const userPlans = await response.json();
-        setPlantripList(userPlans || []);
-      } catch (error) {
-        console.error("Error fetching user plans:", error);
-      }
-    };
-
-    fetchPlans();
-  }, [session]);
 
   useEffect(() => {
     if (!userId || !id) return;
@@ -192,6 +216,18 @@ export default function AccommodationDetailPage() {
     }
     setIndexDate(0);
   };
+
+  const handleSetSearchPlan = (planName: string) => {
+    setSearchPlan(planName);
+  }
+
+  const handleChangeDropdown = (isOpen: boolean) => {
+  setIsDropdownPlanOpen(isOpen);
+  }
+
+  const handleChangeDateIndex= (dateIndex: number) => {
+    setIndexDate(dateIndex);
+  }
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -358,12 +394,12 @@ export default function AccommodationDetailPage() {
           onAddTrip={handleAddTripToPlan}
           dayIndex={indexDate}
           onSelectPlan={handleSetPlanID}
-          onInputPlanName={setSearchPlan}
+          onInputPlanName={handleSetSearchPlan}
           selectedLocation={selectedLocation}
           planList={plantripList}
           isDropdownPlanOpen={isDropdownPlanOpen}
-          onChangeDropdown={setIsDropdownPlanOpen}
-          onChangeDate={setIndexDate}
+          onChangeDropdown={handleChangeDropdown}
+          onChangeDate={handleChangeDateIndex}
         />
 
         <RatingModal

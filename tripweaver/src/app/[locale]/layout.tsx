@@ -13,6 +13,10 @@ const kanit = Kanit({
   weight: "300",
 });
 
+export const metadata = {
+  title: "TripWeaver"
+};
+
 export default async function RootLayout({
   children,
   params: { locale }

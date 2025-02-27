@@ -123,8 +123,7 @@ export default function NavBar() {
                     alt={item.name}
                     width={50}
                     height={50}
-                    className="rounded-full mr-3 object-cover"
-                    style={{ minWidth: "50px", minHeight: "50px" }}
+                    className="rounded-full mr-3 object-cover w-[50px] h-[50px]"
                   />
 
                   <span className="kanit text-lg">{item.name}</span>

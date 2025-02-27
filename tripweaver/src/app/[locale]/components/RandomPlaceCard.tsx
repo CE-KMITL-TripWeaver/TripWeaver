@@ -5,8 +5,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import AddToTripModal from "../components/modals/AddToTripModals";
-import { fetchUserPlans, addLocationToTrip } from "@/utils/apiService";
+import { fetchUserPlans, addLocationToTrip, fetchPlanAllData } from "@/utils/apiService";
 import { PlanObject } from "../interface/plantripObject";
+import { useQuery } from "react-query";
 
 interface RandomPlaceCardProps {
   placeType: "ATTRACTION" | "RESTAURANT" | "ACCOMMODATION";
@@ -24,6 +25,41 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
   const [searchPlan, setSearchPlan] = useState<string>("");
   const [isDropdownPlanOpen, setIsDropdownPlanOpen] = useState<boolean>(false);
 
+  const {
+        data: userPlans,
+        isLoading: isUserPlansLoading,
+        isError: isUserPlansError,
+    } = useQuery(
+        ["userPlans", session?.user?.id],
+        () => fetchUserPlans(session?.user?.id!),
+        {
+        enabled: !!session?.user?.id,
+        }
+    );
+  
+  const {
+      data: planListData,
+      isLoading: isPlanListLoading,
+      isError: isPlanListError,
+  } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
+      enabled: !!userPlans,
+      retry: 0
+  });
+
+  useEffect(() => {
+      if (planListData) {
+          const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
+              _id: plan._id,
+              startDate: plan.startDate,
+              dayDuration: plan.dayDuration,
+              accommodations: plan.accommodations,
+              tripName: plan.tripName
+          }));
+  
+          setPlantripList(mappedPlans);
+      }
+  }, [planListData]);
+    
   useEffect(() => {
     const fetchRandomPlaces = async () => {
       let endpoint = "";
@@ -47,20 +83,6 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
 
     fetchRandomPlaces();
   }, [placeType]);
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      if (!session?.user?.id) return;
-      try {
-        const userPlans = await fetchUserPlans(session.user.id);
-        setPlantripList(userPlans || []);
-      } catch (error) {
-        console.error("Error fetching user plans:", error);
-      }
-    };
-
-    fetchPlans();
-  }, [session]);
 
   const handleAddTrip = (locationID: string) => {
     if (plantripList.length === 0) {
@@ -117,6 +139,18 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
     }
   };
 
+  const handleSetSearchPlan = (planName: string) => {
+    setSearchPlan(planName);
+  }
+
+  const handleChangeDropdown = (isOpen: boolean) => {
+  setIsDropdownPlanOpen(isOpen);
+  }
+
+  const handleChangeDateIndex= (dateIndex: number) => {
+    setIndexDate(dateIndex);
+  }
+
   return (
     <div className="flex flex-col mt-10">
       <h2 className="kanit font-bold text-2xl mb-4">สถานที่แนะนำอื่น ๆ ในภูเก็ต</h2>
@@ -145,12 +179,12 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
         onAddTrip={handleAddTripToPlan}
         dayIndex={indexDate}
         onSelectPlan={handleSetPlanID}
-        onInputPlanName={setSearchPlan}
+        onInputPlanName={handleSetSearchPlan}
         selectedLocation={selectedLocation}
         planList={plantripList}
         isDropdownPlanOpen={isDropdownPlanOpen}
-        onChangeDropdown={setIsDropdownPlanOpen}
-        onChangeDate={setIndexDate}
+        onChangeDropdown={handleChangeDropdown}
+        onChangeDate={handleChangeDateIndex}
       />
     </div>
   );

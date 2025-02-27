@@ -63,7 +63,7 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
         <div className="bg-white rounded-lg shadow-lg w-[90%] sm:w-[400px] p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Add to trip</h2>
+            <h2 className="kanit text-xl font-semibold">เพิ่มเข้าทริป</h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <Icon icon="iconoir:cancel" className="text-lg text-[#414141]" width={24} height={24} />
             </button>
@@ -82,7 +82,7 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
                     onInputPlanName(e.target.value);
                     onChangeDropdown(true);
                     }}
-                    className="w-full focus:outline-none"
+                    className="kanit w-full focus:outline-none"
                 />
                 </div>
             </div>
@@ -92,7 +92,7 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
                 {filteredTrips.map((trip) => (
                   <div
                     key={trip._id}
-                    className="p-2 cursor-pointer hover:bg-gray-200"
+                    className="kanit p-2 cursor-pointer hover:bg-gray-200"
                     onClick={() => {
                       onSelectPlan(trip._id);
                       onChangeDropdown(false);
@@ -117,7 +117,7 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
                 <div className="flex justify-center items-center mr-2">
                   <Icon icon="fe:warning" className="text-lg text-red-600" width={24} height={24} />
                 </div> 
-                <div className="flex justify-center items-center kanit text-sm text-center">
+                <div className="kanit flex justify-center items-center kanit text-sm text-center">
                   วันดังกล่าวมีที่พักอยู่แล้วระบบจะทำการแทนที่ของที่พัก
                 </div>
               </div>  
@@ -126,10 +126,10 @@ const AddToTripModal: React.FC<AddToTripModalProps> = ({
 
           <button
             onClick={() => selectedPlan && onAddTrip(selectedPlan._id, selectedLocation)}
-            className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+            className="kanit mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
             disabled={!selectedPlan}
           >
-            Add to Trip
+            ยืนยัน
           </button>
         </div>
       </div>

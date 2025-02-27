@@ -499,14 +499,16 @@
     "openHour": "วันเวลาเปิด-ปิด",
     "phone": "เบอร์โทรศัพท์",
     "website": "เว็บไซต์",
-    "reviewAction": "รีวิวสถานที่นี้"
+    "reviewAction": "รีวิวสถานที่นี้",
+    "unlike": "ยกเลิกถูกใจ"
   },
   "updatePreferences": {
     "title": "อัปเดตความชอบของคุณ",
     "previous": "ย้อนกลับ",
     "next": "ถัดไป",
     "submit": "ส่ง",
-    "submitting": "กำลังส่ง..."
+    "submitting": "กำลังส่ง...",
+    "stepLabel": "คำถามที่ {step} จาก {total}"
   },
   "preferences": {
     "natureAndOutdoors": {

@@ -28,7 +28,7 @@ export default function BlogCard({
                 (e) => {
                   e.stopPropagation();
                   handleClickViewDetails(tripID)
-                  router.push(`/trip/${tripID}`)}}
+                  router.push(`/plantrip/summary/${tripID}`)}}
             >
                 <div 
                 className={`flex absolute bg-cover bg-center w-full h-full rounded-xl group-hover:scale-110 transition-all duration-300`} 

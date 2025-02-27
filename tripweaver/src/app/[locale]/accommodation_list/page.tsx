@@ -372,10 +372,10 @@ export default function Home() {
                 <NavBar/> 
                 <div className="flex px-20 mt-10 flex-col">
                     <div className="flex flex-row text-lg">
-                        <div className="kanit">
-                            {t('AccommodationPages.infoMain')}
-                            
-                        </div>
+                    <div
+                        className="kanit font-regular hover:text-gray-500 cursor-pointer"
+                        onClick={() => window.location.href = "/"}
+                        >{t("AccommodationPages.infoMain")}</div>
                         <div className="kanit font-bold">
                             {t('AccommodationPages.accommodation')}
                         </div>
