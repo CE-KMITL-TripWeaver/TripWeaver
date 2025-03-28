@@ -185,6 +185,8 @@ const RatingModal: React.FC<RatingModalProps> = ({
         icon: "success",
         title: showBonusAlert ? t("Rating.Congrats") : t("Rating.Success"),
         text: showBonusAlert ? t("Rating.FirstTimeBonus") : t("Rating.ThankYou"),
+        confirmButtonText: "โอเค",
+        confirmButtonColor: "#2563ea"
       });
       window.location.reload();
 

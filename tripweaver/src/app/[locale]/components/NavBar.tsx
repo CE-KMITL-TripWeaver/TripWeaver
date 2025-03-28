@@ -18,7 +18,22 @@ const useDebounce = (value: string, delay: number): string => {
 export default function NavBar() {
   const t = useTranslations();
   const { data: session } = useSession();
-  const user = session?.user as unknown as { name: string; email: string; image: string; role: string };
+
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    image: string;
+    role: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      setUser(session.user as unknown as { name: string; email: string; image: string; role: string });
+    } else {
+      setUser(null);
+    }
+  }, [session]);
+  
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -153,7 +168,7 @@ export default function NavBar() {
                 onClick={handleProfileToggle}
                 className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl"
               >
-                {user.image ? (
+                {user?.image ? (
                   <Image
                     src={user.image}
                     alt="User Profile"
@@ -180,7 +195,7 @@ export default function NavBar() {
                     </g>
                   </svg>
                 )}
-                <span>{user.name}</span>
+                <span>{user?.name}</span>
               </button>
               {isProfileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
@@ -189,7 +204,7 @@ export default function NavBar() {
                       โปรไฟล์ของฉัน
                     </button>
                   </Link>
-                  {user.role === "admin" && (
+                  {user?.role === "admin" && (
                     <Link href="/admin">
                       <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 kanit">
                         จัดการเว็บไซต์

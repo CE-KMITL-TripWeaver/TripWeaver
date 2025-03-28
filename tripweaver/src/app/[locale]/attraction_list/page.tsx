@@ -243,11 +243,13 @@ export default function Home() {
     }
 
     const handleAddTrip = (locationID: string) => {
-        if (planListData.length == 0) {
+        if (plantripList.length == 0) {
             Swal.fire({
                 icon: "error",
-                title: "Oops...",
-                text: "You dont have any trip create first"
+                title: "เกิดข้อผิดพลาด",
+                text: "คุณยังไม่มีทริปใด ๆ กรุณาสร้างทริปก่อน!",
+                confirmButtonText: "โอเค",
+                confirmButtonColor: "#2563ea"
             }).then((result) => {
                 if (result.isConfirmed) {
                     router.push("/plantrip/create");
@@ -270,8 +272,10 @@ export default function Home() {
         setSelectedLocation("");
         Swal.fire({
             icon: "success",
-            title: "Success",
-            text: "This location has been added to your trip"
+            title: "สำเร็จ",
+            text: "สถานที่นี้ถูกเพิ่มไปยังทริปของคุณแล้ว",
+            confirmButtonText: "โอเค",
+            confirmButtonColor: "#2563ea"
         });
 
         addLocationToTrip(planID, locationID, indexDate, "ATTRACTION");

@@ -227,8 +227,8 @@ export default function Home() {
                     unoptimized
                     className="rounded-lg w-[100%] h-[200px]"
                   />
-                  <div className="flex gap-2 mt-2">
-                    {post.tags.map((tag) => (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {post.tags.slice(0,4).map((tag) => (
                       <span
                         key={tag}
                         className="bg-orange-100 text-orange-400 px-3 py-1 rounded-full text-md font-bold"
@@ -310,11 +310,11 @@ export default function Home() {
                         />
                         <div className="kanit ml-4 flex flex-col justify-between">
                           <div>
-                            <h2 className="text-2xl font-bold mt-4">
+                            <h2 className="text-2xl font-bold">
                               {post.blogName}
                             </h2>
                             <div className="flex gap-2 mt-2">
-                              {post.tags.map((tag) => (
+                              {post.tags.slice(0,5).map((tag) => (
                                 <span
                                   key={tag}
                                   className="bg-orange-100 text-orange-400 px-3 py-1 rounded-full text-md font-bold"

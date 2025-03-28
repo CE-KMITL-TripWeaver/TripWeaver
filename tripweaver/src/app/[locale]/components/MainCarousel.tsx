@@ -4,9 +4,9 @@ import Image from 'next/image';
 
 export default function MainCarousel() {
   const images: string[] = [
-    'https://www.tuneprotect.co.th/storage/article/6/travel-thailand-look-like-other-countries.jpg',
-    'https://cbtthailand.dasta.or.th/upload-file-api/Resources/RelateAttraction/Images/RAT100835/1.jpeg',
-    'https://upload.wikimedia.org/wikipedia/commons/6/64/Yaowarat_at_night_%2832455695783%29.jpg',
+    '/images/main-banner-1.jpg',
+    '/images/main-banner-2.jpg',
+    '/images/main-banner-3.jpg',
   ];
 
   const [currentImage, setCurrentImage] = useState(0);

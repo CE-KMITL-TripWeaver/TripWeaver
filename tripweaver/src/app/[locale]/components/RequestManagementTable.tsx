@@ -405,7 +405,7 @@ const RequestManagementTable: React.FC<RequestManagementTableProps> = ({ t }) =>
 
                             {/* Type */}
                             <div className="border p-4 rounded">
-                                <p className="kanit font-bold">{t("Admin.Type")}</p>
+                                <p className="kanit font-bold">{t("Admin.RequestType")}</p>
                                 <p>{selectedRequest.type === "add" ? t("Admin.AddPlace") : t("Admin.EditPlace")}</p>
                             </div>
 

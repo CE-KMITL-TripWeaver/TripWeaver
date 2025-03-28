@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
         let plans;
         if (planList.length === 0) {
-            plans = await PlanTrips.find({});
+            plans = [];
         } else {
 
             const idList = planList.map((id: string) => {

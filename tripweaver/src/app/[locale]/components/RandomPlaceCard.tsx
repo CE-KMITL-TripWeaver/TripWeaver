@@ -88,8 +88,10 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
     if (plantripList.length === 0) {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "You don't have any trips. Create one first!",
+        title: "เกิดข้อผิดพลาด",
+        text: "คุณยังไม่มีทริปใด ๆ กรุณาสร้างทริปก่อน!",
+        confirmButtonText: "โอเค",
+        confirmButtonColor: "#2563ea"
       }).then((result) => {
         if (result.isConfirmed) {
           router.push("/plantrip/create");
@@ -111,8 +113,10 @@ export default function RandomPlaceCard({ placeType }: RandomPlaceCardProps) {
 
     Swal.fire({
       icon: "success",
-      title: "Success",
-      text: "This location has been added to your trip",
+      title: "สำเร็จ",
+      text: "สถานที่นี้ถูกเพิ่มไปยังทริปของคุณแล้ว",
+      confirmButtonText: "โอเค",
+      confirmButtonColor: "#2563ea"
     });
 
     await addLocationToTrip(planID, locationID, indexDate, placeType);

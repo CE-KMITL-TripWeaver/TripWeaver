@@ -459,7 +459,7 @@ const CreateBlogPost = () => {
             <label className="block text-lg font-medium mb-2">เนื้อหา</label>
             <div className="border border-gray-300 rounded-md">
               {/* Editor */}
-              <div className="p-4">
+              <div className="p-4 text-lg">
                 <EditorContent
                   editor={editor}
                   className="prose max-w-none focus:outline-none focus:ring-0"

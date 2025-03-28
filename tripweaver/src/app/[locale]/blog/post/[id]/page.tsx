@@ -201,7 +201,7 @@ export default function BlogPost() {
               </div>
             </div>
           </div>
-          <div className="pt-8">{blogData.description}</div>
+          <div className="pt-8 pb-4 text-lg">{blogData.description}</div>
           <div>
             <img
               src={blogData.blogImage}
@@ -210,7 +210,7 @@ export default function BlogPost() {
             />
           </div>
           <div
-            className="pt-4 text-xl tiptap"
+            className="pt-4 text-lg tiptap"
             dangerouslySetInnerHTML={{ __html: blogData.content }}
           />
         </div>

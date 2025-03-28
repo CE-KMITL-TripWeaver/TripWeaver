@@ -76,21 +76,33 @@ export const authOptions: AuthOptions = {
       return true;
     },
     async session({ session, token }) {
-      if (session.user) {
-        (session.user as { id: string }).id = token.sub as string;
-        (session.user as { username?: string }).username = token.username as string;
-        session.user.name = token.name as string;
-        (session.user as { role?: string }).role = token.role as string;
-        (session.user as { image?: string }).image = token.imgPath as string | undefined;
+
+      await connectMongoDB();
+
+      const user = (await User.findOne({ _id: token.sub }).lean()) as {
+        _id: string;
+        displayName?: string;
+        name?: string;
+        email: string;
+        imgPath?: string;
+        role: string;
+      } | null;
+
+      if (user) {
+        session.user = {
+          id: user._id.toString(),
+          name: user.displayName,
+          email: user.email,
+          image: user.imgPath,
+        };
+        (session.user as any).role = user.role;
       }
+
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.username = (user as { id: string; username: string }).username;
-        token.role = (user as unknown as { role: string }).role;
-        token.imgPath = (user as { imgPath?: string }).imgPath || undefined;
+        token.sub = user.id;
       }
       return token;
     },

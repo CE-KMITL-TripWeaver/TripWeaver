@@ -369,6 +369,8 @@ const RequestModal: React.FC<RequestModalProps> = ({
             delete cleanedDetails.priceRange;
             delete cleanedDetails.star;
             delete cleanedDetails.tag;
+        } else if (placeType === "accommodation") {
+            delete cleanedDetails.priceRange;
         } else if (placeType === "restaurant") {
             delete cleanedDetails.star;
             delete cleanedDetails.tag;
@@ -391,20 +393,22 @@ const RequestModal: React.FC<RequestModalProps> = ({
 
             if (response.ok) {
                 Swal.fire({
-                    title: t("RequestCreated"),
-                    text: t("RequestCreatedSuccessfully"),
+                    title: "เสนอให้แก้ไขข้อมูล",
+                    text: "ส่งคำขอเรียบร้อยแล้ว",
                     icon: "success",
-                    confirmButtonText: t("OK"),
+                    confirmButtonText: "โอเค",
+                    confirmButtonColor: "#2563ea",
                 });
                 setFormData(initialFormData);
                 onClose();
                 if (onSuccess) onSuccess();
             } else {
                 Swal.fire({
-                    title: t("Error"),
-                    text: t("FailedToCreateRequest"),
+                    title: "เกิดข้อผิดพลาด",
+                    text: "ส่งคำขอไม่สำเร็จ",
                     icon: "error",
-                    confirmButtonText: t("OK"),
+                    confirmButtonText: "โอเค",
+                    confirmButtonColor: "#2563ea",
                 });
             }
         } catch (error) {
@@ -766,7 +770,7 @@ const RequestModal: React.FC<RequestModalProps> = ({
                     {/* Facilities (for restaurants and accommodations) */}
                     {(placeType === "restaurant" || placeType === "accommodation") && (
                         <div className="mb-4">
-                            <label className="block kanit">{t("Facilities")}</label>
+                            <label className="block kanit">{t("Facility")}</label>
                             {formData.facility?.map((fac, index) => (
                                 <div key={index} className="flex items-center space-x-4 mb-2">
                                     <input
@@ -822,7 +826,7 @@ const RequestModal: React.FC<RequestModalProps> = ({
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block kanit">{t("Tags")}</label>
+                                <label className="block kanit">{t("Tag")}</label>
                                 {formData.tag?.map((tag, index) => (
                                     <div key={index} className="flex items-center space-x-4 mb-2">
                                         <input

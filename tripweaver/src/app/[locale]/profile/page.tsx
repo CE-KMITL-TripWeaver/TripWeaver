@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NavBar from "../components/NavBar";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -19,6 +19,7 @@ import { set } from "mongoose";
 import Swal from "sweetalert2";
 import RequestModal from "../components/modals/RequestModal";
 import PersonaForm from "../components/PersonaForm";
+import EditProfileModal from "../components/modals/EditProfileModal";
 
 interface BlogData {
   _id: string;
@@ -150,12 +151,66 @@ const Sidebar = ({
 
 
 const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: string) => void }) => {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [recentTrips, setRecentTrips] = useState<any[]>([]);
   const [recentBlogs, setRecentBlogs] = useState<any[]>([]);
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileImage, setProfileImage] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [userData, setUserData] = useState<{
+    id: string;
+    imgPath?: string;
+    displayName?: string;
+    email?: string;
+  }>({
+    id: "",
+    imgPath: "",
+    displayName: "",
+    email: "",
+  });
+  
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch(`/api/user/getUser/${session.user.id}`)
+        .then((res) => res.json())
+        .then((user) => {
+          console.log(user)
+          setUserData(user)
+          setProfileImage(user.imgPath || session?.user?.image || "/images/no-img.png");
+          setDisplayName(user.displayName || session?.user?.name);
+          setEmail(user.email || session?.user?.email);
+        })
+        .catch((error) => console.error("Error fetching profile data:", error));
+    }
+  }, [session]);
+
+  const handleProfileUpdated = (updatedData: any) => {
+    // Instead of manually setting each field, just refetch the updated data
+    //setUserData(updatedData); // Update the userData state after successful profile update
+    // Trigger a refetch of user profile
+    fetch(`/api/user/getUser/${session?.user?.id}`)
+      .then((res) => res.json())
+      .then(async (user) => {
+        setUserData(user);
+        setProfileImage(user.imgPath || session?.user?.image || "/images/no-img.png");
+        setDisplayName(user.displayName || session?.user?.name);
+        setEmail(user.email || session?.user?.email);
+        await update({
+          user: {
+            ...session?.user,
+            name: updatedData.displayName,
+            email: updatedData.email,
+            image: updatedData.imgPath,
+          },
+        });
+      })
+      .catch((error) => console.error("Error refetching updated profile data:", error));
+  };
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -182,6 +237,38 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
     }
   }, [session?.user?.id]);
 
+  const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Prepare form data for image upload with profileID included
+      const uploadFormData = new FormData();
+      uploadFormData.append("imgFile", file);
+      uploadFormData.append("profileID", session?.user?.id || "");
+
+      // Upload the image using our API endpoint for profile images
+      const uploadRes = await fetch("/api/user/uploadProfilePic", {
+        method: "POST",
+        body: uploadFormData,
+      });
+      const uploadData = await uploadRes.json();
+
+      if (uploadRes.ok && uploadData.message === "Update profile image success") {
+        const newImageUrl = uploadData.uploadedImageUrl;
+        if (!newImageUrl) {
+          throw new Error("Upload succeeded but no image URL was returned.");
+        }
+        // Update local state and refresh profile data
+        setProfileImage(newImageUrl);
+      } else {
+        console.error("Image upload failed", uploadData);
+      }
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+    }
+  };
+
   if (loading) return <p></p>;
   if (error) return <p className="text-red-500">ไม่พบข้อมูล</p>;
 
@@ -189,19 +276,37 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
     <div className="flex">
       {/* Information */}
       <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8 shadow-lg">
-        <div className="mt-3">
+        <div className="mt-3 relative">
           <img
-            src={session?.user?.image || "/images/no-img.png"}
+            src={profileImage}
             alt={session?.user?.name || "User"}
             width={256}
             height={256}
             className="rounded-full"
           />
+          {/* Hidden file input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handleProfilePicChange}
+          />
+          {/* Overlay button to change profile picture */}
+          <button
+            className="absolute bottom-0 right-0 bg-[#EE6527] text-white rounded-full p-2 hover:bg-[#DDDDDD] hover:text-black"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Icon icon="mdi:pencil" />
+          </button>
         </div>
-        <div className="flex kanit font-bold text-2xl">{session?.user?.name}</div>
-        <div className="flex kanit text-xl">{session?.user?.email}</div>
+        <div className="flex kanit font-bold text-2xl">{displayName}</div>
+        <div className="flex kanit text-xl">{email}</div>
         <div className="flex mt-2 gap-x-2">
-          <button className="kanit bg-[#EE6527] hover:bg-[#DDDDDD] hover:text-black text-white px-4 rounded-full font-regular h-8 flex items-center space-x-2">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="kanit bg-[#EE6527] hover:bg-[#DDDDDD] hover:text-black text-white px-4 rounded-full font-regular h-8 flex items-center space-x-2"
+          >
             <Icon icon="mdi:pencil" />
             <span>แก้ไข</span>
           </button>
@@ -257,7 +362,16 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
           </div>
         </div>
       </div>
+
+      <EditProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        userData={userData}
+        onProfileUpdated={handleProfileUpdated}
+      />
     </div>
+
+
   );
 };
 
@@ -586,10 +700,10 @@ const PlacesContent = () => {
                     </td>
                     <td
                       className={`py-4 px-4 border-b ${request.status === "approved"
-                          ? "text-green-500"
-                          : request.status === "waiting"
-                            ? "text-yellow-500"
-                            : "text-red-500"
+                        ? "text-green-500"
+                        : request.status === "waiting"
+                          ? "text-yellow-500"
+                          : "text-red-500"
                         }`}
                     >
                       {request.status === "approved"
