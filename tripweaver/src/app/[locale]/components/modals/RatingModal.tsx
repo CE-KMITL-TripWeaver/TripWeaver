@@ -186,7 +186,13 @@ const RatingModal: React.FC<RatingModalProps> = ({
         title: showBonusAlert ? t("Rating.Congrats") : t("Rating.Success"),
         text: showBonusAlert ? t("Rating.FirstTimeBonus") : t("Rating.ThankYou"),
         confirmButtonText: "โอเค",
-        confirmButtonColor: "#2563ea"
+        confirmButtonColor: "#2563ea",
+        customClass: {
+          title: "kanit",
+          popup: "kanit",
+          confirmButton: "kanit",
+          cancelButton: "kanit",
+        },
       });
       window.location.reload();
 

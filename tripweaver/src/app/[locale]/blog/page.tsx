@@ -193,7 +193,8 @@ export default function Home() {
         <NavBar />
         <div className="flex px-20 pt-10 flex-col">
           <div className="flex flex-row text-lg">
-            <div className="kanit">{t("AttractionPages.infoMain")}</div>
+            <div className="kanit font-regular hover:text-gray-500 cursor-pointer"
+              onClick={() => window.location.href = "/"}>{t("AttractionPages.infoMain")}</div>
             <div className="kanit font-bold">บล็อกการท่องเที่ยว</div>
           </div>
           <div className="flex w-full flex-row justify-end">
@@ -216,7 +217,7 @@ export default function Home() {
             {popularBlogList.slice(0, 5).map((post) => (
               <div
                 key={post._id}
-                className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200"
+                className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200 cursor-pointer"
                 onClick={() => router.push(`/blog/post/${post._id}`)}
               >
                   <Image
@@ -296,7 +297,7 @@ export default function Home() {
                 {blogList.map((post) => (
                   <div
                     key={post._id}
-                    className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200 h-[193px] "
+                    className="flex items-center cursor-pointer bg-white p-4 rounded-lg shadow-md hover:shadow-lg hover:shadow-orange-500/50 duration-200 h-[193px]"
                     onClick={() => router.push(`/blog/post/${post._id}`)}
                   >
                       <div className="flex">

@@ -40,6 +40,12 @@ export default function Register() {
                 text: t('Register.passwordTooShort'),
                 confirmButtonText: "โอเค",
                 confirmButtonColor: "#2563ea",
+                customClass: {
+                    title: "kanit",
+                    popup: "kanit",
+                    confirmButton: "kanit",
+                    cancelButton: "kanit",
+                  },
             });
             return;
         }
@@ -51,6 +57,12 @@ export default function Register() {
                 text: t('Register.passwordMismatch'),
                 confirmButtonText: "โอเค",
                 confirmButtonColor: "#2563ea",
+                customClass: {
+                    title: "kanit",
+                    popup: "kanit",
+                    confirmButton: "kanit",
+                    cancelButton: "kanit",
+                  },
             });
             return;
         }
@@ -69,6 +81,12 @@ export default function Register() {
                     text: t('Register.accountCreated'),
                     confirmButtonText: "โอเค",
                     confirmButtonColor: "#2563ea",
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 }).then(() => {
                     window.location.href = '/login';
                 });
@@ -81,6 +99,12 @@ export default function Register() {
                     text: data.message || t('Register.accountExists'),
                     confirmButtonText: "โอเค",
                     confirmButtonColor: "#2563ea",
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
             }
         } catch (error) {
@@ -90,6 +114,12 @@ export default function Register() {
                 text: t('Register.serverError'),
                 confirmButtonText: "โอเค",
                 confirmButtonColor: "#2563ea",
+                customClass: {
+                    title: "kanit",
+                    popup: "kanit",
+                    confirmButton: "kanit",
+                    cancelButton: "kanit",
+                  },
             });
         }
     };

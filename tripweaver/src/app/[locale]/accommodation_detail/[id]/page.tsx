@@ -67,41 +67,41 @@ export default function AccommodationDetailPage() {
   const userId: string | undefined = session?.user?.id;
 
   const {
-      data: userPlans,
-      isLoading: isUserPlansLoading,
-      isError: isUserPlansError,
+    data: userPlans,
+    isLoading: isUserPlansLoading,
+    isError: isUserPlansError,
   } = useQuery(
-      ["userPlans", session?.user?.id],
-      () => fetchUserPlans(session?.user?.id!),
-      {
+    ["userPlans", session?.user?.id],
+    () => fetchUserPlans(session?.user?.id!),
+    {
       enabled: !!session?.user?.id,
-      }
+    }
   );
 
   const {
-      data: planListData,
-      isLoading: isPlanListLoading,
-      isError: isPlanListError,
-  } = useQuery(["planData", userPlans], () => fetchPlanAllData({"planList": userPlans}), {
-      enabled: !!userPlans,
-      retry: 0
+    data: planListData,
+    isLoading: isPlanListLoading,
+    isError: isPlanListError,
+  } = useQuery(["planData", userPlans], () => fetchPlanAllData({ "planList": userPlans }), {
+    enabled: !!userPlans,
+    retry: 0
   });
 
   useEffect(() => {
-        if (planListData) {
-            const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
-                _id: plan._id,
-                startDate: plan.startDate,
-                dayDuration: plan.dayDuration,
-                accommodations: plan.accommodations,
-                tripName: plan.tripName
-            }));
-    
-            setPlantripList(mappedPlans);
-        }
-    }, [planListData]);
-  
-  
+    if (planListData) {
+      const mappedPlans: PlanObject[] = planListData.plans.map((plan: PlanObject) => ({
+        _id: plan._id,
+        startDate: plan.startDate,
+        dayDuration: plan.dayDuration,
+        accommodations: plan.accommodations,
+        tripName: plan.tripName
+      }));
+
+      setPlantripList(mappedPlans);
+    }
+  }, [planListData]);
+
+
   useEffect(() => {
     const fetchAccommodation = async () => {
       try {
@@ -174,6 +174,12 @@ export default function AccommodationDetailPage() {
         text: "คุณยังไม่มีทริปใด ๆ กรุณาสร้างทริปก่อน!",
         confirmButtonText: "โอเค",
         confirmButtonColor: "#2563ea",
+        customClass: {
+          title: "kanit",
+          popup: "kanit",
+          confirmButton: "kanit",
+          cancelButton: "kanit",
+        },
       }).then((result) => {
         if (result.isConfirmed) {
           router.push("/plantrip/create");
@@ -196,7 +202,13 @@ export default function AccommodationDetailPage() {
       title: "สำเร็จ",
       text: "สถานที่นี้ถูกเพิ่มไปยังทริปของคุณแล้ว",
       confirmButtonText: "โอเค",
-      confirmButtonColor: "#2563ea"
+      confirmButtonColor: "#2563ea",
+      customClass: {
+        title: "kanit",
+        popup: "kanit",
+        confirmButton: "kanit",
+        cancelButton: "kanit",
+      },
     });
     await fetch(`/api/plantrip/addLocation`, {
       method: "POST",
@@ -226,10 +238,10 @@ export default function AccommodationDetailPage() {
   }
 
   const handleChangeDropdown = (isOpen: boolean) => {
-  setIsDropdownPlanOpen(isOpen);
+    setIsDropdownPlanOpen(isOpen);
   }
 
-  const handleChangeDateIndex= (dateIndex: number) => {
+  const handleChangeDateIndex = (dateIndex: number) => {
     setIndexDate(dateIndex);
   }
 
@@ -361,7 +373,13 @@ export default function AccommodationDetailPage() {
                       {t("DetailPages.website")}
                     </div>
                     <div className="kanit font-regular text-xl mt-3">
-                      {accommodation.website || "-"}
+                      {accommodation.website ? (
+                        <a href={accommodation.website} target="_blank" rel="noopener noreferrer">
+                          {accommodation.website}
+                        </a>
+                      ) : (
+                        "-"
+                      )}
                     </div>
                   </div>
                 </div>

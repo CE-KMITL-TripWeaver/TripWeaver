@@ -301,7 +301,13 @@ export default function Home() {
                 title: "เกิดข้อผิดพลาด",
                 text: "คุณยังไม่มีทริปใด ๆ กรุณาสร้างทริปก่อน!",
                 confirmButtonText: "โอเค",
-                confirmButtonColor: "#2563ea"
+                confirmButtonColor: "#2563ea",
+                customClass: {
+                    title: "kanit",
+                    popup: "kanit",
+                    confirmButton: "kanit",
+                    cancelButton: "kanit",
+                  },
               }).then((result) => {
                 if (result.isConfirmed) {
                     router.push("/plantrip/create");
@@ -327,7 +333,13 @@ export default function Home() {
             title: "สำเร็จ",
             text: "สถานที่นี้ถูกเพิ่มไปยังทริปของคุณแล้ว",
             confirmButtonText: "โอเค",
-            confirmButtonColor: "#2563ea"
+            confirmButtonColor: "#2563ea",
+            customClass: {
+                title: "kanit",
+                popup: "kanit",
+                confirmButton: "kanit",
+                cancelButton: "kanit",
+              },
           });
         
        await addLocationToTrip(planID,locationID,indexDate,"ACCOMMODATION");

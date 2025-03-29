@@ -595,6 +595,12 @@ const PlacesContent = () => {
       showCancelButton: true,
       confirmButtonText: "ยืนยัน",
       cancelButtonText: "ยกเลิก",
+      customClass: {
+        title: "kanit",
+        popup: "kanit",
+        confirmButton: "kanit",
+        cancelButton: "kanit",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -1008,6 +1014,30 @@ export default function Profile() {
   // }, [blogList, favoritePlaceList]);
 
   const [selectedContent, setSelectedContent] = useState("profile");
+
+  useEffect(() => {
+    if (selectedContent === "interests") {
+        Swal.fire({
+            title: "คุณแน่ใจใช่หรือไม่ ?",
+            text: "ต้องการแก้ไขความสนใจใช่มั้ย",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "ใช่",
+            confirmButtonColor: "#2563ea",
+            cancelButtonText: "ไม่",
+            customClass: {
+              title: "kanit",
+              popup: "kanit",
+              confirmButton: "kanit",
+              cancelButton: "kanit",
+            },
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                setSelectedContent("profile");
+            }
+        });
+    }
+}, [selectedContent]);
 
   const renderContent = () => {
     switch (selectedContent) {
