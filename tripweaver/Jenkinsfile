@@ -63,6 +63,16 @@ pipeline {
                     sh 'touch .env'
                     sh '''
                     echo "MONGDB_URI=${MONGDB_URI}" >> .env
+                    echo "NEXTAUTH_SECRET=${NEXTAUTH_SECRET}" >> .env
+                    echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> .env
+                    echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> .env
+                    echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> .env
+                    echo "OSRM_API_HOST=${OSRM_API_HOST}" >> .env
+                    echo "API_KEY=${API_KEY}" >> .env
+                    echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" >> .env
+                    echo "NEXT_PUBLIC_REC_API_URL=${NEXT_PUBLIC_REC_API_URL}" >> .env
+                    echo "NEXT_PUBLIC_OSRM_API_URL=${NEXT_PUBLIC_OSRM_API_URL}" >> .env
+                    echo "IMGBB_API_KEY=${IMGBB_API_KEY}" >> .env
                     '''
                     }
                 }
