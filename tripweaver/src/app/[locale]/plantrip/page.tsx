@@ -1302,7 +1302,7 @@ export default function Home() {
 
 
   if (isPlanLoading || isUserPlansLoading || isAllDataLoading) {
-    return <div>Loading...</div>;
+    return ;
   }
 
   if (isPlanError || isUserPlansError || isAllDataError || !planID) {
