@@ -79,6 +79,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
                     icon: "success",
                     confirmButtonText: "โอเค",
                     confirmButtonColor: "#2563ea",
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
                 setFormData({ username: "", email: "", password: "", displayName: "" });
             } else {
@@ -98,6 +104,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
             confirmButtonColor: "#d33",
             cancelButtonColor: "#aaa",
             confirmButtonText: t("Admin.Confirm"),
+            customClass: {
+                title: "kanit",
+                popup: "kanit",
+                confirmButton: "kanit",
+                cancelButton: "kanit",
+              },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
@@ -112,6 +124,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
                             icon: "success",
                             confirmButtonText: "โอเค",
                             confirmButtonColor: "#2563ea",
+                            customClass: {
+                                title: "kanit",
+                                popup: "kanit",
+                                confirmButton: "kanit",
+                                cancelButton: "kanit",
+                              },
                         });
                         setUserData((prev) => prev.filter((user) => user._id !== userId));
                     } else {
@@ -201,6 +219,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
                             icon: "success",
                             confirmButtonText: t("Admin.OK"),
                             confirmButtonColor: "#2563ea",
+                            customClass: {
+                                title: "kanit",
+                                popup: "kanit",
+                                confirmButton: "kanit",
+                                cancelButton: "kanit",
+                              },
                         });
                         setUserData((prev) =>
                             prev.map((item) =>
@@ -214,6 +238,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
                             icon: "error",
                             confirmButtonText: t("Admin.OK"),
                             confirmButtonColor: "#2563ea",
+                            customClass: {
+                                title: "kanit",
+                                popup: "kanit",
+                                confirmButton: "kanit",
+                                cancelButton: "kanit",
+                              },
                         });
                     }
                 } catch (error) {
@@ -224,6 +254,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({ userData, set
                         icon: "error",
                         confirmButtonText: t("Admin.OK"),
                         confirmButtonColor: "#2563ea",
+                        customClass: {
+                            title: "kanit",
+                            popup: "kanit",
+                            confirmButton: "kanit",
+                            cancelButton: "kanit",
+                          },
                     });
                 }
             }

@@ -207,6 +207,12 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                     text: t(isEditing ? "Admin.PlaceUpdatedSuccessfully" : "Admin.PlaceCreatedSuccessfully"),
                     icon: "success",
                     confirmButtonText: t("Admin.OK"),
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
             } else {
                 Swal.fire({
@@ -214,6 +220,12 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                     text: t(isEditing ? "Admin.FailedToUpdatePlace" : "Admin.FailedToCreatePlace"),
                     icon: "error",
                     confirmButtonText: t("Admin.OK"),
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
             }
         } catch (error) {
@@ -231,6 +243,12 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
             confirmButtonColor: "#d33",
             cancelButtonColor: "#aaa",
             confirmButtonText: t("Admin.Confirm"),
+            customClass: {
+                title: "kanit",
+                popup: "kanit",
+                confirmButton: "kanit",
+                cancelButton: "kanit",
+              },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
@@ -244,6 +262,12 @@ const PlaceManagementTable: React.FC<PlaceManagementTableProps> = ({ t }) => {
                             text: t("Admin.PlaceDeletedSuccessfully"),
                             icon: "success",
                             confirmButtonText: t("Admin.OK"),
+                            customClass: {
+                                title: "kanit",
+                                popup: "kanit",
+                                confirmButton: "kanit",
+                                cancelButton: "kanit",
+                              },
                         });
                         setPlaces((prev) => prev.filter((place) => place._id !== placeId));
                     } else {

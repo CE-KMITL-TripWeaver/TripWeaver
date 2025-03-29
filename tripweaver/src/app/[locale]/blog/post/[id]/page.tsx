@@ -127,8 +127,10 @@ export default function BlogPost() {
       <NavBar />
       <div className="flex px-20 mt-10 flex-col">
         <div className="flex flex-row text-lg">
-          <div className="kanit">{t("AttractionPages.infoMain")}</div>
-          <div className="kanit">บล็อกการท่องเที่ยว {">"}</div>
+          <div className="kanit font-regular hover:text-gray-500 cursor-pointer"
+              onClick={() => window.location.href = "/"}>{t("AttractionPages.infoMain")}</div>
+          <div className="kanit font-regular hover:text-gray-500 cursor-pointer"
+              onClick={() => window.location.href = "/blog"}>บล็อกการท่องเที่ยว {">"}</div>
           <div className="kanit font-bold pl-1">{blogData.blogName}</div>
         </div>
       </div>

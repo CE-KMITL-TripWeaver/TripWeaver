@@ -40,6 +40,12 @@ export default function Login() {
                 text: t('Login.invalidCredentials'),
                 confirmButtonText: "โอเค",
                 confirmButtonColor: "#2563ea",
+                customClass: {
+                    title: "kanit",
+                    popup: "kanit",
+                    confirmButton: "kanit",
+                    cancelButton: "kanit",
+                  },
             });
         }
     };

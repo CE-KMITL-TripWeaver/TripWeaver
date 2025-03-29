@@ -398,6 +398,12 @@ const RequestModal: React.FC<RequestModalProps> = ({
                     icon: "success",
                     confirmButtonText: "โอเค",
                     confirmButtonColor: "#2563ea",
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
                 setFormData(initialFormData);
                 onClose();
@@ -409,6 +415,12 @@ const RequestModal: React.FC<RequestModalProps> = ({
                     icon: "error",
                     confirmButtonText: "โอเค",
                     confirmButtonColor: "#2563ea",
+                    customClass: {
+                        title: "kanit",
+                        popup: "kanit",
+                        confirmButton: "kanit",
+                        cancelButton: "kanit",
+                      },
                 });
             }
         } catch (error) {

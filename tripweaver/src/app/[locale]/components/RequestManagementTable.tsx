@@ -260,6 +260,12 @@ const RequestManagementTable: React.FC<RequestManagementTableProps> = ({ t }) =>
                                                         cancelButtonColor: "#d33",
                                                         confirmButtonText: t("Admin.YesApprove"),
                                                         cancelButtonText: t("Admin.Cancel"),
+                                                        customClass: {
+                                                            title: "kanit",
+                                                            popup: "kanit",
+                                                            confirmButton: "kanit",
+                                                            cancelButton: "kanit",
+                                                          },
                                                     }).then(async (result) => {
                                                         if (result.isConfirmed) {
                                                             await handleApprove(request);
@@ -286,6 +292,12 @@ const RequestManagementTable: React.FC<RequestManagementTableProps> = ({ t }) =>
                                                         cancelButtonColor: "#d33",
                                                         confirmButtonText: t("Admin.YesReject"),
                                                         cancelButtonText: t("Admin.Cancel"),
+                                                        customClass: {
+                                                            title: "kanit",
+                                                            popup: "kanit",
+                                                            confirmButton: "kanit",
+                                                            cancelButton: "kanit",
+                                                          },
                                                     }).then(async (result) => {
                                                         if (result.isConfirmed) {
                                                             await handleReject(request);
