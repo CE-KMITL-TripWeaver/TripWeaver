@@ -100,6 +100,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
                             value={formData.displayName}
                             onChange={handleChange}
                             className="kanit w-full p-2 border rounded"
+                            required
                         />
                         <input
                             type="email"
@@ -108,6 +109,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
                             value={formData.email}
                             onChange={handleChange}
                             className="kanit w-full p-2 border rounded"
+                            required
                         />
                         <div className="flex justify-between items-center">
                             <button
