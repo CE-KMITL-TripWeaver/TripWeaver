@@ -181,7 +181,6 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
         .then((user) => {
           console.log(user)
           setUserData(user)
-          setProfileImage(user.imgPath || session?.user?.image || "/images/no-img.png");
           setDisplayName(user.displayName || session?.user?.name);
           setEmail(user.email || session?.user?.email);
         })
@@ -190,22 +189,18 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
   }, [session]);
 
   const handleProfileUpdated = (updatedData: any) => {
-    // Instead of manually setting each field, just refetch the updated data
-    //setUserData(updatedData); // Update the userData state after successful profile update
-    // Trigger a refetch of user profile
     fetch(`/api/user/getUser/${session?.user?.id}`)
       .then((res) => res.json())
       .then(async (user) => {
         setUserData(user);
-        setProfileImage(user.imgPath || session?.user?.image || "/images/no-img.png");
+        //setProfileImage(user.imgPath);
         setDisplayName(user.displayName || session?.user?.name);
         setEmail(user.email || session?.user?.email);
         await update({
           user: {
-            ...session?.user,
-            name: updatedData.displayName,
-            email: updatedData.email,
-            image: updatedData.imgPath,
+            name: user.displayName,
+            email: user.email,
+            //image: user.imgPath,
           },
         });
       })
@@ -261,6 +256,11 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
         }
         // Update local state and refresh profile data
         setProfileImage(newImageUrl);
+        await update({
+          user: {
+            image: newImageUrl,
+          },
+        });
       } else {
         console.error("Image upload failed", uploadData);
       }
@@ -278,11 +278,11 @@ const ProfileContent = ({ setSelectedContent }: { setSelectedContent: (content: 
       <div className="flex flex-col items-center kanit border-2 border-gray-200 rounded-md mt-8 ml-8 gap-y-2 p-8 shadow-lg">
         <div className="mt-3 relative">
           <img
-            src={profileImage}
+            src={session?.user?.image || "/images/no-img.png"}
             alt={session?.user?.name || "User"}
             width={256}
             height={256}
-            className="rounded-full"
+            className="rounded-full w-[256px] h-[256px]"
           />
           {/* Hidden file input */}
           <input

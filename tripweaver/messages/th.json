@@ -612,5 +612,11 @@
     "Success": "สำเร็จ",
     "ThankYou": "ขอบคุณสำหรับการรีวิว",
     "EditReview": "แก้ไขการรีวิว"
-  }
+  },
+  "EditProfile": "แก้ไขโปรไฟล์",
+  "FirstName": "ชื่อจริง",
+  "LastName": "นามสกุล",
+  "DisplayName": "ชื่อแสดง",
+  "Email": "อีเมล",
+  "SaveChanges": "บันทึก"
 }

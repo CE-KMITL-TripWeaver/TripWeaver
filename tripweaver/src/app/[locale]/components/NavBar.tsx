@@ -169,12 +169,12 @@ export default function NavBar() {
                 className="kanit font-bold text-black py-2 px-4 flex items-center space-x-2 border-2 rounded-xl"
               >
                 {user?.image ? (
-                  <Image
+                  <img
                     src={user.image}
                     alt="User Profile"
                     width={24}
                     height={24}
-                    className="rounded-full"
+                    className="rounded-full w-[24px] h-[24px]"
                   />
                 ) : (
                   <svg
