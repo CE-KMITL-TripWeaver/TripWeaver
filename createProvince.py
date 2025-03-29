@@ -11,22 +11,22 @@ df = pd.read_csv('geocode.csv')
 client = MongoClient(os.getenv('MONGDB_URI'))
 print(os.getenv('MONGDB_URI'))
 db = client['tripweaver']
-table = db['subDistricts']
+table = db['subdistricts']
 
 zip_codes = df['zip_code']
 geo_codes = df['geo_code']
 
-subDistrict_th = df['subDistrict_th']
+subDistrict_ths = df['subDistrict_th']
 
-for geo_codes, zip_code, subDistrict_th in zip(geo_codes, zip_codes, subDistrict_th):
+for geo_code, zip_code, subDistrict_th in zip(geo_codes, zip_codes, subDistrict_ths):
 
-    document = table.find_one({"name": subDistrict_th})
+    document = table.find_one({"name": subDistrict_th, "idRef": geo_code})
 
     if(not document): #not found in db
-        print(f"Added ISO Code: {geo_codes}, District: {subDistrict_th}")
+        print(f"Added ISO Code: {geo_code}, SubDistrict: {subDistrict_th}")
         body = {
             "districtRefID": zip_code,
-            "idRef": geo_codes,
+            "idRef": geo_code,
             "name": subDistrict_th
         }
         table.insert_one(body)

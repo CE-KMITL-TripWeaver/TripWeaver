@@ -1,15 +1,16 @@
 import { NextResponse, NextRequest } from "next/server"
 import { connectMongoDB } from '../../../../lib/mongodb'
-import Province from '../../../../models/province'
+import SubDistricts from '../../../../models/subDistrict'
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, idRef } = await req.json();
+        const { name, idRef,districtRefID } = await req.json();
         
         await connectMongoDB();
-        await Province.create({
+        await SubDistricts.create({
             name,
-            idRef
+            idRef,
+            districtRefID
         });
 
         return NextResponse.json({ message: "Create Data Province"}, {status: 201})
