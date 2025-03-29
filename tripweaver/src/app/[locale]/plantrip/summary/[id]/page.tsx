@@ -143,22 +143,22 @@ export default function Home() {
 
       const formattedPlanData: PlanSummaryInterface[] = planData.plan.plans.map((plan: planInterface, index: number) => ({
         accommodations: {
-          accommodationID: planData.plan.accommodations?.[index]?.accommodationID || "", 
+          accommodationID: planData.plan.accommodations?.[index]?.accommodationID || "",
         },
         plans: {
-          planName: plan.planName || "",  
+          planName: plan.planName || "",
           places: plan.places?.map(place => ({
-            placeID: place.placeID || "", 
-            type: place.type || "",  
-            duration: place.duration || 0, 
+            placeID: place.placeID || "",
+            type: place.type || "",
+            duration: place.duration || 0,
           })) || [],
         },
-    }));
-    
-/*
-      console.log(planData);
-      console.log("--------------")
-      console.log(formattedPlanData);*/
+      }));
+
+      /*
+            console.log(planData);
+            console.log("--------------")
+            console.log(formattedPlanData);*/
 
       setTripLocation(formattedPlanData);
 
@@ -176,7 +176,7 @@ export default function Home() {
             }
             return null;
           });
-    
+
           const locationPromises = formattedPlanData.map(async (plan) => {
             const placePromises = plan.plans.places.map(async (location) => {
               try {
@@ -187,7 +187,7 @@ export default function Home() {
                   return data ? data.attraction : null;
                 } else if (type === "RESTAURANT") {
                   const data = await fetchRestaurantData(placeID);
-                  return data ? data.restaurant : null; 
+                  return data ? data.restaurant : null;
                 }
                 return null;
               } catch (error) {
@@ -195,10 +195,10 @@ export default function Home() {
                 return null;
               }
             });
-          
+
             return await Promise.all(placePromises);
           });
-    
+
           const accommodationResults = await Promise.all(accommodationPromises);
           const locationResults = await Promise.all(locationPromises);
 
@@ -239,8 +239,8 @@ export default function Home() {
       return;
     }
 
-    tripCardDataList.map((trip,index) => {
-      if(trip.location.length == 0 && !trip.accommodation) {
+    tripCardDataList.map((trip, index) => {
+      if (trip.location.length == 0 && !trip.accommodation) {
         return;
       }
 
@@ -250,8 +250,8 @@ export default function Home() {
         ),
         ...(trip.accommodation
           ? [
-              `${trip.accommodation.longitude},${trip.accommodation.latitude}`,
-            ]
+            `${trip.accommodation.longitude},${trip.accommodation.latitude}`,
+          ]
           : []),
       ].join(";");
 
@@ -272,19 +272,19 @@ export default function Home() {
         return;
       } else if (trip.accommodation && trip.location.length === 0) {
         const accommodation = trip.accommodation;
-      
+
         setPolyline((prev) => {
           const newPolyline = [...prev];
           newPolyline[index] = [];
           return newPolyline;
         });
-      
+
         setWaypoints((prev) => {
           const newWaypoints = [...prev];
           newWaypoints[index] = [[accommodation.latitude, accommodation.longitude]];
           return newWaypoints;
         });
-      
+
         return;
       } else if (
         !trip.accommodation &&
@@ -295,16 +295,16 @@ export default function Home() {
           newPolyline[index] = [];
           return newPolyline;
         });
-      
+
         setWaypoints((prev) => {
           const newWaypoints = [...prev];
           newWaypoints[index] = [];
           return newWaypoints;
         });
-      
+
         return;
       }
-  
+
       const url = `${process.env.NEXT_PUBLIC_OSRM_API_URL}/route/v1/driving/${coordinates}`;
       axios
         .get(url)
@@ -325,7 +325,7 @@ export default function Home() {
           const updatedWaypoints = trip.location.map(
             (loc) => [loc.latitude, loc.longitude]
           );
-  
+
           if (trip.accommodation) {
             updatedWaypoints.push([
               trip.accommodation.latitude,
@@ -338,7 +338,7 @@ export default function Home() {
             newWaypoints[index] = updatedWaypoints;
             return newWaypoints;
           });
-  
+
           const planningData = legs.map((leg: any) => ({
             timeTravel: leg.duration,
             rangeBetween: leg.distance,
@@ -404,7 +404,7 @@ export default function Home() {
     }
   };
 
-  const onClickChangeIndex = (index: number|null) => {
+  const onClickChangeIndex = (index: number | null) => {
     setOpenIndex(index);
     setSelectedLocationInfo(null);
   };
@@ -419,19 +419,19 @@ export default function Home() {
 
   const handleClickLike = async () => {
 
-    if(userData?.likePlanList?.includes(planID)) {
-      await updatePlanLike(planID,session?.user?.id!,"DEC");
+    if (userData?.likePlanList?.includes(planID)) {
+      await updatePlanLike(planID, session?.user?.id!, "DEC");
       setIsLikePlan(false);
     } else {
-      await updatePlanLike(planID,session?.user?.id!,"ADD");
+      await updatePlanLike(planID, session?.user?.id!, "ADD");
       setIsLikePlan(true);
     }
     refetchPlanData();
     refetchUserData();
-    
+
   };
 
-  
+
 
 
   const handleClickShare = () => {
@@ -496,13 +496,37 @@ export default function Home() {
   const handleCloseModals = async () => {
 
     setIsModalOpen(false);
-    
+
   };
 
-  const handleClickLocationDetails = (locationID: string,locationType: string) => {
-    if(locationType === "ATTRACTION") {
+  const formatDate = (date: string | Date) => {
+    if (!date) return "-";
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) return "-";
+
+    return parsedDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const calculateEndDate = (startDate: string, dayDuration: number) => {
+    if (!startDate || isNaN(dayDuration)) return "-";
+
+    if (dayDuration === 1) return "";
+
+    const start = new Date(startDate);
+    if (isNaN(start.getTime())) return "-";
+
+    start.setDate(start.getDate() + dayDuration);
+    return formatDate(start);
+  };
+
+  const handleClickLocationDetails = (locationID: string, locationType: string) => {
+    if (locationType === "ATTRACTION") {
       router.push(`/th/attraction_detail/${locationID}`)
-    } else if(locationType === "RESTAURANT") {
+    } else if (locationType === "RESTAURANT") {
       router.push(`/th/restaurant_detail/${locationID}`)
     } else {
       router.push(`/th/accommodation_detail/${locationID}`)
@@ -510,7 +534,7 @@ export default function Home() {
   }
 
   if (isPlanLoading || isUserDataLoading || isAllDataLoading) {
-    return ;
+    return;
   }
 
   if (isPlanError || isUserDataError || isAllDataError || !planID) {
@@ -544,11 +568,16 @@ export default function Home() {
                   </div>
                   <div className="flex flex-row gap-x-5">
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
-                      {planData.plan.dayDuration+1}-Day Trip
+                      {planData.plan.dayDuration + 1}-Day Trip
+
                     </div>
                     <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
                       {planData.plan.travelers}{" "}
                       {planData.plan.travelers > 1 ? "Persons" : "Person"}
+                    </div>
+                    <div className="flex text-white text-sm font-bold bg-[#8D8D8D] bg-opacity-90 px-2 py-1 rounded-2xl">
+                      {formatDate(planData.plan.startDate)}
+                      {planData.plan.dayDuration > 1 && ` - ${calculateEndDate(planData.plan.startDate, planData.plan.dayDuration)}`}
                     </div>
                   </div>
                 </div>
@@ -595,14 +624,14 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col mt-10 w-full gap-y-5">
-              {
-                tripLocation.map((data,index) => (
-                  <div className="flex w-full h-full" key={index} >
-                     <TripCard dayIndex={index+1} handleClickLocationDetails={handleClickLocationDetails} plans={data} onClickLocationInfo={onClickSelectLocation}  openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]}/>
-                  </div> 
-                ))
-              }
-            
+            {
+              tripLocation.map((data, index) => (
+                <div className="flex w-full h-full" key={index} >
+                  <TripCard dayIndex={index + 1} handleClickLocationDetails={handleClickLocationDetails} plans={data} onClickLocationInfo={onClickSelectLocation} openIndex={openIndex} setOpenIndex={onClickChangeIndex} tripData={tripCardDataList[index]} dataTravel={planningInformationDataList[index]} />
+                </div>
+              ))
+            }
+
           </div>
         </PerfectScrollbar>
 
@@ -642,8 +671,8 @@ export default function Home() {
                   const isLastWaypointWithAccommodation =
                     idx === waypoints[openIndex].length - 1 &&
                     tripCardDataList[openIndex].accommodation !== null;
-                  
-                  
+
+
                   return (
                     <Marker
                       key={idx}
@@ -657,7 +686,7 @@ export default function Home() {
                       <Popup>
                         {isLastWaypointWithAccommodation
                           ? `${tripCardDataList[openIndex].accommodation?.name}`
-                          : `${ tripCardDataList[openIndex].location[idx]?.name}`}
+                          : `${tripCardDataList[openIndex].location[idx]?.name}`}
                       </Popup>
                     </Marker>
                   );
@@ -671,11 +700,11 @@ export default function Home() {
                   )
                 }
               </MapContainer>
-              }
+            }
           </div>
         </div>
       </div>
-      <CopyTripModal isOpen={isModalOpen} onClose={handleCloseModals} tripLocation={tripLocation} userID={session?.user?.id}/>
+      <CopyTripModal isOpen={isModalOpen} onClose={handleCloseModals} tripLocation={tripLocation} userID={session?.user?.id} />
     </div>
   );
 }
