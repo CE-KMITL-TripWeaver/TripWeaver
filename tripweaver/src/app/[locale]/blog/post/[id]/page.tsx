@@ -119,7 +119,7 @@ export default function BlogPost() {
   }, [blogData, userData]);
 
   if (!blogData || !userData) {
-    return <div>Loading...</div>;
+    return ;
   }
 
   return (
