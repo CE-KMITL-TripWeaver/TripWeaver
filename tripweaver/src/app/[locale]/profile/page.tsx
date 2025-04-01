@@ -756,7 +756,7 @@ const PlacesContent = () => {
           onClose={() => setShowModal(false)}
           placeType={selectedPlaceType}
           userId={session?.user?.id!}
-          requestType="create"
+          requestType="add"
           onSuccess={() => { }}
           t={t}
         />

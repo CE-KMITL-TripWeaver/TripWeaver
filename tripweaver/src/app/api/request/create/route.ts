@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(newRequest, { status: 201 });
     } catch (error) {
         return NextResponse.json(
-            { error: "Failed to create a new request" },
+            { error: (error) },
             { status: 500 }
         );
     }
