@@ -618,5 +618,11 @@
   "LastName": "นามสกุล",
   "DisplayName": "ชื่อแสดง",
   "Email": "อีเมล",
-  "SaveChanges": "บันทึก"
+  "SaveChanges": "บันทึก",
+  "SelectProvince": "เลือกจังหวัด",
+  "SelectDistrict": "เลือกอำเภอ/เขต",
+  "SelectSubDistrict": "เลือกตำบล/แขวง",
+  "ImageURL": "URL ของรูปภาพ",
+  "ImagePreview": "ตัวอย่างรูปภาพ",
+  "Day": "วัน"
 }
