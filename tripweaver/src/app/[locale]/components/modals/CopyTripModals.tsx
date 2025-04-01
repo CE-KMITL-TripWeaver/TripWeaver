@@ -51,7 +51,7 @@ const CopyTripModal: React.FC<CopyTripModalsProps> = ({ isOpen, onClose, tripLoc
         tripName: tripName,
         travelers: travelers,
         startDate: dateRange[0].startDate,
-        dayDuration: timeDifference,
+        dayDuration: Math.floor(timeDifference),
         accommodations: Array.from({ length: timeDifference }, (_, i) => ({
           accommodationID: tripLocation[i]?.accommodations?.accommodationID || "",
         })),
