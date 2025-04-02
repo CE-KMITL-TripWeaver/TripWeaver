@@ -103,7 +103,7 @@ export default function Home() {
       const responseData = response.data; 
 
       if (response.status === 201) {
-        router.push(`/th/plantrip?planID=${responseData.planID}`);
+        await router.push(`/th/plantrip?planID=${responseData.planID}`);
       }
       
     } catch (error) {
